@@ -50,31 +50,56 @@
   .mini{border:var(--line) solid var(--ink);background:var(--paper);padding:7px 7px;font-size:8.5px;font-weight:700}
   .mini:hover{background:var(--ink);color:var(--paper)}
   .objects{border:var(--line) solid var(--ink);margin-top:8px;max-height:230px;overflow:auto}
-  .obj{display:grid;grid-template-columns:24px 1fr 28px;align-items:center;border-bottom:1px solid var(--ink);min-height:36px}
+  .obj{display:grid;grid-template-columns:24px 1fr 28px 28px;align-items:center;border-bottom:1px solid var(--ink);min-height:36px}
+  .obj.locked{opacity:.72;background:repeating-linear-gradient(135deg,transparent 0 7px,color-mix(in srgb,var(--ink) 5%,transparent) 7px 8px)}
   .obj:last-child{border-bottom:0}
   .obj.sel{background:color-mix(in srgb,var(--accent) 12%,var(--paper))}
   .obj input{margin:auto}
   .obj-main{min-width:0;padding:5px 5px;cursor:pointer}
   .obj-name{font-size:9px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .obj-type{font-size:8px;opacity:.55;text-transform:uppercase}
-  .eye{height:100%;border:0;border-left:1px solid var(--ink);background:transparent;font-size:11px}
+  .obj-path{text-transform:none;opacity:.78}
+  .eye,.lock{height:100%;border:0;border-left:1px solid var(--ink);background:transparent;font-size:11px;padding:0;display:grid;place-items:center;cursor:pointer}
   .eye.off{opacity:.35}
+  .lock svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+  .lock.on{background:var(--ink);color:var(--paper)}
+  .obj.locked .obj-main{cursor:pointer}
+  .obj.locked input[type="checkbox"]{cursor:pointer}
 
   .center{position:relative}
   .canvas-toolbar{height:40px;flex:0 0 40px;border-bottom:var(--line) solid var(--ink);display:flex;align-items:center;gap:6px;padding:6px 8px}
   .toolbtn{border:var(--line) solid var(--ink);background:var(--paper);height:27px;padding:0 8px;font-size:9px;font-weight:700}
   .toolbtn.active,.toolbtn:hover{background:var(--ink);color:var(--paper)}
   .zoom-label{min-width:48px;text-align:center;font-weight:700;font-size:9px}
+  .view-tools{display:flex;align-items:center;gap:5px}
+  .view-hint{margin-left:auto;font-size:8px;opacity:.52;white-space:nowrap}
+  .editor-tool-dock{position:absolute;left:14px;top:14px;z-index:40;display:flex;align-items:center;gap:4px;padding:5px;background:var(--paper);border:var(--line) solid var(--ink);box-shadow:4px 4px 0 color-mix(in srgb,var(--ink) 18%,transparent)}
+  .editor-tool-dock .sep{width:1px;height:22px;background:var(--ink);opacity:.25;margin:0 2px}
+  .iconbtn{width:30px;height:30px;padding:0;border:1px solid transparent;background:transparent;color:var(--ink);display:grid;place-items:center;cursor:pointer;position:relative}
+  .iconbtn svg{width:16px;height:16px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+  .iconbtn:hover{border-color:var(--ink);background:color-mix(in srgb,var(--ink) 6%,var(--paper))}
+  .iconbtn.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .iconbtn:disabled{opacity:.28;cursor:not-allowed;background:transparent;color:var(--ink);border-color:transparent}
+  .iconbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .iconbtn.danger:hover{background:var(--accent);color:#fff;border-color:var(--ink)}
+  @media(max-width:760px){.editor-tool-dock{left:10px;top:10px}.view-hint{display:none}}
   .canvas-wrap{position:relative;flex:1;min-height:0;overflow:hidden;background:linear-gradient(45deg,var(--grid) 25%,transparent 25%),linear-gradient(-45deg,var(--grid) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,var(--grid) 75%),linear-gradient(-45deg,transparent 75%,var(--grid) 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0}
-  #stageViewport{position:absolute;inset:0;overflow:hidden;cursor:grab}
+  #stageViewport{position:absolute;inset:0;overflow:hidden;cursor:default}
+  #stageViewport[data-tool="select"]{cursor:default}
+  #stageViewport[data-tool="pan"]{cursor:grab}
   #stageViewport.dragging{cursor:grabbing}
+  #selectMarquee{position:absolute;display:none;z-index:30;border:1.5px solid var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent);pointer-events:none}
+  #selectMarquee.show{display:block}
   #stageTransform{position:absolute;left:50%;top:50%;transform-origin:center center;will-change:transform;display:grid;place-items:center}
   #svgStage{background:transparent;box-shadow:0 10px 30px rgba(0,0,0,.16);line-height:0;position:relative}
   #svgStage svg{display:block;max-width:none;max-height:none}
-  #svgStage [data-editor-selected="1"]{filter:drop-shadow(0 0 2px var(--accent));outline:none}
-  #svgStage [data-color-highlight="1"]{filter:drop-shadow(0 0 1px #fff) drop-shadow(0 0 5px var(--accent)) drop-shadow(0 0 9px var(--accent));animation:colorHighlightPulse .7s ease-in-out infinite alternate}
-  #svgStage[data-color-highlight-label]::after{content:"HIGHLIGHT  " attr(data-color-highlight-label);position:absolute;left:10px;top:10px;z-index:20;padding:6px 8px;border:2px solid var(--ink);background:var(--accent);color:#fff;font:700 8px 'Space Mono',monospace;line-height:1;letter-spacing:.04em;box-shadow:3px 3px 0 var(--ink);pointer-events:none}
-  @keyframes colorHighlightPulse{from{filter:drop-shadow(0 0 1px #fff) drop-shadow(0 0 3px var(--accent))}to{filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 7px var(--accent)) drop-shadow(0 0 11px var(--accent))}}
+  #stageViewport[data-tool="select"] #svgStage [data-editor-hit="1"]{cursor:move}
+  #stageViewport[data-tool="select"] #svgStage [data-vfs-locked="1"]{pointer-events:none;cursor:default}
+  #svgStage [data-editor-selected="1"]{filter:drop-shadow(.9px 0 0 var(--accent)) drop-shadow(-.9px 0 0 var(--accent)) drop-shadow(0 .9px 0 var(--accent)) drop-shadow(0 -.9px 0 var(--accent));outline:none}
+  #svgStage [data-editor-focus="1"]{filter:drop-shadow(1.5px 0 0 var(--accent)) drop-shadow(-1.5px 0 0 var(--accent)) drop-shadow(0 1.5px 0 var(--accent)) drop-shadow(0 -1.5px 0 var(--accent))}
+  #svgStage [data-color-highlight="1"]{filter:drop-shadow(1.25px 0 0 var(--accent)) drop-shadow(-1.25px 0 0 var(--accent)) drop-shadow(0 1.25px 0 var(--accent)) drop-shadow(0 -1.25px 0 var(--accent));animation:colorOutlinePulse .72s ease-in-out infinite alternate}
+  #svgStage[data-color-highlight-label]::after{content:"HIGHLIGHT  " attr(data-color-highlight-label);position:absolute;left:10px;top:10px;z-index:20;padding:6px 8px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);font:700 8px 'Space Mono',monospace;line-height:1;letter-spacing:.04em;box-shadow:3px 3px 0 var(--accent);pointer-events:none}
+  @keyframes colorOutlinePulse{from{filter:drop-shadow(.9px 0 0 var(--accent)) drop-shadow(-.9px 0 0 var(--accent)) drop-shadow(0 .9px 0 var(--accent)) drop-shadow(0 -.9px 0 var(--accent))}to{filter:drop-shadow(1.8px 0 0 var(--accent)) drop-shadow(-1.8px 0 0 var(--accent)) drop-shadow(0 1.8px 0 var(--accent)) drop-shadow(0 -1.8px 0 var(--accent))}}
   .empty{position:absolute;inset:0;display:grid;place-items:center;padding:30px;text-align:center;font-size:11px;opacity:.56;line-height:1.7}
   .loading{position:absolute;left:18px;right:18px;top:16px;background:var(--paper);border:var(--line) solid var(--ink);z-index:10;display:none}
   .loading.show{display:block}
@@ -88,6 +113,13 @@
   .group{border-bottom:var(--line) solid var(--ink);padding-bottom:12px;margin-bottom:12px}
   .group:last-child{border-bottom:0;margin-bottom:0}
   .gtitle{display:flex;justify-content:space-between;align-items:center;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+  .group.collapsible .gtitle{cursor:pointer;user-select:none}
+  .group.collapsible .gtitle:hover{opacity:.78}
+  .collapse-btn{width:24px;height:22px;display:grid;place-items:center;border:1px solid var(--ink);background:var(--paper);padding:0;margin-left:8px;flex:0 0 auto}
+  .collapse-btn svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .12s ease}
+  .group.collapsed .collapse-btn svg{transform:rotate(-90deg)}
+  .group.collapsed .group-content{display:none}
+  .group.collapsed .gtitle{margin-bottom:0}
   .hint{font-size:8.5px;opacity:.58;line-height:1.5;margin:6px 0 0}
   .seg{display:flex;border:var(--line) solid var(--ink)}
   .seg button{flex:1;border:0;border-right:1px solid var(--ink);background:var(--paper);padding:7px 5px;font-size:8.5px;font-weight:700}.seg button:last-child{border-right:0}.seg button.active{background:var(--ink);color:var(--paper)}
@@ -104,6 +136,16 @@
   .color-pop.show{display:block}.color-pop input{width:132px;height:34px;border:0;background:transparent;padding:0}
 
   .export-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .object-edit-box{margin-top:9px;border:var(--line) solid var(--ink);padding:8px;display:grid;gap:7px}
+  .object-edit-line{display:grid;grid-template-columns:64px 1fr auto;gap:6px;align-items:center}
+  .object-edit-line label{font-size:8px;text-transform:uppercase;letter-spacing:.04em;opacity:.7}
+  .object-edit-line input[type="text"]{min-width:0;width:100%;border:var(--line) solid var(--ink);background:var(--paper);padding:6px;font-size:8.5px}
+  .object-edit-line input[type="color"]{width:42px;height:28px;border:var(--line) solid var(--ink);background:var(--paper);padding:2px}
+  .object-edit-line input[type="range"]{min-width:0;width:100%}
+  .object-edit-line select{min-width:0;width:100%;border:var(--line) solid var(--ink);background:var(--paper);padding:6px;font-size:8.5px}
+  .object-edit-line .value{font-size:8px;min-width:33px;text-align:right;font-weight:700}
+  .selection-help{margin-top:8px;padding:7px;border:1px dashed var(--ink);font-size:8px;line-height:1.5;opacity:.7}
+  button:disabled{opacity:.38;cursor:not-allowed}
   .exportbtn{border:var(--line) solid var(--ink);background:var(--ink);color:var(--paper);padding:9px 6px;font-family:'Archivo Black',sans-serif;font-size:9px}
   .exportbtn.accent{background:var(--accent);color:white}
   .exportbtn:disabled{opacity:.4;cursor:not-allowed}
@@ -154,16 +196,43 @@
     <section class="panel center">
       <div class="panel-head"><span>Output / Editor</span><span class="muted" id="docState">No document</span></div>
       <div class="canvas-toolbar">
-        <button class="toolbtn" id="zoomOut">−</button>
-        <div class="zoom-label" id="zoomLabel">100%</div>
-        <button class="toolbtn" id="zoomIn">+</button>
-        <button class="toolbtn" id="fitBtn">FIT</button>
-        <button class="toolbtn" id="resetViewBtn">CENTER</button>
-        <span style="margin-left:auto;font-size:8px;opacity:.55">Drag canvas untuk pan · scroll untuk zoom</span>
+        <div class="view-tools" aria-label="View controls">
+          <button class="toolbtn" id="zoomOut" title="Zoom out" aria-label="Zoom out">−</button>
+          <div class="zoom-label" id="zoomLabel">100%</div>
+          <button class="toolbtn" id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button>
+          <button class="toolbtn" id="fitBtn" title="Fit artwork to view">FIT</button>
+          <button class="toolbtn" id="resetViewBtn" title="Center artwork">CENTER</button>
+        </div>
+        <span class="view-hint">Scroll = zoom · Space = temporary pan</span>
       </div>
       <div class="canvas-wrap">
+        <div class="editor-tool-dock" role="toolbar" aria-label="Editor tools">
+          <button class="iconbtn" id="undoBtn" type="button" title="Undo (Ctrl/Cmd + Z)" aria-label="Undo" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7 5 11l4 4"/><path d="M6 11h7a6 6 0 0 1 6 6"/></svg>
+          </button>
+          <button class="iconbtn" id="redoBtn" type="button" title="Redo (Ctrl/Cmd + Shift + Z / Ctrl + Y)" aria-label="Redo" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 7 4 4-4 4"/><path d="M18 11h-7a6 6 0 0 0-6 6"/></svg>
+          </button>
+          <span class="sep" aria-hidden="true"></span>
+          <button class="iconbtn active" id="selectToolBtn" type="button" title="Select tool (V)" aria-label="Select tool" aria-pressed="true">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 3 12 8-6 2-2 6Z"/></svg>
+          </button>
+          <button class="iconbtn" id="panToolBtn" type="button" title="Pan tool (H)" aria-label="Pan tool" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 11V7a1.5 1.5 0 0 1 3 0v3"/><path d="M11 10V5.5a1.5 1.5 0 0 1 3 0V10"/><path d="M14 10V7a1.5 1.5 0 0 1 3 0v5"/><path d="M8 10.5V9a1.5 1.5 0 0 0-3 0v5c0 4 3 7 7 7h1c4 0 6-3 6-7v-3a1.5 1.5 0 0 0-3 0"/></svg>
+          </button>
+          <span class="sep" aria-hidden="true"></span>
+          <button class="iconbtn" id="groupSelectedBtn" type="button" title="Group selected (Ctrl/Cmd + G)" aria-label="Group selected" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="6" width="9" height="9" rx="1"/><rect x="10.5" y="9" width="9" height="9" rx="1"/></svg>
+          </button>
+          <button class="iconbtn" id="ungroupSelectedBtn" type="button" title="Ungroup selected (Ctrl/Cmd + Shift + G)" aria-label="Ungroup selected" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="7" width="6.5" height="10" rx="1"/><rect x="13.5" y="7" width="6.5" height="10" rx="1"/><path d="M11.5 12h1"/></svg>
+          </button>
+          <button class="iconbtn danger" id="deleteSelectedBtn" type="button" title="Delete selected (Delete / Backspace)" aria-label="Delete selected" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="m7 7 1 13h8l1-13"/><path d="M10 11v5M14 11v5"/></svg>
+          </button>
+        </div>
         <div class="loading" id="loading"><div class="load-head"><span id="loadText">IMPORTING</span><span id="loadPct">0%</span></div><div class="track"><div class="fill" id="loadFill"></div></div></div>
-        <div id="stageViewport"><div id="stageTransform"><div id="svgStage"></div></div></div>
+        <div id="stageViewport" data-tool="select"><div id="stageTransform"><div id="svgStage"></div></div><div id="selectMarquee"></div></div>
         <div class="empty" id="emptyState">Unggah file AI, EPS, PDF, atau SVG.<br>Setelah diimpor, Anda bisa memilih object, mengubah warna, memecah desain, lalu ekspor SVG atau PNG.</div>
       </div>
       <div class="statusbar">
@@ -178,23 +247,28 @@
     <aside class="panel">
       <div class="panel-head"><span>Parameters</span><span class="muted">Edit / Export</span></div>
       <div class="right-body">
-        <div class="group">
-          <div class="gtitle"><span>Import</span><span id="importModeLabel">AUTO</span></div>
-          <div class="row"><label>Text</label><select id="textMode"><option value="editable">Editable</option><option value="outline">Outline</option></select></div>
-          <div class="row"><label>Hidden layers</label><select id="hiddenMode"><option value="import-hidden">Import hidden</option><option value="skip">Skip hidden</option></select></div>
-          <div class="row"><label>Artboards</label><select id="artboardMode"><option value="all">All</option><option value="1">First only</option></select></div>
-          <p class="hint">AI paling stabil bila disimpan dengan <b>Create PDF Compatible File</b>. SVG dibuka langsung tanpa konversi.</p>
+        <div class="group collapsible" id="importGroup">
+          <div class="gtitle" id="importGroupHead" role="button" tabindex="0" aria-expanded="true" aria-controls="importGroupContent"><span>Import</span><span style="display:flex;align-items:center;gap:7px"><span id="importModeLabel">AUTO</span><button class="collapse-btn" id="importToggleBtn" type="button" title="Minimize import" aria-label="Minimize import"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 10 4-4 4 4"/></svg></button></span></div>
+          <div class="group-content" id="importGroupContent">
+            <div class="row"><label>Text</label><select id="textMode"><option value="editable">Editable</option><option value="outline">Outline</option></select></div>
+            <div class="row"><label>Hidden layers</label><select id="hiddenMode"><option value="import-hidden">Import hidden</option><option value="skip">Skip hidden</option></select></div>
+            <div class="row"><label>Artboards</label><select id="artboardMode"><option value="all">All</option><option value="1">First only</option></select></div>
+            <p class="hint">AI paling stabil bila disimpan dengan <b>Create PDF Compatible File</b>. SVG dibuka langsung tanpa konversi.</p>
+          </div>
         </div>
 
         <div class="group">
           <div class="gtitle"><span>Object editing</span><span id="selectionLabel">0 selected</span></div>
-          <div class="export-grid">
-            <button class="mini" id="hideSelectedBtn">HIDE</button>
-            <button class="mini" id="showAllBtn">SHOW ALL</button>
-            <button class="mini" id="deleteSelectedBtn">DELETE</button>
-            <button class="mini" id="undoBtn">UNDO</button>
+          <div class="object-edit-box">
+            <div class="object-edit-line"><label>Name</label><input type="text" id="objName" placeholder="Selected object" disabled><button class="mini" id="objRenameBtn" disabled>SET</button></div>
+            <div class="object-edit-line"><label>Fill</label><input type="color" id="objFill" value="#000000" disabled><button class="mini" id="objFillBtn" disabled>APPLY</button></div>
+            <div class="object-edit-line"><label>Stroke</label><input type="color" id="objStroke" value="#000000" disabled><button class="mini" id="objStrokeBtn" disabled>APPLY</button></div>
+            <div class="object-edit-line"><label>Stroke width</label><input type="range" id="objStrokeWidth" min="0" max="50" value="1" step="0.25" disabled><span class="value" id="objStrokeWidthVal">1 px</span></div>
+            <div class="object-edit-line"><label>Stroke style</label><select id="objStrokeStyle" disabled><option value="solid">Solid</option><option value="dashed">Dashed</option><option value="dotted">Dotted</option><option value="dashdot">Dash-dot</option></select><span class="value"></span></div>
+            <div class="object-edit-line"><label>Opacity</label><input type="range" id="objOpacity" min="0" max="100" value="100" disabled><span class="value" id="objOpacityVal">100%</span></div>
+            <div class="export-grid"><button class="mini" id="objNoFillBtn" disabled>NO FILL</button><button class="mini" id="objNoStrokeBtn" disabled>NO STROKE</button></div>
           </div>
-          <p class="hint">Klik item di panel kiri untuk menyorot object. Checkbox menentukan object yang akan diekspor sebagai file terpisah.</p>
+          <div class="selection-help">SELECT: klik object untuk memilih, Shift/Ctrl/Cmd + klik untuk multi-select, atau drag area kosong untuk marquee select. PAN memindahkan canvas. Object yang di-lock tetap terlihat tetapi tidak menangkap klik: SELECT akan menembusnya ke object di bawah, seperti object yang di-hide. Unlock dari Layers untuk mengedit atau memindahkannya. Object hasil GROUP diperlakukan sebagai satu unit saat dipilih dan di-drag.</div>
         </div>
 
         <div class="group">
@@ -238,13 +312,17 @@
     objectList:$('objectList'), objectCount:$('objectCount'), selectionLabel:$('selectionLabel'), svgStage:$('svgStage'), stageViewport:$('stageViewport'), stageTransform:$('stageTransform'), emptyState:$('emptyState'),
     loading:$('loading'), loadText:$('loadText'), loadPct:$('loadPct'), loadFill:$('loadFill'), footerStatus:$('footerStatus'), statObjects:$('statObjects'), statColors:$('statColors'), statArtboards:$('statArtboards'), statSize:$('statSize'), statStatus:$('statStatus'), docState:$('docState'),
     palette:$('palette'), compatNotice:$('compatNotice'), textMode:$('textMode'), hiddenMode:$('hiddenMode'), artboardMode:$('artboardMode'), pngScale:$('pngScale'), pngBg:$('pngBg'), splitFormat:$('splitFormat'), splitBounds:$('splitBounds'), zoomLabel:$('zoomLabel'), enginePill:$('enginePill'), importModeLabel:$('importModeLabel'),
-    svgBtn:$('svgBtn'), pngBtn:$('pngBtn'), selectedSvgBtn:$('selectedSvgBtn'), splitZipBtn:$('splitZipBtn'), colorPop:$('colorPop'), colorPicker:$('colorPicker')
+    svgBtn:$('svgBtn'), pngBtn:$('pngBtn'), selectedSvgBtn:$('selectedSvgBtn'), splitZipBtn:$('splitZipBtn'), colorPop:$('colorPop'), colorPicker:$('colorPicker'),
+    groupSelectedBtn:$('groupSelectedBtn'), ungroupSelectedBtn:$('ungroupSelectedBtn'), deleteSelectedBtn:$('deleteSelectedBtn'),
+    selectToolBtn:$('selectToolBtn'), panToolBtn:$('panToolBtn'), undoBtn:$('undoBtn'), redoBtn:$('redoBtn'), selectMarquee:$('selectMarquee'),
+    objName:$('objName'), objRenameBtn:$('objRenameBtn'), objFill:$('objFill'), objFillBtn:$('objFillBtn'), objStroke:$('objStroke'), objStrokeBtn:$('objStrokeBtn'), objStrokeWidth:$('objStrokeWidth'), objStrokeWidthVal:$('objStrokeWidthVal'), objStrokeStyle:$('objStrokeStyle'), objOpacity:$('objOpacity'), objOpacityVal:$('objOpacityVal'), objNoFillBtn:$('objNoFillBtn'), objNoStrokeBtn:$('objNoStrokeBtn'),
+    importGroup:$('importGroup'), importGroupHead:$('importGroupHead'), importToggleBtn:$('importToggleBtn')
   };
 
   const state = {
     file:null, fileBase:'design', svg:'', originalSvg:'', originalImportedSvg:'', objects:[], selected:new Set(), focused:null,
-    zoom:1, panX:0, panY:0, naturalW:800, naturalH:600, undo:[], importInfo:null, dragColor:null, dragPreviewTarget:null, colorEdit:null,
-    importer:null, pdfRuntime:null
+    zoom:1, panX:0, panY:0, naturalW:800, naturalH:600, undo:[], redo:[], importInfo:null, dragColor:null, dragPreviewTarget:null, colorEdit:null,
+    importer:null, pdfRuntime:null, tool:'select', spacePan:false
   };
 
   const allowed = ['ai','eps','pdf','svg'];
@@ -274,11 +352,50 @@
     const style=el.getAttribute('style')||''; const m=style.match(new RegExp('(?:^|;)\\s*'+prop+'\\s*:\\s*([^;]+)','i')); return m?normalizeColor(m[1]):null;
   }
   function setStyleColor(el,prop,newVal){
-    if(el.hasAttribute(prop)) el.setAttribute(prop,newVal);
+    el.setAttribute(prop,newVal);
     const style=el.getAttribute('style');
     if(style && new RegExp('(?:^|;)\\s*'+prop+'\\s*:','i').test(style)){
       el.setAttribute('style',style.replace(new RegExp('('+prop+'\\s*:\\s*)([^;]+)','ig'),'$1'+newVal));
     }
+  }
+
+  function readStyleValue(el,prop){
+    let node=el;
+    while(node&&node.nodeType===1){
+      const direct=node.getAttribute(prop);
+      if(direct!=null&&String(direct).trim()!=='')return String(direct).trim();
+      const style=node.getAttribute('style')||'';
+      const m=style.match(new RegExp('(?:^|;)\\s*'+prop+'\\s*:\\s*([^;]+)','i'));
+      if(m)return m[1].trim();
+      if(node.tagName?.toLowerCase()==='svg')break;
+      node=node.parentElement;
+    }
+    return null;
+  }
+  function setStyleValue(el,prop,newVal){
+    el.setAttribute(prop,String(newVal));
+    const style=el.getAttribute('style');
+    if(style&&new RegExp('(?:^|;)\\s*'+prop+'\\s*:','i').test(style)){
+      el.setAttribute('style',style.replace(new RegExp('('+prop+'\\s*:\\s*)([^;]+)','ig'),'$1'+newVal));
+    }
+  }
+  function strokeWidthOf(el){
+    const raw=parseFloat(readStyleValue(el,'stroke-width'));
+    return Number.isFinite(raw)?Math.max(0,raw):1;
+  }
+  function strokeStyleOf(el){
+    const explicit=el?.getAttribute('data-vfs-stroke-style');
+    if(explicit)return explicit;
+    const dash=(readStyleValue(el,'stroke-dasharray')||'').trim().toLowerCase();
+    return (!dash||dash==='none')?'solid':'dashed';
+  }
+  function applyStrokePattern(el,style,width){
+    const w=Math.max(.01,Number(width)||1);
+    el.setAttribute('data-vfs-stroke-style',style);
+    if(style==='solid'){setStyleValue(el,'stroke-dasharray','none');setStyleValue(el,'stroke-linecap','butt');return}
+    if(style==='dashed'){setStyleValue(el,'stroke-dasharray',(w*4)+' '+(w*2));setStyleValue(el,'stroke-linecap','butt');return}
+    if(style==='dotted'){setStyleValue(el,'stroke-dasharray',(w*.2)+' '+(w*2));setStyleValue(el,'stroke-linecap','round');return}
+    setStyleValue(el,'stroke-dasharray',(w*4)+' '+(w*1.8)+' '+(w*.2)+' '+(w*1.8));setStyleValue(el,'stroke-linecap','round');
   }
 
   function currentPalette(){
@@ -290,8 +407,30 @@
     return [...map.entries()].sort((a,b)=>b[1]-a[1]).map(([hex,count])=>({hex,count}));
   }
 
-  function pushUndo(){state.undo.push(state.svg);if(state.undo.length>25)state.undo.shift()}
-  function undo(){if(!state.undo.length)return;state.svg=state.undo.pop();commitRender(false);setStatus('UNDO','ok')}
+  function updateHistoryUI(){
+    if(els.undoBtn)els.undoBtn.disabled=!state.undo.length;
+    if(els.redoBtn)els.redoBtn.disabled=!state.redo.length;
+  }
+  function pushUndo(){
+    state.undo.push(state.svg);
+    if(state.undo.length>25)state.undo.shift();
+    state.redo.length=0;
+    updateHistoryUI();
+  }
+  function undo(){
+    if(!state.undo.length)return;
+    state.redo.push(state.svg);
+    if(state.redo.length>25)state.redo.shift();
+    state.svg=state.undo.pop();
+    commitRender(false);updateHistoryUI();setStatus('UNDO','ok');
+  }
+  function redo(){
+    if(!state.redo.length)return;
+    state.undo.push(state.svg);
+    if(state.undo.length>25)state.undo.shift();
+    state.svg=state.redo.pop();
+    commitRender(false);updateHistoryUI();setStatus('REDO','ok');
+  }
 
   function sanitizeImportedSvg(svg){
     const doc=parseSvg(svg), root=doc.documentElement;
@@ -307,48 +446,206 @@
   }
 
   function editorCleanSvg(svg){
-    const doc=parseSvg(svg);doc.querySelectorAll('[data-editor-selected]').forEach(el=>el.removeAttribute('data-editor-selected'));return serializeDoc(doc);
+    const doc=parseSvg(svg);
+    doc.querySelectorAll('[data-editor-selected],[data-editor-focus],[data-editor-hit],[data-color-highlight]').forEach(el=>{el.removeAttribute('data-editor-selected');el.removeAttribute('data-editor-focus');el.removeAttribute('data-editor-hit');el.removeAttribute('data-color-highlight')});
+    return serializeDoc(doc);
+  }
+
+  function exportCleanSvg(svg){
+    const doc=parseSvg(editorCleanSvg(svg));
+    doc.querySelectorAll('[data-vfs-locked]').forEach(el=>el.removeAttribute('data-vfs-locked'));
+    doc.querySelectorAll('[data-vfs-stroke-style]').forEach(el=>el.removeAttribute('data-vfs-stroke-style'));
+    return serializeDoc(doc);
   }
 
   function buildObjects(){
     if(!state.svg){state.objects=[];return}
     const doc=parseSvg(state.svg), root=doc.documentElement;
-    let candidates=[...root.children].filter(el=>!['defs','metadata','title','desc','style'].includes(el.tagName.toLowerCase()));
-    // If document is wrapped in a single generic group, expose its children instead.
-    if(candidates.length===1 && candidates[0].tagName.toLowerCase()==='g'){
-      const inner=[...candidates[0].children].filter(el=>!['defs','metadata','title','desc','style'].includes(el.tagName.toLowerCase()));
-      if(inner.length>1)candidates=inner;
-    }
-    state.objects=candidates.map((el,i)=>({id:el.id||('vfs-top-'+i),name:el.getAttribute('data-name')||el.getAttribute('inkscape:label')||el.getAttribute('aria-label')||el.id||('Object '+(i+1)),type:el.tagName.toLowerCase(),visible:el.getAttribute('display')!=='none'&&!(el.getAttribute('style')||'').match(/display\s*:\s*none/i)}));
-    const valid=new Set(state.objects.map(o=>o.id));state.selected=new Set([...state.selected].filter(id=>valid.has(id)));if(!state.selected.size)state.objects.forEach(o=>state.selected.add(o.id));
+    const drawable=new Set(['path','rect','circle','ellipse','polygon','polyline','line','text','image','use']);
+    const containers=new Set(['g','svg','a','switch']);
+    const skip=new Set(['defs','metadata','title','desc','style','script','clippath','mask','pattern','marker','lineargradient','radialgradient','filter','symbol']);
+    const items=[];
+    let autoIndex=0;
+
+    const labelOf=el=>el.getAttribute('data-name')||el.getAttribute('inkscape:label')||el.getAttribute('aria-label')||el.getAttribute('name')||'';
+    const nearestEditorGroup=el=>{let n=el?.parentElement;while(n&&n!==root){if(n.tagName?.toLowerCase()==='g'&&n.getAttribute('data-vfs-user-group')==='1')return n;n=n.parentElement}return null};
+    const effectivelyVisible=el=>{
+      let n=el;
+      while(n&&n!==root){
+        const st=n.getAttribute?.('style')||'';
+        if(n.getAttribute?.('display')==='none'||n.getAttribute?.('visibility')==='hidden'||/display\s*:\\s*none/i.test(st)||/visibility\s*:\\s*hidden/i.test(st))return false;
+        n=n.parentElement;
+      }
+      return true;
+    };
+    const walk=(parent,groups=[],depth=0)=>{
+      [...parent.children].forEach(el=>{
+        const tag=el.tagName.toLowerCase();
+        if(skip.has(tag))return;
+        if(containers.has(tag)){
+          const own=labelOf(el);
+          const nextGroups=own?[...groups,own]:groups;
+          walk(el,nextGroups,depth+(tag==='g'?1:0));
+          return;
+        }
+        if(!drawable.has(tag))return;
+        if(!el.id)el.id='vfs-object-'+(++autoIndex);
+        const own=labelOf(el);
+        const fallback=tag.charAt(0).toUpperCase()+tag.slice(1)+' '+String(items.length+1).padStart(2,'0');
+        const leafName=own||fallback;
+        items.push({
+          id:el.id,
+          name:leafName,
+          type:tag,
+          visible:effectivelyVisible(el),
+          locked:el.getAttribute('data-vfs-locked')==='1',
+          depth:groups.length,
+          groupPath:groups.join(' › '),
+          editorGroupId:nearestEditorGroup(el)?.id||null,
+          displayName:groups.length ? groups.join(' › ')+' › '+leafName : leafName
+        });
+      });
+    };
+    walk(root);
+    state.objects=items;
+    // sanitizeImportedSvg normally assigns ids already, but persist any ids created here as well.
+    state.svg=serializeDoc(doc);
+    const valid=new Set(state.objects.map(o=>o.id));
+    state.selected=new Set([...state.selected].filter(id=>valid.has(id)));
+    if(state.focused && !valid.has(state.focused)) state.focused=null;
   }
 
   function renderObjects(){
-    els.objectCount.textContent=state.objects.length+' item';els.statObjects.textContent=state.objects.length;els.selectionLabel.textContent=state.selected.size+' selected';
-    if(!state.objects.length){els.objectList.innerHTML='<div class="source-placeholder">Tidak ada top-level object yang dapat dipisah.</div>';return}
+    const lockedCount=state.objects.filter(o=>o.locked).length;els.objectCount.textContent=state.objects.length+' item'+(lockedCount?' · '+lockedCount+' locked':'');els.statObjects.textContent=state.objects.length;els.selectionLabel.textContent=state.selected.size+' selected';
+    if(!state.objects.length){els.objectList.innerHTML='<div class="source-placeholder">Tidak ada object gambar yang dapat dipisah.</div>';updateSelectionUI();return}
     els.objectList.innerHTML='';
     state.objects.forEach((o,i)=>{
-      const row=document.createElement('div');row.className='obj'+(state.focused===o.id?' sel':'');
-      row.innerHTML='<input type="checkbox" '+(state.selected.has(o.id)?'checked':'')+' aria-label="pilih object"><div class="obj-main"><div class="obj-name">'+esc(o.name)+'</div><div class="obj-type">'+esc(o.type)+' · '+String(i+1).padStart(2,'0')+'</div></div><button class="eye '+(o.visible?'':'off')+'" title="toggle visibility">'+(o.visible?'◉':'○')+'</button>';
-      const cb=row.querySelector('input');cb.addEventListener('change',()=>{cb.checked?state.selected.add(o.id):state.selected.delete(o.id);updateSelectionUI()});
-      row.querySelector('.obj-main').addEventListener('click',()=>{state.focused=o.id;highlightObject(o.id);renderObjects()});
-      row.querySelector('.eye').addEventListener('click',()=>toggleObject(o.id));
+      const row=document.createElement('div');row.className='obj'+(state.selected.has(o.id)?' sel':'')+(o.locked?' locked':'');
+      const lockIcon=o.locked?'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="1.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="1.5"/><path d="M9 10V7a4 4 0 0 1 7.5-2"/></svg>';
+      row.innerHTML='<input type="checkbox" '+(state.selected.has(o.id)?'checked':'')+' '+(o.locked?'disabled':'')+' aria-label="pilih object"><div class="obj-main" title="'+esc(o.displayName||o.name)+(o.locked?' · LOCKED · click-through on canvas':'')+'"><div class="obj-name">'+esc(o.name)+'</div><div class="obj-type">'+(o.groupPath?'<span class="obj-path">'+esc(o.groupPath)+'</span> · ':'')+esc(o.type)+' · '+String(i+1).padStart(2,'0')+(o.locked?' · LOCKED':'')+'</div></div><button class="eye '+(o.visible?'':'off')+'" title="toggle visibility">'+(o.visible?'◉':'○')+'</button><button class="lock '+(o.locked?'on':'')+'" title="'+(o.locked?'unlock object':'lock object')+'" aria-label="'+(o.locked?'unlock object':'lock object')+'">'+lockIcon+'</button>';
+      const cb=row.querySelector('input');cb.addEventListener('change',()=>{if(o.locked){cb.checked=false;setStatus('LOCKED OBJECT · SELECTION PASSES THROUGH');return}if(cb.checked){state.selected.add(o.id);state.focused=o.id}else{state.selected.delete(o.id);if(state.focused===o.id)state.focused=[...state.selected].at(-1)||null}renderObjects();syncLiveSelection();updateSelectionUI()});
+      row.querySelector('.obj-main').addEventListener('click',e=>{if(o.locked){setStatus('LOCKED OBJECT · UNLOCK FROM LAYERS TO SELECT');return}selectObject(o.id,e.shiftKey||e.ctrlKey||e.metaKey)});
+      row.querySelector('.eye').addEventListener('click',e=>{e.stopPropagation();toggleObject(o.id)});
+      row.querySelector('.lock').addEventListener('click',e=>{e.stopPropagation();toggleLockObject(o.id)});
       els.objectList.appendChild(row);
     });
+    updateSelectionUI();
   }
 
-  function highlightObject(id){
-    state.svg=clearEditorHighlight(state.svg);const doc=parseSvg(state.svg),el=doc.getElementById(id);if(el)el.setAttribute('data-editor-selected','1');state.svg=serializeDoc(doc);renderStageOnly();
+  function selectionUnitIds(id){
+    const o=state.objects.find(x=>x.id===id);if(!o||o.locked)return [];
+    if(!o.editorGroupId)return [id];
+    return state.objects.filter(x=>x.editorGroupId===o.editorGroupId&&!x.locked).map(x=>x.id);
   }
-  function clearEditorHighlight(svg){const doc=parseSvg(svg);doc.querySelectorAll('[data-editor-selected]').forEach(n=>n.removeAttribute('data-editor-selected'));return serializeDoc(doc)}
-  function updateSelectionUI(){els.selectionLabel.textContent=state.selected.size+' selected';els.selectedSvgBtn.disabled=!state.svg||!state.selected.size;els.splitZipBtn.disabled=!state.svg||!state.selected.size}
+  function selectObject(id,additive=false){
+    const unit=selectionUnitIds(id);if(!unit.length)return;
+    const allSelected=unit.every(x=>state.selected.has(x));
+    if(additive){
+      if(allSelected)unit.forEach(x=>state.selected.delete(x));
+      else unit.forEach(x=>state.selected.add(x));
+    }else{
+      if(!(state.selected.size>1&&allSelected)){state.selected.clear();unit.forEach(x=>state.selected.add(x))}
+    }
+    state.focused=state.selected.has(id)?id:[...state.selected].at(-1)||null;
+    renderObjects();syncLiveSelection();updateSelectionUI();
+  }
+
+  function syncLiveSelection(){
+    const live=els.svgStage.querySelector('svg');if(!live)return;
+    live.querySelectorAll('[data-editor-selected],[data-editor-focus],[data-editor-hit]').forEach(n=>{n.removeAttribute('data-editor-selected');n.removeAttribute('data-editor-focus');n.removeAttribute('data-editor-hit')});
+    state.objects.forEach(o=>{const el=live.getElementById?.(o.id)||live.querySelector?.('#'+CSS.escape(o.id));if(!el)return;el.setAttribute('data-editor-hit','1');if(o.locked)el.setAttribute('data-vfs-locked','1');else el.removeAttribute('data-vfs-locked');if(state.selected.has(o.id))el.setAttribute('data-editor-selected','1');if(state.focused===o.id)el.setAttribute('data-editor-focus','1')});
+  }
+
+  function highlightObject(id){selectObject(id,false)}
+  function clearEditorHighlight(svg){return editorCleanSvg(svg)}
+
+  function selectedPrimary(){
+    const id=(state.focused&&state.selected.has(state.focused))?state.focused:[...state.selected][0];
+    if(!id||!state.svg)return null;
+    try{const doc=parseSvg(state.svg),el=doc.getElementById(id);return el?{id,el}:null}catch(e){return null}
+  }
+  function directOpacity(el){const a=parseFloat(el?.getAttribute('opacity'));return Number.isFinite(a)?Math.max(0,Math.min(1,a)):1}
+  function updateObjectEditor(){
+    const primary=selectedPrimary();
+    const editableIds=[...state.selected].filter(id=>!state.objects.find(o=>o.id===id)?.locked);
+    const hasEditable=editableIds.length>0;
+    const primaryLocked=!!(primary&&state.objects.find(o=>o.id===primary.id)?.locked);
+    [els.objFill,els.objFillBtn,els.objStroke,els.objStrokeBtn,els.objStrokeWidth,els.objStrokeStyle,els.objOpacity,els.objNoFillBtn,els.objNoStrokeBtn].forEach(x=>x.disabled=!hasEditable);
+    els.objName.disabled=!primary||primaryLocked;els.objRenameBtn.disabled=!primary||primaryLocked;
+    if(!primary){els.objName.value='';els.objStrokeWidth.value=1;els.objStrokeWidthVal.textContent='1 px';els.objStrokeStyle.value='solid';els.objOpacity.value=100;els.objOpacityVal.textContent='100%';return}
+    const o=state.objects.find(x=>x.id===primary.id);els.objName.value=o?.name||primary.id;
+    const f=readStyleColor(primary.el,'fill'),st=readStyleColor(primary.el,'stroke');if(f)els.objFill.value=f;if(st)els.objStroke.value=st;
+    const sw=Math.min(50,strokeWidthOf(primary.el));els.objStrokeWidth.value=sw;els.objStrokeWidthVal.textContent=(Math.round(sw*100)/100)+' px';els.objStrokeStyle.value=strokeStyleOf(primary.el);
+    const op=Math.round(directOpacity(primary.el)*100);els.objOpacity.value=op;els.objOpacityVal.textContent=op+'%';
+  }
+  function updateSelectionUI(){
+    els.selectionLabel.textContent=state.selected.size+' selected';els.selectedSvgBtn.disabled=!state.svg||!state.selected.size;els.splitZipBtn.disabled=!state.svg||!state.selected.size;
+    const editableCount=[...state.selected].filter(id=>!state.objects.find(o=>o.id===id)?.locked).length;
+    els.groupSelectedBtn.disabled=editableCount<2;els.ungroupSelectedBtn.disabled=editableCount<1;els.deleteSelectedBtn.disabled=editableCount<1;
+    updateObjectEditor();
+  }
+
+  function toggleLockObject(id){
+    if(!state.svg||!id)return;pushUndo();const doc=parseSvg(clearEditorHighlight(state.svg)),el=doc.getElementById(id);if(!el)return;
+    const next=el.getAttribute('data-vfs-locked')!=='1';if(next)el.setAttribute('data-vfs-locked','1');else el.removeAttribute('data-vfs-locked');
+    if(next){state.selected.delete(id);if(state.focused===id)state.focused=[...state.selected].at(-1)||null}
+    state.svg=serializeDoc(doc);commitRender(true);setStatus(next?'OBJECT LOCKED · CLICK-THROUGH ACTIVE':'OBJECT UNLOCKED','ok');
+  }
+  function lockSelected(){
+    if(!state.selected.size)return;pushUndo();const doc=parseSvg(clearEditorHighlight(state.svg));let n=0;state.selected.forEach(id=>{const el=doc.getElementById(id);if(el){el.setAttribute('data-vfs-locked','1');n++}});state.svg=serializeDoc(doc);state.selected.clear();state.focused=null;commitRender(true);setStatus('LOCKED · '+n+' OBJECT','ok');
+  }
+  function unlockAll(){
+    if(!state.svg)return;pushUndo();const doc=parseSvg(clearEditorHighlight(state.svg));let n=0;doc.querySelectorAll('[data-vfs-locked="1"]').forEach(el=>{el.removeAttribute('data-vfs-locked');n++});state.svg=serializeDoc(doc);commitRender(true);setStatus('UNLOCKED · '+n+' OBJECT','ok');
+  }
 
   function toggleObject(id){
     pushUndo();state.svg=clearEditorHighlight(state.svg);const doc=parseSvg(state.svg),el=doc.getElementById(id);if(!el)return;const hidden=el.getAttribute('display')==='none';hidden?el.removeAttribute('display'):el.setAttribute('display','none');state.svg=serializeDoc(doc);buildObjects();renderObjects();renderStageOnly();setStatus(hidden?'OBJECT SHOWN':'OBJECT HIDDEN','ok')
   }
   function hideSelected(){if(!state.selected.size)return;pushUndo();const doc=parseSvg(clearEditorHighlight(state.svg));state.selected.forEach(id=>{const el=doc.getElementById(id);if(el)el.setAttribute('display','none')});state.svg=serializeDoc(doc);buildObjects();renderObjects();renderStageOnly();setStatus('SELECTED HIDDEN','ok')}
-  function showAll(){pushUndo();const doc=parseSvg(clearEditorHighlight(state.svg));doc.querySelectorAll('[display="none"]').forEach(el=>el.removeAttribute('display'));doc.querySelectorAll('[style]').forEach(el=>{const s=el.getAttribute('style');if(/display\s*:\s*none/i.test(s))el.setAttribute('style',s.replace(/display\s*:\s*none\s*;?/ig,''))});state.svg=serializeDoc(doc);buildObjects();renderObjects();renderStageOnly();setStatus('ALL OBJECTS SHOWN','ok')}
-  function deleteSelected(){if(!state.selected.size)return;pushUndo();const doc=parseSvg(clearEditorHighlight(state.svg));state.selected.forEach(id=>doc.getElementById(id)?.remove());state.svg=serializeDoc(doc);state.focused=null;buildObjects();renderObjects();commitRender(false);setStatus('SELECTED DELETED','ok')}
+  function showAll(){pushUndo();const doc=parseSvg(clearEditorHighlight(state.svg));doc.querySelectorAll('[display="none"]').forEach(el=>el.removeAttribute('display'));doc.querySelectorAll('[style]').forEach(el=>{const s=el.getAttribute('style');if(/display\s*:\\s*none/i.test(s))el.setAttribute('style',s.replace(/display\s*:\\s*none\s*;?/ig,''))});state.svg=serializeDoc(doc);buildObjects();renderObjects();renderStageOnly();setStatus('ALL OBJECTS SHOWN','ok')}
+  function deleteSelected(){if(!state.selected.size)return;const ids=[...state.selected].filter(id=>!state.objects.find(o=>o.id===id)?.locked);if(!ids.length){setStatus('LOCKED OBJECT · DELETE BLOCKED');return}pushUndo();const doc=parseSvg(clearEditorHighlight(state.svg));ids.forEach(id=>doc.getElementById(id)?.remove());state.svg=serializeDoc(doc);ids.forEach(id=>state.selected.delete(id));if(state.focused&&ids.includes(state.focused))state.focused=[...state.selected].at(-1)||null;commitRender(true);setStatus('DELETED · '+ids.length+' OBJECT','ok')}
+
+  function groupSelected(){
+    const ids=state.objects.filter(o=>state.selected.has(o.id)&&!o.locked).map(o=>o.id);if(ids.length<2){setStatus('SELECT 2+ OBJECTS TO GROUP');return}
+    const doc=parseSvg(clearEditorHighlight(state.svg)),nodes=ids.map(id=>doc.getElementById(id)).filter(Boolean);if(nodes.length<2)return;
+    const parent=nodes[0].parentElement;if(nodes.some(n=>n.parentElement!==parent)){setStatus('GROUP NEEDS SAME PARENT','error');return}
+    pushUndo();const ns='http://www.w3.org/2000/svg',g=doc.createElementNS(ns,'g');const count=doc.querySelectorAll('[data-vfs-user-group="1"]').length+1;
+    g.id='vfs-user-group-'+Date.now().toString(36)+'-'+count;g.setAttribute('data-vfs-user-group','1');g.setAttribute('data-name','Group '+String(count).padStart(2,'0'));
+    const ordered=[...parent.children].filter(n=>nodes.includes(n));parent.insertBefore(g,ordered[0]);ordered.forEach(n=>g.appendChild(n));state.svg=serializeDoc(doc);state.focused=ids[0];commitRender(true);setStatus('GROUP CREATED · '+ids.length+' OBJECTS','ok')
+  }
+  function ungroupSelected(){
+    if(!state.selected.size)return;const doc=parseSvg(clearEditorHighlight(state.svg)),groups=[];
+    state.selected.forEach(id=>{if(state.objects.find(o=>o.id===id)?.locked)return;let p=doc.getElementById(id)?.parentElement;if(p?.tagName?.toLowerCase()==='g'&&p.getAttribute('data-vfs-user-group')==='1'&&!groups.includes(p))groups.push(p)});
+    if(!groups.length){setStatus('SELECT OBJECTS INSIDE EDITOR GROUP');return}
+    pushUndo();groups.forEach(g=>{const p=g.parentElement;while(g.firstChild)p.insertBefore(g.firstChild,g);g.remove()});state.svg=serializeDoc(doc);commitRender(true);setStatus('UNGROUPED · '+groups.length+' GROUP','ok')
+  }
+  function applySelectedPaint(prop,val){
+    if(!state.selected.size)return;const ids=[...state.selected].filter(id=>!state.objects.find(o=>o.id===id)?.locked);if(!ids.length){setStatus('LOCKED OBJECT · EDIT BLOCKED');return}pushUndo();const doc=parseSvg(clearEditorHighlight(state.svg));let n=0;ids.forEach(id=>{const el=doc.getElementById(id);if(el){setStyleColor(el,prop,val);n++}});state.svg=serializeDoc(doc);commitRender(false);setStatus(prop.toUpperCase()+' EDITED · '+n+' OBJECT','ok')
+  }
+  function applySelectedStrokeWidth(value){
+    if(!state.selected.size)return;
+    const ids=[...state.selected].filter(id=>!state.objects.find(o=>o.id===id)?.locked);
+    if(!ids.length){setStatus('LOCKED OBJECT · EDIT BLOCKED');return}
+    const v=Math.max(0,Math.min(200,Number(value)||0));
+    pushUndo();const doc=parseSvg(clearEditorHighlight(state.svg));let n=0;
+    ids.forEach(id=>{const el=doc.getElementById(id);if(!el)return;setStyleValue(el,'stroke-width',v);applyStrokePattern(el,strokeStyleOf(el),v);n++});
+    state.svg=serializeDoc(doc);commitRender(false);setStatus('STROKE WIDTH '+(Math.round(v*100)/100)+' · '+n+' OBJECT','ok');
+  }
+  function applySelectedStrokeStyle(style){
+    if(!state.selected.size)return;
+    const ids=[...state.selected].filter(id=>!state.objects.find(o=>o.id===id)?.locked);
+    if(!ids.length){setStatus('LOCKED OBJECT · EDIT BLOCKED');return}
+    pushUndo();const doc=parseSvg(clearEditorHighlight(state.svg));let n=0;
+    ids.forEach(id=>{const el=doc.getElementById(id);if(!el)return;applyStrokePattern(el,style,strokeWidthOf(el));n++});
+    state.svg=serializeDoc(doc);commitRender(false);setStatus('STROKE '+String(style).toUpperCase()+' · '+n+' OBJECT','ok');
+  }
+
+  function applySelectedOpacity(value){
+    if(!state.selected.size)return;const ids=[...state.selected].filter(id=>!state.objects.find(o=>o.id===id)?.locked);if(!ids.length){setStatus('LOCKED OBJECT · EDIT BLOCKED');return}pushUndo();const doc=parseSvg(clearEditorHighlight(state.svg)),v=Math.max(0,Math.min(1,Number(value)/100));let n=0;ids.forEach(id=>{const el=doc.getElementById(id);if(el){el.setAttribute('opacity',String(v));n++}});state.svg=serializeDoc(doc);commitRender(false);setStatus('OPACITY '+Math.round(v*100)+'% · '+n+' OBJECT','ok')
+  }
+  function renameFocused(){
+    const primary=selectedPrimary(),name=els.objName.value.trim();if(!primary||!name)return;if(state.objects.find(o=>o.id===primary.id)?.locked){setStatus('LOCKED OBJECT · RENAME BLOCKED');return}pushUndo();const doc=parseSvg(clearEditorHighlight(state.svg)),el=doc.getElementById(primary.id);if(!el)return;el.setAttribute('data-name',name);state.svg=serializeDoc(doc);commitRender(true);setStatus('OBJECT RENAMED','ok')
+  }
 
   function replaceColor(from,to){
     if(!state.svg||!from)return 0;pushUndo();const doc=parseSvg(clearEditorHighlight(state.svg));let changed=0;
@@ -390,19 +687,34 @@
       ['fill','stroke'].forEach(prop=>{
         if(readStyleColor(el,prop)===from){
           match=true;matches++;
-          // Saat baru mulai drag, tint sementara warna sumber dengan accent agar lokasinya langsung terlihat.
-          // Saat berada di atas swatch tujuan, tampilkan preview warna tujuan tetapi glow tetap menandai area sumber.
-          setStyleColor(el,prop,to||getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#ff3300');
+          // Jangan menimpa warna sumber dengan merah saat drag. Highlight merah hanya
+          // berada di tepi/siluet melalui CSS drop-shadow agar konteks warna asli tetap terlihat.
+          // Saat hover di swatch tujuan, warna tujuan tetap dipreview seperti sebelumnya.
+          if(to) setStyleColor(el,prop,to);
         }
       });
       if(match){
         el.setAttribute('data-color-highlight','1');
         el.setAttribute('opacity','1');
       }else if(drawable.has(el.tagName.toLowerCase())){
-        el.setAttribute('opacity','.08');
+        el.setAttribute('opacity','.22');
       }
     });
+    // Mount preview with the exact same canvas dimensions as the normal renderer.
+    // Without this, replacing innerHTML during drag can make an SVG that relies on
+    // viewBox / percentage sizing collapse to its browser default size and look smaller.
     els.svgStage.innerHTML=serializeDoc(doc);
+    const previewSvg=els.svgStage.querySelector('svg');
+    if(previewSvg){
+      previewSvg.setAttribute('width',state.naturalW);
+      previewSvg.setAttribute('height',state.naturalH);
+      previewSvg.style.width=state.naturalW+'px';
+      previewSvg.style.height=state.naturalH+'px';
+      previewSvg.style.maxWidth='none';
+      previewSvg.style.maxHeight='none';
+    }
+    // Re-apply the existing zoom/pan values only; do not fit, center, or rescale.
+    applyViewTransform();
     els.svgStage.dataset.colorHighlightLabel=from.toUpperCase()+' · '+matches+' ATTR';
   }
   function clearColorPreview(){delete els.svgStage.dataset.colorHighlightLabel;renderStageOnly()}
@@ -412,7 +724,7 @@
 
   function renderStageOnly(){
     if(!state.svg){els.svgStage.innerHTML='';return}
-    els.svgStage.innerHTML=state.svg;const svg=els.svgStage.querySelector('svg');if(svg){svg.setAttribute('width',state.naturalW);svg.setAttribute('height',state.naturalH)}applyViewTransform();
+    els.svgStage.innerHTML=state.svg;const svg=els.svgStage.querySelector('svg');if(svg){svg.setAttribute('width',state.naturalW);svg.setAttribute('height',state.naturalH)}syncLiveSelection();applyViewTransform();
   }
   function commitRender(rebuild=true){
     if(!state.svg)return;state.svg=sanitizeImportedSvg(state.svg);if(rebuild)buildObjects();renderStageOnly();renderObjects();renderPalette();sourcePreviewFromSvg();
@@ -438,7 +750,7 @@
 
   async function importFile(file){
     const ext=extOf(file.name);if(!allowed.includes(ext)){setStatus('FORMAT NOT SUPPORTED','error');return}
-    state.file=file;state.fileBase=baseOf(file.name);state.focused=null;state.undo=[];state.selected.clear();
+    state.file=file;state.fileBase=baseOf(file.name);state.focused=null;state.undo=[];state.redo=[];updateHistoryUI();state.selected.clear();
     els.fileCard.classList.add('show');els.fileName.textContent=file.name;els.fileIcon.textContent=ext.toUpperCase();els.fileMeta.textContent=(file.size/1024).toFixed(1)+' KB · '+ext.toUpperCase();els.importModeLabel.textContent=ext.toUpperCase();setLoading(4,'READING FILE');setStatus('IMPORTING');
     try{
       if(ext==='svg'){
@@ -487,7 +799,7 @@
     try{const root=parseSvg(svg).documentElement;const vb=(root.getAttribute('viewBox')||'').trim().split(/[ ,]+/).map(Number);if(vb.length===4&&vb.every(Number.isFinite)&&vb[2]>0&&vb[3]>0)return {w:vb[2],h:vb[3]};const w=parseFloat(root.getAttribute('width'))||state.naturalW,h=parseFloat(root.getAttribute('height'))||state.naturalH;return {w,h}}catch(e){return {w:state.naturalW,h:state.naturalH}}
   }
   async function svgToPngBlob(svg,scale=2,bg='transparent'){
-    svg=editorCleanSvg(svg);const img=new Image();const blob=new Blob([svg],{type:'image/svg+xml'});const url=URL.createObjectURL(blob);
+    svg=exportCleanSvg(svg);const img=new Image();const blob=new Blob([svg],{type:'image/svg+xml'});const url=URL.createObjectURL(blob);
     try{await new Promise((res,rej)=>{img.onload=res;img.onerror=()=>rej(new Error('SVG gagal dirender ke PNG.'));img.src=url});const m=svgMetrics(svg),w=Math.max(1,Math.round(m.w*scale)),h=Math.max(1,Math.round(m.h*scale));const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');if(bg!=='transparent'){x.fillStyle=bg;x.fillRect(0,0,w,h)}x.drawImage(img,0,0,w,h);return await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('PNG encoding gagal.')),'image/png'))}finally{URL.revokeObjectURL(url)}
   }
   async function exportPng(svg,name){setStatus('RENDERING PNG');try{const b=await svgToPngBlob(svg,Number(els.pngScale.value),els.pngBg.value);downloadBlob(b,name);setStatus('PNG EXPORTED','ok')}catch(e){setStatus('PNG FAILED','error');els.compatNotice.textContent=e.message}}
@@ -496,7 +808,7 @@
     setStatus('BUILDING ZIP');const zip=new JSZip(),format=els.splitFormat.value;let i=0;
     for(const o of state.objects.filter(x=>state.selected.has(x.id))){
       const svg=selectedSvg(o.id),stem=String(++i).padStart(2,'0')+'-'+safeName(o.name);
-      if(format==='svg'||format==='both') zip.file(stem+'.svg',editorCleanSvg(svg));
+      if(format==='svg'||format==='both') zip.file(stem+'.svg',exportCleanSvg(svg));
       if(format==='png'||format==='both'){setStatus('RENDERING '+i+'/'+state.selected.size);const png=await svgToPngBlob(svg,Number(els.pngScale.value),els.pngBg.value);zip.file(stem+'.png',png)}
     }
     const blob=await zip.generateAsync({type:'blob'});downloadBlob(blob,state.fileBase+'-split.zip');setStatus('ZIP EXPORTED','ok')
@@ -512,15 +824,114 @@
 
   // Toolbar
   $('zoomIn').onclick=()=>setZoom(state.zoom*1.2);$('zoomOut').onclick=()=>setZoom(state.zoom/1.2);$('fitBtn').onclick=fitView;$('resetViewBtn').onclick=()=>{state.panX=state.panY=0;applyViewTransform()};
-  let panning=false,lastX=0,lastY=0;els.stageViewport.addEventListener('pointerdown',e=>{if(e.button!==0)return;panning=true;lastX=e.clientX;lastY=e.clientY;els.stageViewport.setPointerCapture(e.pointerId);els.stageViewport.classList.add('dragging')});
-  els.stageViewport.addEventListener('pointermove',e=>{if(!panning)return;state.panX+=e.clientX-lastX;state.panY+=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;applyViewTransform()});
-  const endPan=()=>{panning=false;els.stageViewport.classList.remove('dragging')};els.stageViewport.addEventListener('pointerup',endPan);els.stageViewport.addEventListener('pointercancel',endPan);
+  function setTool(tool){
+    state.tool=tool==='pan'?'pan':'select';
+    els.stageViewport.dataset.tool=state.tool;
+    const selecting=state.tool==='select';
+    els.selectToolBtn.classList.toggle('active',selecting);
+    els.panToolBtn.classList.toggle('active',!selecting);
+    els.selectToolBtn.setAttribute('aria-pressed',String(selecting));
+    els.panToolBtn.setAttribute('aria-pressed',String(!selecting));
+    setStatus(selecting?'SELECT TOOL':'PAN TOOL');
+  }
+  els.selectToolBtn.onclick=()=>setTool('select');els.panToolBtn.onclick=()=>setTool('pan');
+
+  const findObjectIdFromTarget=target=>{
+    const ids=new Set(state.objects.map(o=>o.id));let n=target;
+    while(n&&n!==els.svgStage&&n!==els.stageViewport){if(n.id&&ids.has(n.id))return n.id;n=n.parentElement}
+    return null;
+  };
+  const isLockedId=id=>!!state.objects.find(o=>o.id===id)?.locked;
+  const editorGroupIdFor=id=>state.objects.find(o=>o.id===id)?.editorGroupId||null;
+  const groupMembers=id=>{const gid=editorGroupIdFor(id);return gid?state.objects.filter(o=>o.editorGroupId===gid&&!o.locked).map(o=>o.id):selectionUnitIds(id)};
+  const movementNodeFor=(live,id)=>{
+    const leaf=live?.getElementById?.(id)||live?.querySelector?.('#'+CSS.escape(id));if(!leaf)return null;
+    let n=leaf.parentElement;while(n&&n!==live){if(n.tagName?.toLowerCase()==='g'&&n.getAttribute('data-vfs-user-group')==='1')return n;n=n.parentElement}
+    return leaf;
+  };
+  const movementRecordsForSelection=(live,e)=>{
+    const unique=new Map();
+    [...state.selected].filter(id=>!isLockedId(id)).forEach(id=>{
+      const node=movementNodeFor(live,id);if(!node||!node.parentElement)return;
+      const key=node.id||id;if(unique.has(key))return;
+      const memberIds=node.getAttribute?.('data-vfs-user-group')==='1'?state.objects.filter(o=>o.editorGroupId===node.id).map(o=>o.id):[id];
+      if(memberIds.some(isLockedId))return;
+      const start=pointInParent(node.parentElement,e.clientX,e.clientY);if(!start)return;
+      unique.set(key,{id:key,node,parent:node.parentElement,start,m:matrixParts(node),members:memberIds});
+    });
+    return [...unique.values()];
+  };
+  const matrixParts=el=>{try{const c=el.transform?.baseVal?.consolidate?.(),m=c?.matrix;if(m)return {a:m.a,b:m.b,c:m.c,d:m.d,e:m.e,f:m.f}}catch(e){}return {a:1,b:0,c:0,d:1,e:0,f:0}};
+  const pointInParent=(parent,x,y)=>{try{const m=parent.getScreenCTM();if(!m)return null;const inv=m.inverse();if(typeof DOMPoint!=='undefined')return new DOMPoint(x,y).matrixTransform(inv);const svg=els.svgStage.querySelector('svg'),pt=svg.createSVGPoint();pt.x=x;pt.y=y;return pt.matrixTransform(inv)}catch(e){return null}};
+  const viewportPoint=e=>{const r=els.stageViewport.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top}};
+  function drawMarquee(a,b){const x=Math.min(a.x,b.x),y=Math.min(a.y,b.y),w=Math.abs(b.x-a.x),h=Math.abs(b.y-a.y);els.selectMarquee.style.left=x+'px';els.selectMarquee.style.top=y+'px';els.selectMarquee.style.width=w+'px';els.selectMarquee.style.height=h+'px';els.selectMarquee.classList.add('show')}
+  function clearMarquee(){els.selectMarquee.classList.remove('show');els.selectMarquee.style.width='0';els.selectMarquee.style.height='0'}
+  function finishMarquee(a,b,additive=false){
+    const vr=els.stageViewport.getBoundingClientRect(),x1=Math.min(a.x,b.x)+vr.left,y1=Math.min(a.y,b.y)+vr.top,x2=Math.max(a.x,b.x)+vr.left,y2=Math.max(a.y,b.y)+vr.top;
+    if(!additive){state.selected.clear();state.focused=null}
+    let count=0;const live=els.svgStage.querySelector('svg'),hit=new Set();
+    state.objects.forEach(o=>{if(o.locked||!o.visible)return;const el=live?.getElementById?.(o.id)||live?.querySelector?.('#'+CSS.escape(o.id));if(!el)return;const r=el.getBoundingClientRect();if(r.width===0&&r.height===0)return;const intersects=r.right>=x1&&r.left<=x2&&r.bottom>=y1&&r.top<=y2;if(intersects)selectionUnitIds(o.id).forEach(id=>hit.add(id))});
+    hit.forEach(id=>{state.selected.add(id);state.focused=id;count++});
+    renderObjects();syncLiveSelection();updateSelectionUI();setStatus(count?'MARQUEE SELECT · '+count:'NO OBJECT SELECTED');
+  }
+  let interaction=null;
+  els.stageViewport.addEventListener('pointerdown',e=>{
+    if(e.button!==0)return;const forcePan=state.tool==='pan'||state.spacePan;const id=findObjectIdFromTarget(e.target),additive=e.shiftKey||e.ctrlKey||e.metaKey;
+    if(forcePan){e.preventDefault();interaction={type:'pan',pointerId:e.pointerId,lastX:e.clientX,lastY:e.clientY};els.stageViewport.setPointerCapture(e.pointerId);els.stageViewport.classList.add('dragging');return}
+    if(id){
+      e.preventDefault();
+      const unit=selectionUnitIds(id);if(!unit.length)return;const allSelected=unit.every(x=>state.selected.has(x));
+      if(additive){if(allSelected)unit.forEach(x=>state.selected.delete(x));else unit.forEach(x=>state.selected.add(x))}
+      else if(!allSelected){state.selected.clear();unit.forEach(x=>state.selected.add(x))}
+      state.focused=state.selected.has(id)?id:[...state.selected].at(-1)||null;
+      renderObjects();syncLiveSelection();updateSelectionUI();
+      if(!state.selected.has(id))return;
+      const live=els.svgStage.querySelector('svg'),records=movementRecordsForSelection(live,e);
+      if(!records.length){setStatus('GROUP/OBJECT LOCKED · MOVE BLOCKED');return}
+      interaction={type:'object',pointerId:e.pointerId,startX:e.clientX,startY:e.clientY,records,moved:false,undoPushed:false};els.stageViewport.setPointerCapture(e.pointerId);return;
+    }
+    e.preventDefault();const p=viewportPoint(e);interaction={type:'marquee',pointerId:e.pointerId,start:p,current:p,additive,moved:false};drawMarquee(p,p);els.stageViewport.setPointerCapture(e.pointerId);
+  });
+  els.stageViewport.addEventListener('pointermove',e=>{
+    if(!interaction||interaction.pointerId!==e.pointerId)return;
+    if(interaction.type==='pan'){state.panX+=e.clientX-interaction.lastX;state.panY+=e.clientY-interaction.lastY;interaction.lastX=e.clientX;interaction.lastY=e.clientY;applyViewTransform();return}
+    if(interaction.type==='marquee'){interaction.current=viewportPoint(e);interaction.moved=Math.hypot(interaction.current.x-interaction.start.x,interaction.current.y-interaction.start.y)>2;drawMarquee(interaction.start,interaction.current);return}
+    const distance=Math.hypot(e.clientX-interaction.startX,e.clientY-interaction.startY);if(distance<2&&!interaction.moved)return;
+    if(!interaction.undoPushed){pushUndo();interaction.undoPushed=true}interaction.moved=true;
+    interaction.records.forEach(r=>{const now=pointInParent(r.parent,e.clientX,e.clientY);if(!now)return;const dx=now.x-r.start.x,dy=now.y-r.start.y;r.node.setAttribute('transform','matrix('+r.m.a+' '+r.m.b+' '+r.m.c+' '+r.m.d+' '+(r.m.e+dx)+' '+(r.m.f+dy)+')')});
+    const movingMembers=interaction.records.reduce((n,r)=>n+(r.members?.length||1),0);setStatus('MOVING '+interaction.records.length+' UNIT · '+movingMembers+' OBJECT');
+  });
+  const endInteraction=e=>{
+    if(!interaction)return;const was=interaction;interaction=null;els.stageViewport.classList.remove('dragging');
+    if(was.type==='marquee'){clearMarquee();if(was.moved)finishMarquee(was.start,was.current,was.additive);else if(!was.additive&&state.selected.size){state.selected.clear();state.focused=null;renderObjects();syncLiveSelection();updateSelectionUI();setStatus('SELECTION CLEARED')}}
+    if(was.type==='object'&&was.moved){const live=els.svgStage.querySelector('svg');if(live){state.svg=sanitizeImportedSvg(editorCleanSvg(new XMLSerializer().serializeToString(live)));commitRender(true);setStatus('OBJECT MOVED','ok')}}
+  };
+  els.stageViewport.addEventListener('pointerup',endInteraction);els.stageViewport.addEventListener('pointercancel',endInteraction);
   els.stageViewport.addEventListener('wheel',e=>{e.preventDefault();setZoom(state.zoom*(e.deltaY<0?1.1:.9),e.clientX,e.clientY)},{passive:false});
 
+  // Collapsible import panel
+  function setImportCollapsed(collapsed){
+    els.importGroup.classList.toggle('collapsed',collapsed);els.importGroupHead.setAttribute('aria-expanded',String(!collapsed));
+    els.importToggleBtn.title=collapsed?'Expand import':'Minimize import';els.importToggleBtn.setAttribute('aria-label',els.importToggleBtn.title);
+    localStorage.setItem('vfs-import-collapsed',collapsed?'1':'0');
+  }
+  setImportCollapsed(localStorage.getItem('vfs-import-collapsed')==='1');
+  const toggleImport=()=>setImportCollapsed(!els.importGroup.classList.contains('collapsed'));
+  els.importToggleBtn.addEventListener('click',e=>{e.stopPropagation();toggleImport()});
+  els.importGroupHead.addEventListener('click',e=>{if(e.target.closest('select,input,button')&&!e.target.closest('#importToggleBtn'))return;toggleImport()});
+  els.importGroupHead.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleImport()}});
+
   // Object editing
-  $('selectAllBtn').onclick=()=>{state.objects.forEach(o=>state.selected.add(o.id));renderObjects();updateSelectionUI()};
-  $('selectNoneBtn').onclick=()=>{state.selected.clear();renderObjects();updateSelectionUI()};
-  $('hideSelectedBtn').onclick=hideSelected;$('showAllBtn').onclick=showAll;$('deleteSelectedBtn').onclick=deleteSelected;$('undoBtn').onclick=undo;
+  $('selectAllBtn').onclick=()=>{state.selected.clear();state.objects.filter(o=>!o.locked&&o.visible).forEach(o=>state.selected.add(o.id));state.focused=[...state.selected].at(-1)||null;renderObjects();syncLiveSelection();updateSelectionUI()};
+  $('selectNoneBtn').onclick=()=>{state.selected.clear();state.focused=null;renderObjects();syncLiveSelection();updateSelectionUI()};
+  els.groupSelectedBtn.onclick=groupSelected;els.ungroupSelectedBtn.onclick=ungroupSelected;
+  $('deleteSelectedBtn').onclick=deleteSelected;els.undoBtn.onclick=undo;els.redoBtn.onclick=redo;
+  els.objRenameBtn.onclick=renameFocused;els.objFillBtn.onclick=()=>applySelectedPaint('fill',els.objFill.value.toLowerCase());els.objStrokeBtn.onclick=()=>applySelectedPaint('stroke',els.objStroke.value.toLowerCase());
+  els.objNoFillBtn.onclick=()=>applySelectedPaint('fill','none');els.objNoStrokeBtn.onclick=()=>applySelectedPaint('stroke','none');
+  els.objStrokeWidth.addEventListener('input',()=>els.objStrokeWidthVal.textContent=(Math.round(Number(els.objStrokeWidth.value)*100)/100)+' px');els.objStrokeWidth.addEventListener('change',()=>applySelectedStrokeWidth(els.objStrokeWidth.value));
+  els.objStrokeStyle.addEventListener('change',()=>applySelectedStrokeStyle(els.objStrokeStyle.value));
+  els.objOpacity.addEventListener('input',()=>els.objOpacityVal.textContent=els.objOpacity.value+'%');els.objOpacity.addEventListener('change',()=>applySelectedOpacity(els.objOpacity.value));
+  els.objName.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();renameFocused()}});
   $('resetColorsBtn').onclick=resetColors;$('mergeSimilarBtn').onclick=mergeSimilarColors;
 
   // Color picker
@@ -528,16 +939,33 @@
   document.addEventListener('pointerdown',e=>{if(!els.colorPop.contains(e.target)&&!e.target.closest?.('.swatch'))els.colorPop.classList.remove('show')});
 
   // Exports
-  els.svgBtn.onclick=()=>exportSvg(state.svg,state.fileBase+'-edited.svg');
+  els.svgBtn.onclick=()=>exportSvg(exportCleanSvg(state.svg),state.fileBase+'-edited.svg');
   els.pngBtn.onclick=()=>exportPng(state.svg,state.fileBase+'-edited.png');
-  els.selectedSvgBtn.onclick=()=>exportSvg(selectedSvg(),state.fileBase+'-selected.svg');
+  els.selectedSvgBtn.onclick=()=>exportSvg(exportCleanSvg(selectedSvg()),state.fileBase+'-selected.svg');
   els.splitZipBtn.onclick=splitZip;
 
+  // Editor keyboard shortcuts
+  document.addEventListener('keydown',e=>{
+    const tag=e.target?.tagName?.toLowerCase();if(tag==='input'||tag==='select'||tag==='textarea')return;
+    const mod=e.ctrlKey||e.metaKey;
+    if(mod&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();return}
+    if(e.ctrlKey&&!e.metaKey&&e.key.toLowerCase()==='y'){e.preventDefault();redo();return}
+    if(e.code==='Space'&&!state.spacePan){e.preventDefault();state.spacePan=true;els.stageViewport.dataset.tool='pan';return}
+    if(!e.ctrlKey&&!e.metaKey&&!e.altKey&&e.key.toLowerCase()==='v'){setTool('select');return}
+    if(!e.ctrlKey&&!e.metaKey&&!e.altKey&&e.key.toLowerCase()==='h'){setTool('pan');return}
+    if((e.key==='Delete'||e.key==='Backspace')&&state.selected.size){e.preventDefault();deleteSelected();return}
+    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='a'&&state.svg){e.preventDefault();state.selected.clear();state.objects.filter(o=>!o.locked&&o.visible).forEach(o=>state.selected.add(o.id));state.focused=[...state.selected].at(-1)||null;renderObjects();syncLiveSelection();updateSelectionUI();return}
+    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='g'){e.preventDefault();e.shiftKey?ungroupSelected():groupSelected();return}
+    if(e.key==='Escape'&&state.selected.size){state.selected.clear();state.focused=null;renderObjects();syncLiveSelection();updateSelectionUI()}
+  });
+  document.addEventListener('keyup',e=>{if(e.code==='Space'){state.spacePan=false;els.stageViewport.dataset.tool=state.tool}});
+
   // Theme
-  function applyTheme(t){document.documentElement.dataset.theme=t;localStorage.setItem('vfs-theme',t);$('themeBtn').textContent=t==='dark'?'LIGHT MODE':'DARK MODE'}
-  applyTheme(localStorage.getItem('vfs-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));$('themeBtn').onclick=()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
+  function applyTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('vfs-theme',t)}catch(e){}$('themeBtn').textContent=t==='dark'?'LIGHT MODE':'DARK MODE'}
+  let savedTheme=null;try{savedTheme=localStorage.getItem('vfs-theme')}catch(e){}applyTheme(savedTheme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));$('themeBtn').onclick=()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
 
   window.addEventListener('resize',()=>{if(state.svg)applyViewTransform()});
+  updateHistoryUI();
   setStatus('READY');
 })();
 </script>
