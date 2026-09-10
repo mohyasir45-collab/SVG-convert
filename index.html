@@ -136,6 +136,45 @@
   .color-pop.show{display:block}.color-pop input{width:132px;height:34px;border:0;background:transparent;padding:0}
 
   .export-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .export-panel{padding-bottom:2px}
+  .export-ready{display:inline-flex;align-items:center;gap:5px;font-size:7.5px;letter-spacing:.05em;opacity:.7}
+  .export-ready::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 1px var(--ink)}
+  .export-scope-strip{display:grid;grid-template-columns:repeat(3,1fr);border:var(--line) solid var(--ink);margin-bottom:10px;background:var(--paper)}
+  .export-scope-strip>div{min-width:0;padding:6px 7px;border-right:1px solid var(--ink)}
+  .export-scope-strip>div:last-child{border-right:0}
+  .export-scope-strip span{display:block;font-size:6.8px;text-transform:uppercase;letter-spacing:.06em;opacity:.55;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .export-scope-strip b{display:block;margin-top:2px;font-family:'Archivo Black',sans-serif;font-size:10px;line-height:1}
+  .export-section{margin-top:9px;padding-top:9px;border-top:1px solid color-mix(in srgb,var(--ink) 42%,transparent)}
+  .export-section:first-of-type{margin-top:0;padding-top:0;border-top:0}
+  .export-section-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:6px}
+  .export-section-head span{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+  .export-section-head small{font-size:7px;opacity:.5;text-transform:uppercase;letter-spacing:.04em}
+  .export-quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .export-action{min-width:0;display:flex;align-items:center;gap:8px;text-align:left;border:var(--line) solid var(--ink);background:var(--paper);color:var(--ink);padding:9px 8px;cursor:pointer;transition:transform .08s,background .08s,color .08s}
+  .export-action:hover:not(:disabled){background:var(--ink);color:var(--paper)}
+  .export-action:active:not(:disabled){transform:translateY(1px)}
+  .export-action.primary{background:var(--ink);color:var(--paper)}
+  .export-action.primary:hover:not(:disabled){background:var(--accent);color:#fff}
+  .export-action svg{width:16px;height:16px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .export-action span{min-width:0;display:block}
+  .export-action b{display:block;font-family:'Archivo Black',sans-serif;font-size:9px;line-height:1.05}
+  .export-action small{display:block;margin-top:3px;font-size:6.9px;opacity:.62;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .export-settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .export-field{min-width:0;border:1px solid var(--ink);padding:6px;background:var(--paper)}
+  .export-field label{display:block;margin-bottom:4px;font-size:6.8px;text-transform:uppercase;letter-spacing:.05em;opacity:.58}
+  .export-field select{width:100%;min-width:0;background:var(--paper);color:var(--ink);border:0;border-top:1px solid var(--ink);padding:5px 1px 1px;font-size:8px;outline:0}
+  .export-stack{display:grid;gap:5px}
+  .export-row-action{width:100%;display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:8px;align-items:center;text-align:left;border:var(--line) solid var(--ink);background:var(--paper);color:var(--ink);padding:8px;cursor:pointer}
+  .export-row-action:hover:not(:disabled){background:var(--ink);color:var(--paper)}
+  .export-row-action.accent{border-color:var(--ink);background:var(--accent);color:#fff}
+  .export-row-action.accent:hover:not(:disabled){filter:brightness(.95)}
+  .export-row-action svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .export-row-action .copy{min-width:0}
+  .export-row-action b{display:block;font-family:'Archivo Black',sans-serif;font-size:8.5px;line-height:1.05}
+  .export-row-action small{display:block;margin-top:3px;font-size:6.8px;opacity:.64;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .export-row-action .tag{font-size:6.7px;font-weight:700;border:1px solid currentColor;padding:2px 4px;opacity:.72;white-space:nowrap}
+  .export-note{margin-top:7px;padding:6px 7px;border-left:2px solid var(--ink);background:color-mix(in srgb,var(--ink) 5%,transparent);font-size:7.3px;line-height:1.45;opacity:.74}
+  .export-panel .notice{margin-top:9px;font-size:7.5px;padding:7px;opacity:.72}
   .object-edit-box{margin-top:9px;border:var(--line) solid var(--ink);padding:8px;display:grid;gap:7px}
   .object-edit-line{display:grid;grid-template-columns:64px 1fr auto;gap:6px;align-items:center}
   .object-edit-line label{font-size:8px;text-transform:uppercase;letter-spacing:.04em;opacity:.7}
@@ -221,7 +260,7 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 11V7a1.5 1.5 0 0 1 3 0v3"/><path d="M11 10V5.5a1.5 1.5 0 0 1 3 0V10"/><path d="M14 10V7a1.5 1.5 0 0 1 3 0v5"/><path d="M8 10.5V9a1.5 1.5 0 0 0-3 0v5c0 4 3 7 7 7h1c4 0 6-3 6-7v-3a1.5 1.5 0 0 0-3 0"/></svg>
           </button>
           <span class="sep" aria-hidden="true"></span>
-          <button class="iconbtn" id="groupSelectedBtn" type="button" title="Group selected (Ctrl/Cmd + G)" aria-label="Group selected" disabled>
+          <button class="iconbtn" id="groupSelectedBtn" type="button" title="Group selected objects · 2+ objects · any parent level · no limit (Ctrl/Cmd + G)" aria-label="Group selected objects" disabled>
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="6" width="9" height="9" rx="1"/><rect x="10.5" y="9" width="9" height="9" rx="1"/></svg>
           </button>
           <button class="iconbtn" id="ungroupSelectedBtn" type="button" title="Ungroup selected (Ctrl/Cmd + Shift + G)" aria-label="Ungroup selected" disabled>
@@ -268,7 +307,7 @@
             <div class="object-edit-line"><label>Opacity</label><input type="range" id="objOpacity" min="0" max="100" value="100" disabled><span class="value" id="objOpacityVal">100%</span></div>
             <div class="export-grid"><button class="mini" id="objNoFillBtn" disabled>NO FILL</button><button class="mini" id="objNoStrokeBtn" disabled>NO STROKE</button></div>
           </div>
-          <div class="selection-help">SELECT: klik object untuk memilih, Shift/Ctrl/Cmd + klik untuk multi-select, atau drag area kosong untuk marquee select. PAN memindahkan canvas. Object yang di-lock tetap terlihat tetapi tidak menangkap klik: SELECT akan menembusnya ke object di bawah, seperti object yang di-hide. Unlock dari Layers untuk mengedit atau memindahkannya. Object hasil GROUP diperlakukan sebagai satu unit saat dipilih dan di-drag.</div>
+          <div class="selection-help">SELECT: klik object untuk memilih, Shift/Ctrl/Cmd + klik untuk multi-select, atau drag area kosong untuk marquee select. PAN memindahkan canvas. Object yang di-lock tetap terlihat tetapi tidak menangkap klik: SELECT akan menembusnya ke object di bawah, seperti object yang di-hide. Unlock dari Layers untuk mengedit atau memindahkannya. Object hasil GROUP diperlakukan sebagai satu unit saat dipilih dan di-drag. GROUP dapat berisi 2 atau lebih object tanpa batas maksimum dari editor.</div>
         </div>
 
         <div class="group">
@@ -278,22 +317,58 @@
           <p class="hint">Drag warna ke warna lain untuk mengganti semua fill/stroke yang sama. Klik EDIT untuk color picker. DEL menghapus warna dengan menjadikannya transparan.</p>
         </div>
 
-        <div class="group">
-          <div class="gtitle"><span>PNG</span><span>raster export</span></div>
-          <div class="row"><label>Scale</label><select id="pngScale"><option value="1">1×</option><option value="2" selected>2×</option><option value="3">3×</option><option value="4">4×</option></select></div>
-          <div class="row"><label>Background</label><select id="pngBg"><option value="transparent">Transparent</option><option value="#ffffff">White</option><option value="#000000">Black</option></select></div>
-        </div>
+        <div class="group export-panel">
+          <div class="gtitle"><span>Export</span><span class="export-ready">ready</span></div>
 
-        <div class="group">
-          <div class="gtitle"><span>Export</span><span>current document</span></div>
-          <div class="row"><label>Split format</label><select id="splitFormat"><option value="svg">SVG only</option><option value="png">PNG only</option><option value="both" selected>SVG + PNG</option></select></div>
-          <div class="row"><label>Split bounds</label><select id="splitBounds"><option value="tight" selected>Tight object</option><option value="artboard">Keep artboard</option></select></div>
-          <div class="export-grid">
-            <button class="exportbtn" id="svgBtn" disabled>SVG</button>
-            <button class="exportbtn" id="pngBtn" disabled>PNG</button>
-            <button class="exportbtn accent wide" id="selectedSvgBtn" disabled>SELECTED → SVG</button>
-            <button class="exportbtn wide" id="splitZipBtn" disabled>SPLIT SELECTED → ZIP</button>
+          <div class="export-scope-strip" aria-label="Export scope status">
+            <div><span>Document</span><b id="exportDocMeta">—</b></div>
+            <div><span>Selected</span><b id="exportSelectionMeta">0</b></div>
+            <div><span>Groups</span><b id="exportGroupMeta">0</b></div>
           </div>
+
+          <div class="export-section">
+            <div class="export-section-head"><span>Quick export</span><small>whole document</small></div>
+            <div class="export-quick-grid">
+              <button class="export-action primary" id="svgBtn" disabled title="Export seluruh dokumen sebagai SVG editable">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9m0 0 3-3m-3 3-3-3"/><path d="M4 14v2h12v-2"/></svg>
+                <span><b>SVG</b><small>Editable vector</small></span>
+              </button>
+              <button class="export-action" id="pngBtn" disabled title="Export seluruh dokumen sebagai PNG">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="3" width="14" height="14" rx="1"/><circle cx="7" cy="7" r="1.3"/><path d="m5 15 4-4 2.4 2.4 1.7-1.7L16 15"/></svg>
+                <span><b>PNG</b><small>Raster image</small></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="export-section">
+            <div class="export-section-head"><span>Settings</span><small>PNG & ZIP</small></div>
+            <div class="export-settings-grid">
+              <div class="export-field"><label>PNG scale</label><select id="pngScale"><option value="1">1×</option><option value="2" selected>2×</option><option value="3">3×</option><option value="4">4×</option></select></div>
+              <div class="export-field"><label>Background</label><select id="pngBg"><option value="transparent">Transparent</option><option value="#ffffff">White</option><option value="#000000">Black</option></select></div>
+              <div class="export-field"><label>ZIP format</label><select id="splitFormat"><option value="svg">SVG only</option><option value="png">PNG only</option><option value="both" selected>SVG + PNG</option></select></div>
+              <div class="export-field"><label>Bounds</label><select id="splitBounds"><option value="tight" selected>Tight object</option><option value="artboard">Keep artboard</option></select></div>
+            </div>
+          </div>
+
+          <div class="export-section">
+            <div class="export-section-head"><span>Selection & batch</span><small>selected content</small></div>
+            <div class="export-stack">
+              <button class="export-row-action accent" id="selectedSvgBtn" disabled title="Export semua object yang sedang dipilih menjadi satu SVG">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 4h5M4 4v5M16 16h-5m5 0v-5"/><path d="M7 13h6V7H7z"/></svg>
+                <span class="copy"><b>Selected → SVG</b><small>Selection sebagai satu file</small></span><span class="tag">SVG</span>
+              </button>
+              <button class="export-row-action" id="splitZipBtn" disabled title="Export setiap object terpilih menjadi file terpisah di dalam ZIP">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 5h5v5H4zM11 10h5v5h-5z"/><path d="M11 5h5M4 15h5"/></svg>
+                <span class="copy"><b>Split selected</b><small>Satu file per object terpilih</small></span><span class="tag">ZIP</span>
+              </button>
+              <button class="export-row-action" id="splitGroupZipBtn" disabled title="Export setiap group terpilih sebagai satu asset utuh di dalam ZIP">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="10" height="9" rx="1"/><rect x="7" y="8" width="10" height="8" rx="1"/></svg>
+                <span class="copy"><b>Export groups</b><small>Satu file utuh per group</small></span><span class="tag">ZIP</span>
+              </button>
+            </div>
+            <div class="export-note">Group export tidak memecah child object. Pilih salah satu object di dalam group untuk mengaktifkannya.</div>
+          </div>
+
           <div class="notice" id="compatNotice">Semua proses edit dan export dilakukan di browser. Modul import AI/PDF dimuat saat dibutuhkan.</div>
         </div>
       </div>
@@ -312,7 +387,7 @@
     objectList:$('objectList'), objectCount:$('objectCount'), selectionLabel:$('selectionLabel'), svgStage:$('svgStage'), stageViewport:$('stageViewport'), stageTransform:$('stageTransform'), emptyState:$('emptyState'),
     loading:$('loading'), loadText:$('loadText'), loadPct:$('loadPct'), loadFill:$('loadFill'), footerStatus:$('footerStatus'), statObjects:$('statObjects'), statColors:$('statColors'), statArtboards:$('statArtboards'), statSize:$('statSize'), statStatus:$('statStatus'), docState:$('docState'),
     palette:$('palette'), compatNotice:$('compatNotice'), textMode:$('textMode'), hiddenMode:$('hiddenMode'), artboardMode:$('artboardMode'), pngScale:$('pngScale'), pngBg:$('pngBg'), splitFormat:$('splitFormat'), splitBounds:$('splitBounds'), zoomLabel:$('zoomLabel'), enginePill:$('enginePill'), importModeLabel:$('importModeLabel'),
-    svgBtn:$('svgBtn'), pngBtn:$('pngBtn'), selectedSvgBtn:$('selectedSvgBtn'), splitZipBtn:$('splitZipBtn'), colorPop:$('colorPop'), colorPicker:$('colorPicker'),
+    svgBtn:$('svgBtn'), pngBtn:$('pngBtn'), selectedSvgBtn:$('selectedSvgBtn'), splitZipBtn:$('splitZipBtn'), splitGroupZipBtn:$('splitGroupZipBtn'), exportDocMeta:$('exportDocMeta'), exportSelectionMeta:$('exportSelectionMeta'), exportGroupMeta:$('exportGroupMeta'), colorPop:$('colorPop'), colorPicker:$('colorPicker'),
     groupSelectedBtn:$('groupSelectedBtn'), ungroupSelectedBtn:$('ungroupSelectedBtn'), deleteSelectedBtn:$('deleteSelectedBtn'),
     selectToolBtn:$('selectToolBtn'), panToolBtn:$('panToolBtn'), undoBtn:$('undoBtn'), redoBtn:$('redoBtn'), selectMarquee:$('selectMarquee'),
     objName:$('objName'), objRenameBtn:$('objRenameBtn'), objFill:$('objFill'), objFillBtn:$('objFillBtn'), objStroke:$('objStroke'), objStrokeBtn:$('objStrokeBtn'), objStrokeWidth:$('objStrokeWidth'), objStrokeWidthVal:$('objStrokeWidthVal'), objStrokeStyle:$('objStrokeStyle'), objOpacity:$('objOpacity'), objOpacityVal:$('objOpacityVal'), objNoFillBtn:$('objNoFillBtn'), objNoStrokeBtn:$('objNoStrokeBtn'),
@@ -468,7 +543,9 @@
     let autoIndex=0;
 
     const labelOf=el=>el.getAttribute('data-name')||el.getAttribute('inkscape:label')||el.getAttribute('aria-label')||el.getAttribute('name')||'';
-    const nearestEditorGroup=el=>{let n=el?.parentElement;while(n&&n!==root){if(n.tagName?.toLowerCase()==='g'&&n.getAttribute('data-vfs-user-group')==='1')return n;n=n.parentElement}return null};
+    // The outermost editor group is the interaction unit. This lets nested groups
+    // behave as one object after groups from different hierarchy levels are combined.
+    const outermostEditorGroup=el=>{let n=el?.parentElement,found=null;while(n&&n!==root){if(n.tagName?.toLowerCase()==='g'&&n.getAttribute('data-vfs-user-group')==='1')found=n;n=n.parentElement}return found};
     const effectivelyVisible=el=>{
       let n=el;
       while(n&&n!==root){
@@ -501,7 +578,7 @@
           locked:el.getAttribute('data-vfs-locked')==='1',
           depth:groups.length,
           groupPath:groups.join(' › '),
-          editorGroupId:nearestEditorGroup(el)?.id||null,
+          editorGroupId:outermostEditorGroup(el)?.id||null,
           displayName:groups.length ? groups.join(' › ')+' › '+leafName : leafName
         });
       });
@@ -578,8 +655,19 @@
     const sw=Math.min(50,strokeWidthOf(primary.el));els.objStrokeWidth.value=sw;els.objStrokeWidthVal.textContent=(Math.round(sw*100)/100)+' px';els.objStrokeStyle.value=strokeStyleOf(primary.el);
     const op=Math.round(directOpacity(primary.el)*100);els.objOpacity.value=op;els.objOpacityVal.textContent=op+'%';
   }
+  function selectedEditorGroupIds(){
+    const ids=new Set();
+    state.selected.forEach(id=>{const gid=state.objects.find(o=>o.id===id)?.editorGroupId;if(gid)ids.add(gid)});
+    return [...ids];
+  }
   function updateSelectionUI(){
     els.selectionLabel.textContent=state.selected.size+' selected';els.selectedSvgBtn.disabled=!state.svg||!state.selected.size;els.splitZipBtn.disabled=!state.svg||!state.selected.size;
+    const selectedGroups=selectedEditorGroupIds();
+    if(els.exportSelectionMeta)els.exportSelectionMeta.textContent=state.selected.size;
+    if(els.exportGroupMeta)els.exportGroupMeta.textContent=selectedGroups.length;
+    if(els.exportDocMeta)els.exportDocMeta.textContent=state.svg?(state.objects.length+' OBJ'):'—';
+    els.splitGroupZipBtn.disabled=!state.svg||selectedGroups.length===0;
+    els.splitGroupZipBtn.title=selectedGroups.length?('Export '+selectedGroups.length+' selected group'+(selectedGroups.length>1?'s':'')+' as whole assets'):'Select an object inside a group first';
     const editableCount=[...state.selected].filter(id=>!state.objects.find(o=>o.id===id)?.locked).length;
     els.groupSelectedBtn.disabled=editableCount<2;els.ungroupSelectedBtn.disabled=editableCount<1;els.deleteSelectedBtn.disabled=editableCount<1;
     updateObjectEditor();
@@ -606,18 +694,120 @@
   function deleteSelected(){if(!state.selected.size)return;const ids=[...state.selected].filter(id=>!state.objects.find(o=>o.id===id)?.locked);if(!ids.length){setStatus('LOCKED OBJECT · DELETE BLOCKED');return}pushUndo();const doc=parseSvg(clearEditorHighlight(state.svg));ids.forEach(id=>doc.getElementById(id)?.remove());state.svg=serializeDoc(doc);ids.forEach(id=>state.selected.delete(id));if(state.focused&&ids.includes(state.focused))state.focused=[...state.selected].at(-1)||null;commitRender(true);setStatus('DELETED · '+ids.length+' OBJECT','ok')}
 
   function groupSelected(){
-    const ids=state.objects.filter(o=>state.selected.has(o.id)&&!o.locked).map(o=>o.id);if(ids.length<2){setStatus('SELECT 2+ OBJECTS TO GROUP');return}
-    const doc=parseSvg(clearEditorHighlight(state.svg)),nodes=ids.map(id=>doc.getElementById(id)).filter(Boolean);if(nodes.length<2)return;
-    const parent=nodes[0].parentElement;if(nodes.some(n=>n.parentElement!==parent)){setStatus('GROUP NEEDS SAME PARENT','error');return}
-    pushUndo();const ns='http://www.w3.org/2000/svg',g=doc.createElementNS(ns,'g');const count=doc.querySelectorAll('[data-vfs-user-group="1"]').length+1;
-    g.id='vfs-user-group-'+Date.now().toString(36)+'-'+count;g.setAttribute('data-vfs-user-group','1');g.setAttribute('data-name','Group '+String(count).padStart(2,'0'));
-    const ordered=[...parent.children].filter(n=>nodes.includes(n));parent.insertBefore(g,ordered[0]);ordered.forEach(n=>g.appendChild(n));state.svg=serializeDoc(doc);state.focused=ids[0];commitRender(true);setStatus('GROUP CREATED · '+ids.length+' OBJECTS','ok')
+    // Group every editable selected object, even when the objects live under
+    // different parent/group levels. Existing editor groups are treated as one
+    // unit when the complete group is selected. There is no maximum item count.
+    const ids=[...state.selected].filter(id=>{
+      const o=state.objects.find(x=>x.id===id);
+      return !!o&&!o.locked;
+    });
+    if(ids.length<2){setStatus('SELECT 2+ OBJECTS TO GROUP · ANY PARENT LEVEL');return}
+
+    const doc=parseSvg(clearEditorHighlight(state.svg)),root=doc.documentElement;
+    const selectedSet=new Set(ids);
+    const unitNodes=[];
+    const consumedGroups=new Set();
+
+    // Collapse fully-selected existing editor groups to their <g> node so nested
+    // groups stay intact instead of being dismantled into leaf paths.
+    ids.forEach(id=>{
+      const meta=state.objects.find(o=>o.id===id),el=doc.getElementById(id);
+      if(!meta||!el)return;
+      const gid=meta.editorGroupId;
+      if(gid){
+        if(consumedGroups.has(gid))return;
+        const members=state.objects.filter(o=>o.editorGroupId===gid);
+        const canUseWholeGroup=members.length>0&&members.every(o=>!o.locked&&selectedSet.has(o.id));
+        if(canUseWholeGroup){
+          const g=doc.getElementById(gid);
+          if(g){unitNodes.push(g);consumedGroups.add(gid);return}
+        }
+      }
+      unitNodes.push(el);
+    });
+
+    // Remove nodes that are descendants of another selected unit; moving the
+    // ancestor already carries them with it.
+    const units=unitNodes.filter((node,i,arr)=>!arr.some((other,j)=>j!==i&&other.contains?.(node)));
+    if(units.length<2){setStatus('SELECT OBJECTS FROM AT LEAST 2 GROUPABLE UNITS');return}
+
+    const ancestorChain=node=>{const out=[];let n=node?.parentElement;while(n){out.push(n);if(n===root)break;n=n.parentElement}return out};
+    const chains=units.map(ancestorChain);
+    let commonParent=chains[0].find(a=>chains.every(c=>c.includes(a)))||root;
+    if(commonParent.tagName?.toLowerCase()==='svg'&&commonParent!==root) commonParent=root;
+
+    // Preserve a sensible stacking anchor. Exact interleaving with unrelated
+    // siblings cannot exist after cross-parent objects become one group, so the
+    // new group is inserted at the earliest selected branch under the LCA.
+    const branchUnder=(node,ancestor)=>{let n=node;while(n?.parentElement&&n.parentElement!==ancestor)n=n.parentElement;return n?.parentElement===ancestor?n:null};
+    const branches=[...new Set(units.map(n=>branchUnder(n,commonParent)).filter(Boolean))];
+    branches.sort((a,b)=>a===b?0:(a.compareDocumentPosition(b)&4?-1:1));
+    const anchor=branches[0]||null;
+
+    pushUndo();
+    const ns='http://www.w3.org/2000/svg',g=doc.createElementNS(ns,'g');
+    const count=doc.querySelectorAll('[data-vfs-user-group="1"]').length+1;
+    g.id='vfs-user-group-'+Date.now().toString(36)+'-'+count;
+    g.setAttribute('data-vfs-user-group','1');
+    g.setAttribute('data-name','Group '+String(count).padStart(2,'0'));
+    commonParent.insertBefore(g,anchor);
+
+    // Recreate only the ancestor context that each moved node depended on.
+    // Shared ancestor paths reuse one cloned wrapper, preserving transforms,
+    // clipping, opacity, masks, filters and inherited presentation attributes.
+    const cloneMap=new Map();
+    let contextSeq=0;
+    const stripEditorAttrs=clone=>{
+      clone.removeAttribute('data-vfs-user-group');
+      clone.removeAttribute('data-vfs-locked');
+      clone.removeAttribute('data-name');
+      clone.removeAttribute('data-editor-selected');
+      clone.removeAttribute('data-editor-focus');
+      clone.removeAttribute('data-editor-hit');
+      clone.removeAttribute('data-color-highlight');
+      if(clone.hasAttribute('id')) clone.setAttribute('id','vfs-context-'+Date.now().toString(36)+'-'+(++contextSeq));
+    };
+    const contextParentFor=node=>{
+      const chain=[];let n=node.parentElement;
+      while(n&&n!==commonParent){chain.push(n);n=n.parentElement}
+      chain.reverse();
+      let dest=g;
+      chain.forEach(original=>{
+        let clone=cloneMap.get(original);
+        if(!clone){clone=original.cloneNode(false);stripEditorAttrs(clone);dest.appendChild(clone);cloneMap.set(original,clone)}
+        dest=clone;
+      });
+      return dest;
+    };
+
+    // Keep the selected units in original document order inside the new group.
+    units.sort((a,b)=>a===b?0:(a.compareDocumentPosition(b)&4?-1:1));
+    units.forEach(node=>contextParentFor(node).appendChild(node));
+
+    // Remove empty editor groups left behind by extracting selected content.
+    // Plain imported groups are intentionally kept because they may carry IDs
+    // referenced elsewhere in the SVG.
+    [...doc.querySelectorAll('g[data-vfs-user-group="1"]')].reverse().forEach(old=>{
+      if(old!==g&&!old.children.length&&!String(old.textContent||'').trim())old.remove();
+    });
+
+    state.svg=serializeDoc(doc);
+    state.focused=ids[0]||null;
+    commitRender(true);
+    setStatus('GROUP CREATED · '+ids.length+' OBJECTS · CROSS-PARENT','ok');
   }
   function ungroupSelected(){
-    if(!state.selected.size)return;const doc=parseSvg(clearEditorHighlight(state.svg)),groups=[];
-    state.selected.forEach(id=>{if(state.objects.find(o=>o.id===id)?.locked)return;let p=doc.getElementById(id)?.parentElement;if(p?.tagName?.toLowerCase()==='g'&&p.getAttribute('data-vfs-user-group')==='1'&&!groups.includes(p))groups.push(p)});
+    if(!state.selected.size)return;
+    const doc=parseSvg(clearEditorHighlight(state.svg)),groupIds=new Set();
+    state.selected.forEach(id=>{
+      const meta=state.objects.find(o=>o.id===id);
+      if(meta&&!meta.locked&&meta.editorGroupId)groupIds.add(meta.editorGroupId);
+    });
+    const groups=[...groupIds].map(id=>doc.getElementById(id)).filter(g=>g?.tagName?.toLowerCase()==='g'&&g.getAttribute('data-vfs-user-group')==='1');
     if(!groups.length){setStatus('SELECT OBJECTS INSIDE EDITOR GROUP');return}
-    pushUndo();groups.forEach(g=>{const p=g.parentElement;while(g.firstChild)p.insertBefore(g.firstChild,g);g.remove()});state.svg=serializeDoc(doc);commitRender(true);setStatus('UNGROUPED · '+groups.length+' GROUP','ok')
+    pushUndo();
+    groups.forEach(g=>{const p=g.parentElement;if(!p)return;while(g.firstChild)p.insertBefore(g.firstChild,g);g.remove()});
+    state.svg=serializeDoc(doc);commitRender(true);setStatus('UNGROUPED · '+groups.length+' GROUP','ok');
   }
   function applySelectedPaint(prop,val){
     if(!state.selected.size)return;const ids=[...state.selected].filter(id=>!state.objects.find(o=>o.id===id)?.locked);if(!ids.length){setStatus('LOCKED OBJECT · EDIT BLOCKED');return}pushUndo();const doc=parseSvg(clearEditorHighlight(state.svg));let n=0;ids.forEach(id=>{const el=doc.getElementById(id);if(el){setStyleColor(el,prop,val);n++}});state.svg=serializeDoc(doc);commitRender(false);setStatus(prop.toUpperCase()+' EDITED · '+n+' OBJECT','ok')
@@ -776,10 +966,17 @@
       const oldDisplay=el.getAttribute('display'), oldVisibility=el.getAttribute('visibility');
       if(oldDisplay==='none') el.removeAttribute('display');
       if(oldVisibility==='hidden') el.removeAttribute('visibility');
-      const b=el.getBBox();
+      const b=el.getBBox(), em=el.getCTM?.(), rm=live.getCTM?.();
       if(oldDisplay==='none') el.setAttribute('display','none');
       if(oldVisibility==='hidden') el.setAttribute('visibility','hidden');
-      if(b && b.width>0 && b.height>0) return {x:b.x,y:b.y,width:b.width,height:b.height};
+      if(!b||b.width<=0||b.height<=0)return null;
+      let m=em;
+      try{if(em&&rm&&typeof rm.inverse==='function'){const inv=rm.inverse();if(typeof inv.multiply==='function')m=inv.multiply(em)}}catch(e){}
+      if(!m)return {x:b.x,y:b.y,width:b.width,height:b.height};
+      const tx=(x,y)=>({x:m.a*x+m.c*y+m.e,y:m.b*x+m.d*y+m.f});
+      const pts=[tx(b.x,b.y),tx(b.x+b.width,b.y),tx(b.x,b.y+b.height),tx(b.x+b.width,b.y+b.height)];
+      const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y),x=Math.min(...xs),y=Math.min(...ys),x2=Math.max(...xs),y2=Math.max(...ys);
+      return {x,y,width:x2-x,height:y2-y};
     }catch(e){}
     return null;
   }
@@ -812,6 +1009,64 @@
       if(format==='png'||format==='both'){setStatus('RENDERING '+i+'/'+state.selected.size);const png=await svgToPngBlob(svg,Number(els.pngScale.value),els.pngBg.value);zip.file(stem+'.png',png)}
     }
     const blob=await zip.generateAsync({type:'blob'});downloadBlob(blob,state.fileBase+'-split.zip');setStatus('ZIP EXPORTED','ok')
+  }
+  function groupMeta(groupId){
+    try{
+      const doc=parseSvg(state.svg),g=doc.getElementById(groupId);if(!g)return null;
+      const name=g.getAttribute('data-name')||g.getAttribute('inkscape:label')||g.getAttribute('aria-label')||g.id||'group';
+      return {id:groupId,name};
+    }catch(e){return null}
+  }
+  function groupSvg(groupId){
+    try{
+      const src=parseSvg(editorCleanSvg(state.svg)),srcRoot=src.documentElement,group=src.getElementById(groupId);
+      if(!group)return null;
+      const out=document.implementation.createDocument('http://www.w3.org/2000/svg','svg',null);
+      const root=out.importNode(srcRoot.cloneNode(false),true);
+      out.replaceChild(root,out.documentElement);
+      // Keep global definitions/styles required by gradients, masks, clips, fonts, etc.
+      [...srcRoot.children].forEach(el=>{
+        const tag=el.tagName?.toLowerCase();
+        if(tag==='defs'||tag==='style')root.appendChild(out.importNode(el.cloneNode(true),true));
+      });
+      // Rebuild only the ancestor chain of this group so inherited transform/style/clip stays intact.
+      const chain=[];let n=group.parentElement;
+      while(n&&n!==srcRoot){chain.unshift(n);n=n.parentElement}
+      let parent=root;
+      chain.forEach(ancestor=>{const shell=out.importNode(ancestor.cloneNode(false),true);parent.appendChild(shell);parent=shell});
+      parent.appendChild(out.importNode(group.cloneNode(true),true));
+      if(els.splitBounds.value==='tight'){
+        const b=objectBBox(groupId);
+        if(b){const pad=Math.max(1,Math.min(b.width,b.height)*.02);root.setAttribute('viewBox',[b.x-pad,b.y-pad,b.width+pad*2,b.height+pad*2].join(' '));root.removeAttribute('width');root.removeAttribute('height')}
+      }
+      return serializeDoc(out);
+    }catch(e){console.error(e);return null}
+  }
+  async function splitGroupZip(){
+    const groupIds=selectedEditorGroupIds();
+    if(!groupIds.length){setStatus('SELECT OBJECT INSIDE A GROUP','error');return}
+    if(!window.JSZip){setStatus('ZIP LIBRARY MISSING','error');return}
+    const groups=groupIds.map(groupMeta).filter(Boolean);
+    if(!groups.length){setStatus('NO GROUP FOUND','error');return}
+    const total=groups.length,format=els.splitFormat.value,zip=new JSZip();
+    let done=0;
+    setStatus('EXPORTING '+total+' GROUP'+(total>1?'S':''));
+    for(let i=0;i<groups.length;i++){
+      const g=groups[i],svg=groupSvg(g.id);
+      if(!svg)continue;
+      const stem=String(i+1).padStart(2,'0')+'-'+safeName(g.name);
+      if(format==='svg'||format==='both')zip.file(stem+'.svg',exportCleanSvg(svg));
+      if(format==='png'||format==='both'){
+        setStatus('GROUP EXPORT '+(i+1)+'/'+total);
+        const png=await svgToPngBlob(svg,Number(els.pngScale.value),els.pngBg.value);zip.file(stem+'.png',png);
+      }
+      done++;
+    }
+    if(!done){setStatus('GROUP EXPORT FAILED','error');return}
+    const blob=await zip.generateAsync({type:'blob'});
+    const suffix=groups.length===1?'-'+safeName(groups[0].name):'-groups';
+    downloadBlob(blob,state.fileBase+suffix+'.zip');
+    setStatus('GROUP EXPORT DONE · '+done+' GROUP'+(done>1?'S':''),'ok');
   }
   function safeName(s){return String(s||'object').replace(/[^a-z0-9_-]+/gi,'-').replace(/^-+|-+$/g,'').slice(0,60)||'object'}
 
@@ -846,8 +1101,9 @@
   const groupMembers=id=>{const gid=editorGroupIdFor(id);return gid?state.objects.filter(o=>o.editorGroupId===gid&&!o.locked).map(o=>o.id):selectionUnitIds(id)};
   const movementNodeFor=(live,id)=>{
     const leaf=live?.getElementById?.(id)||live?.querySelector?.('#'+CSS.escape(id));if(!leaf)return null;
-    let n=leaf.parentElement;while(n&&n!==live){if(n.tagName?.toLowerCase()==='g'&&n.getAttribute('data-vfs-user-group')==='1')return n;n=n.parentElement}
-    return leaf;
+    let n=leaf.parentElement,outer=null;
+    while(n&&n!==live){if(n.tagName?.toLowerCase()==='g'&&n.getAttribute('data-vfs-user-group')==='1')outer=n;n=n.parentElement}
+    return outer||leaf;
   };
   const movementRecordsForSelection=(live,e)=>{
     const unique=new Map();
@@ -943,6 +1199,7 @@
   els.pngBtn.onclick=()=>exportPng(state.svg,state.fileBase+'-edited.png');
   els.selectedSvgBtn.onclick=()=>exportSvg(exportCleanSvg(selectedSvg()),state.fileBase+'-selected.svg');
   els.splitZipBtn.onclick=splitZip;
+  els.splitGroupZipBtn.onclick=splitGroupZip;
 
   // Editor keyboard shortcuts
   document.addEventListener('keydown',e=>{
