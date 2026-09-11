@@ -175,6 +175,35 @@
   .export-row-action .tag{font-size:6.7px;font-weight:700;border:1px solid currentColor;padding:2px 4px;opacity:.72;white-space:nowrap}
   .export-note{margin-top:7px;padding:6px 7px;border-left:2px solid var(--ink);background:color-mix(in srgb,var(--ink) 5%,transparent);font-size:7.3px;line-height:1.45;opacity:.74}
   .export-panel .notice{margin-top:9px;font-size:7.5px;padding:7px;opacity:.72}
+  .queue-head-actions{display:flex;align-items:center;gap:5px}
+  .queue-count{font-size:7px;font-weight:700;border:1px solid var(--ink);padding:2px 5px;white-space:nowrap}
+  .queue-clear{border:0;background:transparent;color:var(--ink);font:700 7px 'Space Mono',monospace;padding:2px 0;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+  .queue-clear:disabled{opacity:.3;text-decoration:none}
+  .queue-list{display:grid;gap:5px;max-height:250px;overflow:auto;padding-right:1px}
+  .queue-empty{border:1px dashed color-mix(in srgb,var(--ink) 52%,transparent);padding:13px 9px;text-align:center;font-size:7.5px;line-height:1.55;opacity:.58}
+  .queue-item{display:grid;grid-template-columns:16px 46px minmax(0,1fr) 58px 20px;gap:6px;align-items:center;border:1px solid var(--ink);background:var(--paper);padding:5px;transition:opacity .1s,transform .1s,background .1s}
+  .queue-item.off{opacity:.48}
+  .queue-item.invalid{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 7%,var(--paper))}
+  .queue-item.dragging{opacity:.3}
+  .queue-item.drag-over{outline:2px solid var(--accent);outline-offset:-2px}
+  .queue-check{display:grid;place-items:center;margin:0}
+  .queue-check input{width:12px;height:12px;margin:0;accent-color:var(--ink)}
+  .queue-thumb{width:46px;height:46px;border:1px solid var(--ink);display:grid;place-items:center;background:linear-gradient(45deg,#e9e9e6 25%,transparent 25%),linear-gradient(-45deg,#e9e9e6 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e9e9e6 75%),linear-gradient(-45deg,transparent 75%,#e9e9e6 75%);background-size:10px 10px;background-position:0 0,0 5px,5px -5px,-5px 0;overflow:hidden;position:relative}
+  .queue-thumb svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}.queue-thumb img{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none}.queue-thumb.preview-ready{background:linear-gradient(45deg,#e9e9e6 25%,transparent 25%),linear-gradient(-45deg,#e9e9e6 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e9e9e6 75%),linear-gradient(-45deg,transparent 75%,#e9e9e6 75%);background-size:10px 10px;background-position:0 0,0 5px,5px -5px,-5px 0}.queue-thumb.preview-missing{opacity:.48}
+  .queue-main{min-width:0;display:grid;gap:2px}
+  .queue-name{min-width:0;width:100%;border:0;border-bottom:1px solid transparent;background:transparent;color:var(--ink);font:700 8px 'Space Mono',monospace;padding:1px 0;outline:0}
+  .queue-name:focus{border-bottom-color:var(--accent)}
+  .queue-meta{font-size:6.5px;text-transform:uppercase;letter-spacing:.04em;opacity:.55;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .queue-format{width:58px;border:1px solid var(--ink);background:var(--paper);color:var(--ink);font:700 7px 'Space Mono',monospace;padding:4px 2px;outline:0}
+  .queue-remove{width:20px;height:20px;border:0;background:transparent;color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
+  .queue-remove:hover{background:var(--accent);color:#fff}
+  .queue-remove svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
+  .queue-drag{cursor:grab;position:absolute;opacity:0;pointer-events:none}
+  .queue-export-bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;margin-top:7px}
+  .queue-export-btn{border:var(--line) solid var(--ink);background:var(--accent);color:#fff;padding:10px 9px;font-family:'Archivo Black',sans-serif;font-size:9px;letter-spacing:.01em;cursor:pointer;text-align:left}
+  .queue-export-btn:hover:not(:disabled){filter:brightness(.96)}
+  .queue-export-btn:disabled{opacity:.35}
+  .queue-export-meta{min-width:58px;border:var(--line) solid var(--ink);display:grid;place-items:center;padding:4px 6px;font-size:7px;font-weight:700;text-align:center;line-height:1.25}
   .object-edit-box{margin-top:9px;border:var(--line) solid var(--ink);padding:8px;display:grid;gap:7px}
   .object-edit-line{display:grid;grid-template-columns:64px 1fr auto;gap:6px;align-items:center}
   .object-edit-line label{font-size:8px;text-transform:uppercase;letter-spacing:.04em;opacity:.7}
@@ -192,6 +221,86 @@
   .notice{border:var(--line) solid var(--ink);padding:8px;font-size:8.5px;line-height:1.45;margin-top:8px}
   .notice.warn{border-color:var(--warn)}
   .footer{display:flex;align-items:center;padding:4px 10px;font-size:8.5px;opacity:.68;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+
+  /* ---------- COMPACT PROPERTY INSPECTOR ---------- */
+  .right-body{padding:8px;background:var(--paper)}
+  .right-body>.group{border:1px solid color-mix(in srgb,var(--ink) 78%,transparent);padding:8px;margin:0 0 8px;background:var(--paper)}
+  .right-body>.group:last-child{margin-bottom:0}
+  .gtitle{min-height:24px;margin:0 0 7px;font-size:8.4px;letter-spacing:.065em}
+  .gtitle-right{display:flex;align-items:center;gap:6px;min-width:0}
+  .info-dot{width:18px;height:18px;border:1px solid var(--ink);background:transparent;color:var(--ink);display:grid;place-items:center;font:700 9px/1 'Space Mono',monospace;padding:0;cursor:help}
+  .info-dot:hover{background:var(--ink);color:var(--paper)}
+  .compact-note{font-size:7.2px;opacity:.54;line-height:1.35;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .right-body .hint,.right-body .selection-help{display:none}
+  .right-body .row{margin:5px 0;grid-template-columns:minmax(0,1fr) 108px}
+  .right-body .row label{font-size:7.7px;opacity:.72}
+  .right-body .row select,.right-body .row input[type="number"]{width:108px;padding:5px 6px;font-size:8px;border-width:1px}
+  .right-body .collapse-btn{width:21px;height:20px;border-width:1px;margin-left:2px}
+
+  .object-edit-box{margin:0;border:0;padding:0;display:grid;gap:6px}
+  .inspector-field{border:1px solid var(--ink);padding:6px;min-width:0;background:var(--paper)}
+  .inspector-label{display:flex;align-items:center;justify-content:space-between;gap:5px;margin-bottom:5px;font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.055em;opacity:.64}
+  .name-control{display:grid;grid-template-columns:minmax(0,1fr) 30px;gap:5px}
+  .name-control input{min-width:0;width:100%;height:29px;border:1px solid var(--ink);background:var(--paper);padding:5px 6px;font-size:8px}
+  .mini-icon{width:30px;height:29px;border:1px solid var(--ink);background:var(--paper);display:grid;place-items:center;padding:0;color:var(--ink)}
+  .mini-icon:hover:not(:disabled){background:var(--ink);color:var(--paper)}
+  .mini-icon svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+  .paint-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .paint-card{border:1px solid var(--ink);padding:6px;min-width:0}
+  .paint-card-head{display:flex;align-items:center;justify-content:space-between;gap:5px;margin-bottom:5px}
+  .paint-card-head span{font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.055em;opacity:.64}
+  .paint-actions{display:flex;gap:3px}
+  .paint-icon{width:22px;height:20px;border:1px solid var(--ink);background:var(--paper);display:grid;place-items:center;padding:0;color:var(--ink)}
+  .paint-icon:hover:not(:disabled){background:var(--ink);color:var(--paper)}
+  .paint-icon.danger-lite:hover:not(:disabled){background:var(--accent);color:#fff}
+  .paint-icon svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+  .paint-control{display:grid;grid-template-columns:minmax(0,1fr) 28px;gap:4px}
+  .paint-control input[type="color"]{width:100%;height:28px;border:1px solid var(--ink);background:var(--paper);padding:2px}
+  .paint-apply{width:28px;height:28px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);display:grid;place-items:center;padding:0}
+  .paint-apply:hover:not(:disabled){background:var(--accent);color:#fff}
+  .paint-apply svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .property-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .property-grid .inspector-field{padding:6px}
+  .property-grid select{width:100%;height:28px;border:1px solid var(--ink);background:var(--paper);padding:4px 5px;font-size:8px}
+  .slider-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center;min-height:28px}
+  .slider-row input[type="range"]{width:100%;min-width:0}
+  .slider-value{min-width:35px;text-align:right;font-size:7.4px;font-weight:700;white-space:nowrap}
+  .object-edit-line{display:none}
+  .export-grid.object-paint-none{display:none}
+
+  .palette-tools{margin-bottom:6px;gap:5px}
+  .palette-tools .mini{padding:6px 5px;font-size:7.5px;border-width:1px}
+  #palette{max-height:190px;border-left-width:1px;border-top-width:1px}
+  .swatch{border-right-width:1px;border-bottom-width:1px;padding:4px}
+  .chip{height:22px;margin-bottom:3px}
+  .swatch-actions{margin-top:3px}
+
+  .export-panel{padding:8px!important}
+  .export-scope-strip{margin-bottom:7px;border-width:1px}
+  .export-scope-strip>div{padding:5px 6px}
+  .export-section{margin-top:7px;padding-top:7px}
+  .export-section-head{margin-bottom:5px}
+  .export-section-head span{font-size:7.5px}
+  .export-section-head small{display:none}
+  .export-action{padding:7px 7px;border-width:1px}
+  .export-action b{font-size:8.2px}
+  .export-action small{display:none}
+  .export-row-action{padding:7px;border-width:1px;grid-template-columns:17px minmax(0,1fr) 22px}
+  .export-row-action b{font-size:8px}
+  .export-row-action small{display:none}
+  .export-row-action .tag{width:22px;height:20px;padding:0;display:grid;place-items:center;font-size:0}
+  .export-row-action .tag::before{content:'+';font-size:12px;line-height:1;font-weight:700}
+  .export-settings-grid{gap:5px}
+  .export-field{padding:5px}
+  .export-field label{margin-bottom:3px;font-size:6.5px}
+  .export-field select{padding-top:4px;font-size:7.7px}
+  .queue-list{max-height:210px}
+  .queue-empty{padding:10px 7px;font-size:7.2px}
+  .export-note{display:none}
+  .export-panel .notice:not(.warn){display:none}
+  .export-panel .notice.warn{margin-top:7px;padding:6px;font-size:7.2px}
+  .queue-export-btn{padding:9px 8px}
 
   @media(max-width:980px){.workspace{grid-template-columns:210px minmax(360px,1fr) 300px}.lede{display:none}}
   @media(max-width:760px){html,body{overflow:auto;height:auto}.app{height:auto;min-height:100vh;display:block}.workspace{display:block}.panel+.panel{border-left:0;border-top:var(--line) solid var(--ink)}.panel{min-height:520px}.center{height:650px}.pill{display:none}}
@@ -287,38 +396,47 @@
       <div class="panel-head"><span>Parameters</span><span class="muted">Edit / Export</span></div>
       <div class="right-body">
         <div class="group collapsible" id="importGroup">
-          <div class="gtitle" id="importGroupHead" role="button" tabindex="0" aria-expanded="true" aria-controls="importGroupContent"><span>Import</span><span style="display:flex;align-items:center;gap:7px"><span id="importModeLabel">AUTO</span><button class="collapse-btn" id="importToggleBtn" type="button" title="Minimize import" aria-label="Minimize import"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 10 4-4 4 4"/></svg></button></span></div>
+          <div class="gtitle" id="importGroupHead" role="button" tabindex="0" aria-expanded="true" aria-controls="importGroupContent" title="AI paling stabil dengan Create PDF Compatible File. SVG dibuka native."><span>Import</span><span style="display:flex;align-items:center;gap:7px"><span id="importModeLabel">AUTO</span><button class="collapse-btn" id="importToggleBtn" type="button" title="Minimize import" aria-label="Minimize import"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 10 4-4 4 4"/></svg></button></span></div>
           <div class="group-content" id="importGroupContent">
             <div class="row"><label>Text</label><select id="textMode"><option value="editable">Editable</option><option value="outline">Outline</option></select></div>
             <div class="row"><label>Hidden layers</label><select id="hiddenMode"><option value="import-hidden">Import hidden</option><option value="skip">Skip hidden</option></select></div>
             <div class="row"><label>Artboards</label><select id="artboardMode"><option value="all">All</option><option value="1">First only</option></select></div>
-            <p class="hint">AI paling stabil bila disimpan dengan <b>Create PDF Compatible File</b>. SVG dibuka langsung tanpa konversi.</p>
           </div>
         </div>
 
         <div class="group">
-          <div class="gtitle"><span>Object editing</span><span id="selectionLabel">0 selected</span></div>
+          <div class="gtitle"><span>Object</span><span class="gtitle-right"><span id="selectionLabel">0 selected</span><button class="info-dot" type="button" title="V Select · Shift/Ctrl multi-select · drag kosong marquee · H Pan · object locked dilewati saat klik">?</button></span></div>
           <div class="object-edit-box">
-            <div class="object-edit-line"><label>Name</label><input type="text" id="objName" placeholder="Selected object" disabled><button class="mini" id="objRenameBtn" disabled>SET</button></div>
-            <div class="object-edit-line"><label>Fill</label><input type="color" id="objFill" value="#000000" disabled><button class="mini" id="objFillBtn" disabled>APPLY</button></div>
-            <div class="object-edit-line"><label>Stroke</label><input type="color" id="objStroke" value="#000000" disabled><button class="mini" id="objStrokeBtn" disabled>APPLY</button></div>
-            <div class="object-edit-line"><label>Stroke width</label><input type="range" id="objStrokeWidth" min="0" max="50" value="1" step="0.25" disabled><span class="value" id="objStrokeWidthVal">1 px</span></div>
-            <div class="object-edit-line"><label>Stroke style</label><select id="objStrokeStyle" disabled><option value="solid">Solid</option><option value="dashed">Dashed</option><option value="dotted">Dotted</option><option value="dashdot">Dash-dot</option></select><span class="value"></span></div>
-            <div class="object-edit-line"><label>Opacity</label><input type="range" id="objOpacity" min="0" max="100" value="100" disabled><span class="value" id="objOpacityVal">100%</span></div>
-            <div class="export-grid"><button class="mini" id="objNoFillBtn" disabled>NO FILL</button><button class="mini" id="objNoStrokeBtn" disabled>NO STROKE</button></div>
+            <div class="inspector-field">
+              <div class="inspector-label"><span>Name</span></div>
+              <div class="name-control"><input type="text" id="objName" placeholder="Selected object" disabled><button class="mini-icon" id="objRenameBtn" disabled title="Apply name" aria-label="Apply object name"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.2 12 13 4.5"/></svg></button></div>
+            </div>
+            <div class="paint-grid">
+              <div class="paint-card">
+                <div class="paint-card-head"><span>Fill</span><div class="paint-actions"><button class="paint-icon danger-lite" id="objNoFillBtn" disabled title="No fill" aria-label="No fill"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="3" width="10" height="10"/><path d="M2.5 13.5 13.5 2.5"/></svg></button></div></div>
+                <div class="paint-control"><input type="color" id="objFill" value="#000000" disabled title="Fill color"><button class="paint-apply" id="objFillBtn" disabled title="Apply fill" aria-label="Apply fill"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.2 12 13 4.5"/></svg></button></div>
+              </div>
+              <div class="paint-card">
+                <div class="paint-card-head"><span>Stroke</span><div class="paint-actions"><button class="paint-icon danger-lite" id="objNoStrokeBtn" disabled title="No stroke" aria-label="No stroke"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5"/><path d="M3.8 12.2 12.2 3.8"/></svg></button></div></div>
+                <div class="paint-control"><input type="color" id="objStroke" value="#000000" disabled title="Stroke color"><button class="paint-apply" id="objStrokeBtn" disabled title="Apply stroke" aria-label="Apply stroke"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5 6.2 12 13 4.5"/></svg></button></div>
+              </div>
+            </div>
+            <div class="property-grid">
+              <div class="inspector-field"><div class="inspector-label"><span>Width</span></div><div class="slider-row"><input type="range" id="objStrokeWidth" min="0" max="50" value="1" step="0.25" disabled><span class="slider-value" id="objStrokeWidthVal">1 px</span></div></div>
+              <div class="inspector-field"><div class="inspector-label"><span>Style</span></div><select id="objStrokeStyle" disabled><option value="solid">Solid</option><option value="dashed">Dashed</option><option value="dotted">Dotted</option><option value="dashdot">Dash-dot</option></select></div>
+            </div>
+            <div class="inspector-field"><div class="inspector-label"><span>Opacity</span></div><div class="slider-row"><input type="range" id="objOpacity" min="0" max="100" value="100" disabled><span class="slider-value" id="objOpacityVal">100%</span></div></div>
           </div>
-          <div class="selection-help">SELECT: klik object untuk memilih, Shift/Ctrl/Cmd + klik untuk multi-select, atau drag area kosong untuk marquee select. PAN memindahkan canvas. Object yang di-lock tetap terlihat tetapi tidak menangkap klik: SELECT akan menembusnya ke object di bawah, seperti object yang di-hide. Unlock dari Layers untuk mengedit atau memindahkannya. Object hasil GROUP diperlakukan sebagai satu unit saat dipilih dan di-drag. GROUP dapat berisi 2 atau lebih object tanpa batas maksimum dari editor.</div>
         </div>
 
         <div class="group">
-          <div class="gtitle"><span>Colors</span><span>drag / click</span></div>
-          <div class="palette-tools"><button class="mini" id="resetColorsBtn">RESET COLOR</button><button class="mini" id="mergeSimilarBtn">MERGE SIMILAR</button></div>
+          <div class="gtitle"><span>Colors</span><span class="gtitle-right"><span>Palette</span><button class="info-dot" type="button" title="Drag swatch ke warna lain untuk replace. EDIT membuka picker. DEL membuat warna transparan.">?</button></span></div>
+          <div class="palette-tools"><button class="mini" id="resetColorsBtn" title="Reset all color changes">RESET</button><button class="mini" id="mergeSimilarBtn" title="Merge nearby colors">MERGE</button></div>
           <div id="palette"></div>
-          <p class="hint">Drag warna ke warna lain untuk mengganti semua fill/stroke yang sama. Klik EDIT untuk color picker. DEL menghapus warna dengan menjadikannya transparan.</p>
         </div>
 
         <div class="group export-panel">
-          <div class="gtitle"><span>Export</span><span class="export-ready">ready</span></div>
+          <div class="gtitle"><span>Export</span><span class="export-ready">queue</span></div>
 
           <div class="export-scope-strip" aria-label="Export scope status">
             <div><span>Document</span><b id="exportDocMeta">—</b></div>
@@ -327,49 +445,54 @@
           </div>
 
           <div class="export-section">
-            <div class="export-section-head"><span>Quick export</span><small>whole document</small></div>
+            <div class="export-section-head"><span>1 · Assets</span></div>
             <div class="export-quick-grid">
-              <button class="export-action primary" id="svgBtn" disabled title="Export seluruh dokumen sebagai SVG editable">
-                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v9m0 0 3-3m-3 3-3-3"/><path d="M4 14v2h12v-2"/></svg>
-                <span><b>SVG</b><small>Editable vector</small></span>
+              <button class="export-action primary" id="addDocQueueBtn" disabled title="Tambahkan seluruh dokumen ke Export Queue">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 3h7l3 3v11H5z"/><path d="M12 3v4h4M10 10v5m0 0 2-2m-2 2-2-2"/></svg>
+                <span><b>Document</b></span>
               </button>
-              <button class="export-action" id="pngBtn" disabled title="Export seluruh dokumen sebagai PNG">
-                <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="3" width="14" height="14" rx="1"/><circle cx="7" cy="7" r="1.3"/><path d="m5 15 4-4 2.4 2.4 1.7-1.7L16 15"/></svg>
-                <span><b>PNG</b><small>Raster image</small></span>
+              <button class="export-action" id="addSelectionQueueBtn" disabled title="Tambahkan selection saat ini sebagai satu asset">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 4h5M4 4v5M16 16h-5m5 0v-5"/><rect x="7" y="7" width="6" height="6"/></svg>
+                <span><b>Selection</b></span>
+              </button>
+            </div>
+            <div class="export-stack" style="margin-top:6px">
+              <button class="export-row-action" id="addObjectsQueueBtn" disabled title="Tambahkan setiap object terpilih sebagai item antrean terpisah">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="5" height="5"/><rect x="12" y="11" width="5" height="5"/><path d="M10 5h7M3 15h7"/></svg>
+                <span class="copy"><b>Objects</b></span><span class="tag">ADD</span>
+              </button>
+              <button class="export-row-action" id="addGroupsQueueBtn" disabled title="Tambahkan setiap group terpilih sebagai satu asset utuh">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="10" height="9" rx="1"/><rect x="7" y="8" width="10" height="8" rx="1"/></svg>
+                <span class="copy"><b>Groups</b></span><span class="tag">ADD</span>
               </button>
             </div>
           </div>
 
           <div class="export-section">
-            <div class="export-section-head"><span>Settings</span><small>PNG & ZIP</small></div>
+            <div class="export-section-head"><span>2 · Defaults</span></div>
             <div class="export-settings-grid">
+              <div class="export-field"><label>Default format</label><select id="splitFormat"><option value="svg">SVG</option><option value="png">PNG</option><option value="both" selected>SVG + PNG</option></select></div>
               <div class="export-field"><label>PNG scale</label><select id="pngScale"><option value="1">1×</option><option value="2" selected>2×</option><option value="3">3×</option><option value="4">4×</option></select></div>
               <div class="export-field"><label>Background</label><select id="pngBg"><option value="transparent">Transparent</option><option value="#ffffff">White</option><option value="#000000">Black</option></select></div>
-              <div class="export-field"><label>ZIP format</label><select id="splitFormat"><option value="svg">SVG only</option><option value="png">PNG only</option><option value="both" selected>SVG + PNG</option></select></div>
               <div class="export-field"><label>Bounds</label><select id="splitBounds"><option value="tight" selected>Tight object</option><option value="artboard">Keep artboard</option></select></div>
             </div>
           </div>
 
           <div class="export-section">
-            <div class="export-section-head"><span>Selection & batch</span><small>selected content</small></div>
-            <div class="export-stack">
-              <button class="export-row-action accent" id="selectedSvgBtn" disabled title="Export semua object yang sedang dipilih menjadi satu SVG">
-                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 4h5M4 4v5M16 16h-5m5 0v-5"/><path d="M7 13h6V7H7z"/></svg>
-                <span class="copy"><b>Selected → SVG</b><small>Selection sebagai satu file</small></span><span class="tag">SVG</span>
-              </button>
-              <button class="export-row-action" id="splitZipBtn" disabled title="Export setiap object terpilih menjadi file terpisah di dalam ZIP">
-                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 5h5v5H4zM11 10h5v5h-5z"/><path d="M11 5h5M4 15h5"/></svg>
-                <span class="copy"><b>Split selected</b><small>Satu file per object terpilih</small></span><span class="tag">ZIP</span>
-              </button>
-              <button class="export-row-action" id="splitGroupZipBtn" disabled title="Export setiap group terpilih sebagai satu asset utuh di dalam ZIP">
-                <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="10" height="9" rx="1"/><rect x="7" y="8" width="10" height="8" rx="1"/></svg>
-                <span class="copy"><b>Export groups</b><small>Satu file utuh per group</small></span><span class="tag">ZIP</span>
-              </button>
+            <div class="export-section-head">
+              <span>3 · Queue</span>
+              <div class="queue-head-actions"><span class="queue-count" id="exportQueueCount">0 assets</span><button class="queue-clear" id="clearQueueBtn" disabled>CLEAR</button></div>
             </div>
-            <div class="export-note">Group export tidak memecah child object. Pilih salah satu object di dalam group untuk mengaktifkannya.</div>
+            <div class="queue-list" id="exportQueueList">
+              <div class="queue-empty">Queue kosong.<br>Tambahkan asset di atas.</div>
+            </div>
+            <div class="queue-export-bar">
+              <button class="queue-export-btn" id="exportQueueBtn" disabled>EXPORT QUEUE</button>
+              <div class="queue-export-meta" id="exportQueueMeta">0 FILES</div>
+            </div>
           </div>
 
-          <div class="notice" id="compatNotice">Semua proses edit dan export dilakukan di browser. Modul import AI/PDF dimuat saat dibutuhkan.</div>
+          <div class="notice" id="compatNotice">Tambahkan asset ke Export Queue terlebih dahulu. Semua proses edit dan export dilakukan di browser.</div>
         </div>
       </div>
     </aside>
@@ -387,7 +510,7 @@
     objectList:$('objectList'), objectCount:$('objectCount'), selectionLabel:$('selectionLabel'), svgStage:$('svgStage'), stageViewport:$('stageViewport'), stageTransform:$('stageTransform'), emptyState:$('emptyState'),
     loading:$('loading'), loadText:$('loadText'), loadPct:$('loadPct'), loadFill:$('loadFill'), footerStatus:$('footerStatus'), statObjects:$('statObjects'), statColors:$('statColors'), statArtboards:$('statArtboards'), statSize:$('statSize'), statStatus:$('statStatus'), docState:$('docState'),
     palette:$('palette'), compatNotice:$('compatNotice'), textMode:$('textMode'), hiddenMode:$('hiddenMode'), artboardMode:$('artboardMode'), pngScale:$('pngScale'), pngBg:$('pngBg'), splitFormat:$('splitFormat'), splitBounds:$('splitBounds'), zoomLabel:$('zoomLabel'), enginePill:$('enginePill'), importModeLabel:$('importModeLabel'),
-    svgBtn:$('svgBtn'), pngBtn:$('pngBtn'), selectedSvgBtn:$('selectedSvgBtn'), splitZipBtn:$('splitZipBtn'), splitGroupZipBtn:$('splitGroupZipBtn'), exportDocMeta:$('exportDocMeta'), exportSelectionMeta:$('exportSelectionMeta'), exportGroupMeta:$('exportGroupMeta'), colorPop:$('colorPop'), colorPicker:$('colorPicker'),
+    addDocQueueBtn:$('addDocQueueBtn'), addSelectionQueueBtn:$('addSelectionQueueBtn'), addObjectsQueueBtn:$('addObjectsQueueBtn'), addGroupsQueueBtn:$('addGroupsQueueBtn'), exportQueueList:$('exportQueueList'), exportQueueCount:$('exportQueueCount'), clearQueueBtn:$('clearQueueBtn'), exportQueueBtn:$('exportQueueBtn'), exportQueueMeta:$('exportQueueMeta'), exportDocMeta:$('exportDocMeta'), exportSelectionMeta:$('exportSelectionMeta'), exportGroupMeta:$('exportGroupMeta'), colorPop:$('colorPop'), colorPicker:$('colorPicker'),
     groupSelectedBtn:$('groupSelectedBtn'), ungroupSelectedBtn:$('ungroupSelectedBtn'), deleteSelectedBtn:$('deleteSelectedBtn'),
     selectToolBtn:$('selectToolBtn'), panToolBtn:$('panToolBtn'), undoBtn:$('undoBtn'), redoBtn:$('redoBtn'), selectMarquee:$('selectMarquee'),
     objName:$('objName'), objRenameBtn:$('objRenameBtn'), objFill:$('objFill'), objFillBtn:$('objFillBtn'), objStroke:$('objStroke'), objStrokeBtn:$('objStrokeBtn'), objStrokeWidth:$('objStrokeWidth'), objStrokeWidthVal:$('objStrokeWidthVal'), objStrokeStyle:$('objStrokeStyle'), objOpacity:$('objOpacity'), objOpacityVal:$('objOpacityVal'), objNoFillBtn:$('objNoFillBtn'), objNoStrokeBtn:$('objNoStrokeBtn'),
@@ -397,7 +520,7 @@
   const state = {
     file:null, fileBase:'design', svg:'', originalSvg:'', originalImportedSvg:'', objects:[], selected:new Set(), focused:null,
     zoom:1, panX:0, panY:0, naturalW:800, naturalH:600, undo:[], redo:[], importInfo:null, dragColor:null, dragPreviewTarget:null, colorEdit:null,
-    importer:null, pdfRuntime:null, tool:'select', spacePan:false
+    importer:null, pdfRuntime:null, tool:'select', spacePan:false, exportQueue:[], queueSeq:0, queueDragId:null, queuePreviewUrls:[]
   };
 
   const allowed = ['ai','eps','pdf','svg'];
@@ -661,16 +784,19 @@
     return [...ids];
   }
   function updateSelectionUI(){
-    els.selectionLabel.textContent=state.selected.size+' selected';els.selectedSvgBtn.disabled=!state.svg||!state.selected.size;els.splitZipBtn.disabled=!state.svg||!state.selected.size;
+    els.selectionLabel.textContent=state.selected.size+' selected';
     const selectedGroups=selectedEditorGroupIds();
     if(els.exportSelectionMeta)els.exportSelectionMeta.textContent=state.selected.size;
     if(els.exportGroupMeta)els.exportGroupMeta.textContent=selectedGroups.length;
     if(els.exportDocMeta)els.exportDocMeta.textContent=state.svg?(state.objects.length+' OBJ'):'—';
-    els.splitGroupZipBtn.disabled=!state.svg||selectedGroups.length===0;
-    els.splitGroupZipBtn.title=selectedGroups.length?('Export '+selectedGroups.length+' selected group'+(selectedGroups.length>1?'s':'')+' as whole assets'):'Select an object inside a group first';
+    if(els.addDocQueueBtn)els.addDocQueueBtn.disabled=!state.svg;
+    if(els.addSelectionQueueBtn)els.addSelectionQueueBtn.disabled=!state.svg||!state.selected.size;
+    if(els.addObjectsQueueBtn)els.addObjectsQueueBtn.disabled=!state.svg||!state.selected.size;
+    if(els.addGroupsQueueBtn){els.addGroupsQueueBtn.disabled=!state.svg||selectedGroups.length===0;els.addGroupsQueueBtn.title=selectedGroups.length?('Add '+selectedGroups.length+' selected group'+(selectedGroups.length>1?'s':'')+' to export queue'):'Select an object inside a group first'}
     const editableCount=[...state.selected].filter(id=>!state.objects.find(o=>o.id===id)?.locked).length;
     els.groupSelectedBtn.disabled=editableCount<2;els.ungroupSelectedBtn.disabled=editableCount<1;els.deleteSelectedBtn.disabled=editableCount<1;
     updateObjectEditor();
+    renderExportQueue();
   }
 
   function toggleLockObject(id){
@@ -918,7 +1044,7 @@
   }
   function commitRender(rebuild=true){
     if(!state.svg)return;state.svg=sanitizeImportedSvg(state.svg);if(rebuild)buildObjects();renderStageOnly();renderObjects();renderPalette();sourcePreviewFromSvg();
-    els.statSize.textContent=bytesToKB(editorCleanSvg(state.svg));els.docState.textContent=state.naturalW.toFixed(0)+' × '+state.naturalH.toFixed(0);els.emptyState.style.display='none';els.svgBtn.disabled=false;els.pngBtn.disabled=false;updateSelectionUI();
+    els.statSize.textContent=bytesToKB(editorCleanSvg(state.svg));els.docState.textContent=state.naturalW.toFixed(0)+' × '+state.naturalH.toFixed(0);els.emptyState.style.display='none';updateSelectionUI();renderExportQueue();
   }
 
   function applyViewTransform(){els.stageTransform.style.transform='translate(calc(-50% + '+state.panX+'px), calc(-50% + '+state.panY+'px)) scale('+state.zoom+')';els.zoomLabel.textContent=Math.round(state.zoom*100)+'%'}
@@ -940,7 +1066,7 @@
 
   async function importFile(file){
     const ext=extOf(file.name);if(!allowed.includes(ext)){setStatus('FORMAT NOT SUPPORTED','error');return}
-    state.file=file;state.fileBase=baseOf(file.name);state.focused=null;state.undo=[];state.redo=[];updateHistoryUI();state.selected.clear();
+    state.file=file;state.fileBase=baseOf(file.name);state.focused=null;state.undo=[];state.redo=[];state.exportQueue=[];state.queueSeq=0;updateHistoryUI();state.selected.clear();renderExportQueue();
     els.fileCard.classList.add('show');els.fileName.textContent=file.name;els.fileIcon.textContent=ext.toUpperCase();els.fileMeta.textContent=(file.size/1024).toFixed(1)+' KB · '+ext.toUpperCase();els.importModeLabel.textContent=ext.toUpperCase();setLoading(4,'READING FILE');setStatus('IMPORTING');
     try{
       if(ext==='svg'){
@@ -980,16 +1106,25 @@
     }catch(e){}
     return null;
   }
-  function selectedSvg(singleId=null){
-    const doc=parseSvg(editorCleanSvg(state.svg)), root=doc.documentElement;const keep=singleId?new Set([singleId]):new Set(state.selected);
-    // Keep defs/styles globally, strip unselected exposed objects wherever they are.
-    state.objects.forEach(o=>{if(!keep.has(o.id))doc.getElementById(o.id)?.remove()});
-    if(singleId && els.splitBounds.value==='tight'){
-      const b=objectBBox(singleId);
-      if(b){const pad=Math.max(1,Math.min(b.width,b.height)*.02);root.setAttribute('viewBox',[b.x-pad,b.y-pad,b.width+pad*2,b.height+pad*2].join(' '));root.removeAttribute('width');root.removeAttribute('height');}
-    }
-    return serializeDoc(doc)
+  function combinedObjectBBox(ids){
+    const boxes=(ids||[]).map(objectBBox).filter(b=>b&&b.width>0&&b.height>0);
+    if(!boxes.length)return null;
+    const x=Math.min(...boxes.map(b=>b.x)),y=Math.min(...boxes.map(b=>b.y));
+    const x2=Math.max(...boxes.map(b=>b.x+b.width)),y2=Math.max(...boxes.map(b=>b.y+b.height));
+    return {x,y,width:x2-x,height:y2-y};
   }
+  function selectedSvgByIds(ids,bounds='artboard'){
+    const keep=new Set((ids||[]).filter(Boolean));if(!keep.size)return null;
+    const doc=parseSvg(editorCleanSvg(state.svg)),root=doc.documentElement;
+    state.objects.forEach(o=>{if(!keep.has(o.id))doc.getElementById(o.id)?.remove()});
+    if(bounds==='tight'){
+      const b=combinedObjectBBox([...keep]);
+      if(b){const pad=Math.max(1,Math.min(b.width,b.height)*.02);root.setAttribute('viewBox',[b.x-pad,b.y-pad,b.width+pad*2,b.height+pad*2].join(' '));root.removeAttribute('width');root.removeAttribute('height')}
+    }
+    return serializeDoc(doc);
+  }
+  function selectedSvg(singleId=null){return selectedSvgByIds(singleId?[singleId]:[...state.selected],singleId?els.splitBounds.value:'artboard')}
+
   function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
   function exportSvg(svg,name){downloadBlob(new Blob([editorCleanSvg(svg)],{type:'image/svg+xml'}),name)}
   function svgMetrics(svg){
@@ -1017,7 +1152,7 @@
       return {id:groupId,name};
     }catch(e){return null}
   }
-  function groupSvg(groupId){
+  function groupSvg(groupId,bounds=els.splitBounds.value){
     try{
       const src=parseSvg(editorCleanSvg(state.svg)),srcRoot=src.documentElement,group=src.getElementById(groupId);
       if(!group)return null;
@@ -1035,7 +1170,7 @@
       let parent=root;
       chain.forEach(ancestor=>{const shell=out.importNode(ancestor.cloneNode(false),true);parent.appendChild(shell);parent=shell});
       parent.appendChild(out.importNode(group.cloneNode(true),true));
-      if(els.splitBounds.value==='tight'){
+      if(bounds==='tight'){
         const b=objectBBox(groupId);
         if(b){const pad=Math.max(1,Math.min(b.width,b.height)*.02);root.setAttribute('viewBox',[b.x-pad,b.y-pad,b.width+pad*2,b.height+pad*2].join(' '));root.removeAttribute('width');root.removeAttribute('height')}
       }
@@ -1068,6 +1203,118 @@
     downloadBlob(blob,state.fileBase+suffix+'.zip');
     setStatus('GROUP EXPORT DONE · '+done+' GROUP'+(done>1?'S':''),'ok');
   }
+  function queueSignature(item){
+    if(item.type==='document')return 'document';
+    if(item.type==='group')return 'group:'+item.groupId;
+    if(item.type==='object')return 'object:'+item.ids[0];
+    return 'selection:'+[...(item.ids||[])].sort().join('|');
+  }
+  function queueTypeLabel(item){return item.type==='document'?'DOCUMENT':item.type==='group'?'GROUP':item.type==='object'?'OBJECT':'SELECTION'}
+  function queueIcon(item){
+    if(item.type==='document')return '<svg viewBox="0 0 20 20"><path d="M5 3h7l3 3v11H5z"/><path d="M12 3v4h4"/></svg>';
+    if(item.type==='group')return '<svg viewBox="0 0 20 20"><rect x="3" y="4" width="10" height="9" rx="1"/><rect x="7" y="8" width="10" height="8" rx="1"/></svg>';
+    if(item.type==='object')return '<svg viewBox="0 0 20 20"><path d="M5 5h10v10H5z"/><circle cx="5" cy="5" r="1"/><circle cx="15" cy="15" r="1"/></svg>';
+    return '<svg viewBox="0 0 20 20"><path d="M4 4h5M4 4v5M16 16h-5m5 0v-5"/><rect x="7" y="7" width="6" height="6"/></svg>';
+  }
+  function queueItemValid(item){
+    if(!state.svg)return false;
+    if(item.type==='document')return true;
+    if(item.type==='group'){try{return !!parseSvg(state.svg).getElementById(item.groupId)}catch(e){return false}}
+    const valid=new Set(state.objects.map(o=>o.id));return (item.ids||[]).some(id=>valid.has(id));
+  }
+  function queueAssetSvg(item,bounds=els.splitBounds.value){
+    if(!queueItemValid(item))return null;
+    if(item.type==='document')return exportCleanSvg(state.svg);
+    if(item.type==='group')return groupSvg(item.groupId,bounds);
+    const valid=new Set(state.objects.map(o=>o.id));
+    return selectedSvgByIds((item.ids||[]).filter(id=>valid.has(id)),bounds);
+  }
+  function addQueueItem(item){
+    item.qid='q'+(++state.queueSeq);item.enabled=true;item.format=item.format||els.splitFormat.value;
+    const sig=queueSignature(item),exists=state.exportQueue.find(q=>queueSignature(q)===sig);
+    if(exists){exists.enabled=true;setStatus('ASSET ALREADY IN QUEUE','ok');renderExportQueue();return false}
+    state.exportQueue.push(item);renderExportQueue();setStatus('ADDED TO EXPORT QUEUE · '+state.exportQueue.length+' ASSET','ok');return true;
+  }
+  function addDocumentToQueue(){if(!state.svg)return;addQueueItem({type:'document',name:state.fileBase+'-document'})}
+  function addSelectionToQueue(){
+    if(!state.selected.size)return;const ids=[...state.selected];addQueueItem({type:'selection',ids,name:state.fileBase+'-selection'})
+  }
+  function addObjectsToQueue(){
+    if(!state.selected.size)return;let n=0;
+    state.objects.filter(o=>state.selected.has(o.id)).forEach(o=>{if(addQueueItem({type:'object',ids:[o.id],name:o.name}))n++});
+    if(n)setStatus('ADDED '+n+' OBJECT'+(n>1?'S':'')+' TO QUEUE','ok');
+  }
+  function addGroupsToQueue(){
+    const ids=selectedEditorGroupIds();if(!ids.length)return;let n=0;
+    ids.forEach(gid=>{const g=groupMeta(gid);if(g&&addQueueItem({type:'group',groupId:gid,name:g.name}))n++});
+    if(n)setStatus('ADDED '+n+' GROUP'+(n>1?'S':'')+' TO QUEUE','ok');
+  }
+  function outputCountForQueue(){return state.exportQueue.filter(q=>q.enabled&&queueItemValid(q)).reduce((n,q)=>n+(q.format==='both'?2:1),0)}
+  function clearQueuePreviewUrls(){
+    (state.queuePreviewUrls||[]).forEach(url=>{try{URL.revokeObjectURL(url)}catch(_){}});
+    state.queuePreviewUrls=[];
+  }
+  function queuePreviewUrl(item){
+    try{
+      const svg=queueAssetSvg(item,'tight');
+      if(!svg)return null;
+      const clean=exportCleanSvg(svg);
+      const url=URL.createObjectURL(new Blob([clean],{type:'image/svg+xml'}));
+      state.queuePreviewUrls.push(url);
+      return url;
+    }catch(e){console.warn('Queue preview failed',e);return null}
+  }
+  function renderExportQueue(){
+    if(!els.exportQueueList)return;
+    clearQueuePreviewUrls();
+    const total=state.exportQueue.length,active=state.exportQueue.filter(q=>q.enabled&&queueItemValid(q)).length,files=outputCountForQueue();
+    els.exportQueueCount.textContent=total+' asset'+(total===1?'':'s');els.clearQueueBtn.disabled=!total;els.exportQueueBtn.disabled=!active;els.exportQueueMeta.textContent=files+' FILE'+(files===1?'':'S');
+    if(!total){els.exportQueueList.innerHTML='<div class="queue-empty">Belum ada asset dalam antrean.<br>Pilih Document, Selection, Objects, atau Groups di atas.</div>';return}
+    els.exportQueueList.innerHTML='';
+    state.exportQueue.forEach((q,index)=>{
+      const valid=queueItemValid(q),row=document.createElement('div');row.className='queue-item'+(q.enabled?'':' off')+(valid?'':' invalid');row.dataset.qid=q.qid;
+      const meta=queueTypeLabel(q)+' · '+(q.type==='selection'?(q.ids?.length||0)+' OBJECTS':q.type==='group'?'WHOLE GROUP':q.type==='object'?'1 OBJECT':'WHOLE DOCUMENT')+(valid?'':' · MISSING');
+      row.innerHTML='<label class="queue-check" title="Include in export"><input type="checkbox" '+(q.enabled?'checked':'')+' '+(valid?'':'disabled')+'></label><div class="queue-thumb" title="Preview asset · drag to reorder">'+queueIcon(q)+'</div><div class="queue-main"><input class="queue-name" value="'+esc(q.name)+'" aria-label="Asset name"><div class="queue-meta">'+esc(meta)+'</div></div><select class="queue-format" aria-label="Export format"><option value="svg" '+(q.format==='svg'?'selected':'')+'>SVG</option><option value="png" '+(q.format==='png'?'selected':'')+'>PNG</option><option value="both" '+(q.format==='both'?'selected':'')+'>SVG+PNG</option></select><button class="queue-remove" title="Remove from queue" aria-label="Remove"><svg viewBox="0 0 20 20"><path d="m6 6 8 8M14 6l-8 8"/></svg></button>';
+      const thumb=row.querySelector('.queue-thumb'),previewUrl=valid?queuePreviewUrl(q):null;
+      if(previewUrl){thumb.innerHTML='<img src="'+previewUrl+'" alt="" aria-hidden="true">';thumb.classList.add('preview-ready')}else{thumb.classList.add('preview-missing')}
+      row.querySelector('input[type="checkbox"]').addEventListener('change',e=>{q.enabled=e.target.checked;renderExportQueue()});
+      const nameInput=row.querySelector('.queue-name');nameInput.addEventListener('change',()=>{q.name=safeName(nameInput.value)||('asset-'+(index+1));nameInput.value=q.name});
+      row.querySelector('.queue-format').addEventListener('change',e=>{q.format=e.target.value;renderExportQueue()});
+      row.querySelector('.queue-remove').addEventListener('click',()=>{state.exportQueue=state.exportQueue.filter(x=>x.qid!==q.qid);renderExportQueue();setStatus('REMOVED FROM EXPORT QUEUE','ok')});
+      const dragHandle=thumb;dragHandle.draggable=true;
+      dragHandle.addEventListener('dragstart',e=>{state.queueDragId=q.qid;row.classList.add('dragging');e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',q.qid)}catch(_){}});
+      dragHandle.addEventListener('dragend',()=>{state.queueDragId=null;els.exportQueueList.querySelectorAll('.queue-item').forEach(x=>x.classList.remove('dragging','drag-over'))});
+      row.addEventListener('dragover',e=>{e.preventDefault();if(state.queueDragId&&state.queueDragId!==q.qid)row.classList.add('drag-over')});
+      row.addEventListener('dragleave',()=>row.classList.remove('drag-over'));
+      row.addEventListener('drop',e=>{e.preventDefault();row.classList.remove('drag-over');const from=state.exportQueue.findIndex(x=>x.qid===state.queueDragId),to=state.exportQueue.findIndex(x=>x.qid===q.qid);if(from<0||to<0||from===to)return;const [moved]=state.exportQueue.splice(from,1);state.exportQueue.splice(to,0,moved);renderExportQueue();setStatus('QUEUE REORDERED','ok')});
+      els.exportQueueList.appendChild(row);
+    });
+  }
+  async function exportQueue(){
+    const active=state.exportQueue.filter(q=>q.enabled&&queueItemValid(q));if(!active.length){setStatus('EXPORT QUEUE IS EMPTY','error');return}
+    const fileCount=active.reduce((n,q)=>n+(q.format==='both'?2:1),0),useZip=fileCount>1;
+    if(useZip&&!window.JSZip){setStatus('ZIP LIBRARY MISSING','error');return}
+    const zip=useZip?new JSZip():null;let produced=0;
+    els.exportQueueBtn.disabled=true;setStatus('EXPORTING QUEUE · 0/'+active.length);
+    try{
+      for(let i=0;i<active.length;i++){
+        const q=active[i],svg=queueAssetSvg(q,els.splitBounds.value);if(!svg)continue;
+        const stem=safeName(q.name)||('asset-'+String(i+1).padStart(2,'0')),prefix=String(i+1).padStart(2,'0')+'-'+stem;
+        setStatus('EXPORTING QUEUE · '+(i+1)+'/'+active.length);
+        if(q.format==='svg'||q.format==='both'){
+          const blob=new Blob([exportCleanSvg(svg)],{type:'image/svg+xml'});if(zip)zip.file(prefix+'.svg',blob);else downloadBlob(blob,stem+'.svg');produced++;
+        }
+        if(q.format==='png'||q.format==='both'){
+          const png=await svgToPngBlob(svg,Number(els.pngScale.value),els.pngBg.value);if(zip)zip.file(prefix+'.png',png);else downloadBlob(png,stem+'.png');produced++;
+        }
+      }
+      if(zip&&produced){const blob=await zip.generateAsync({type:'blob'});downloadBlob(blob,state.fileBase+'-export-queue.zip')}
+      if(!produced){setStatus('NO VALID ASSETS TO EXPORT','error');return}
+      setStatus('EXPORT QUEUE DONE · '+produced+' FILE'+(produced>1?'S':''),'ok');
+    }catch(e){console.error(e);setStatus('EXPORT QUEUE FAILED','error');els.compatNotice.textContent=String(e?.message||e)}
+    finally{renderExportQueue()}
+  }
+
   function safeName(s){return String(s||'object').replace(/[^a-z0-9_-]+/gi,'-').replace(/^-+|-+$/g,'').slice(0,60)||'object'}
 
   // File interactions
@@ -1194,12 +1441,13 @@
   $('colorApply').onclick=()=>{if(!state.colorEdit)return;const to=els.colorPicker.value.toLowerCase(),n=replaceColor(state.colorEdit,to);els.colorPop.classList.remove('show');setStatus('COLOR EDITED · '+n+' ATTR','ok')};
   document.addEventListener('pointerdown',e=>{if(!els.colorPop.contains(e.target)&&!e.target.closest?.('.swatch'))els.colorPop.classList.remove('show')});
 
-  // Exports
-  els.svgBtn.onclick=()=>exportSvg(exportCleanSvg(state.svg),state.fileBase+'-edited.svg');
-  els.pngBtn.onclick=()=>exportPng(state.svg,state.fileBase+'-edited.png');
-  els.selectedSvgBtn.onclick=()=>exportSvg(exportCleanSvg(selectedSvg()),state.fileBase+'-selected.svg');
-  els.splitZipBtn.onclick=splitZip;
-  els.splitGroupZipBtn.onclick=splitGroupZip;
+  // Export Queue — assets must be queued before download
+  els.addDocQueueBtn.onclick=addDocumentToQueue;
+  els.addSelectionQueueBtn.onclick=addSelectionToQueue;
+  els.addObjectsQueueBtn.onclick=addObjectsToQueue;
+  els.addGroupsQueueBtn.onclick=addGroupsToQueue;
+  els.clearQueueBtn.onclick=()=>{state.exportQueue=[];renderExportQueue();setStatus('EXPORT QUEUE CLEARED','ok')};
+  els.exportQueueBtn.onclick=exportQueue;
 
   // Editor keyboard shortcuts
   document.addEventListener('keydown',e=>{
