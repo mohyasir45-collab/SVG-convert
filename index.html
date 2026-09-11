@@ -653,6 +653,25 @@
   .queue-item{box-shadow:0 2px 9px color-mix(in srgb,var(--ink) 5%,transparent)}
   .export-action,.export-row-action,.queue-ai-action,.mini,.toolbtn,.topbtn{box-shadow:0 1px 2px color-mix(in srgb,var(--ink) 4%,transparent)}
 
+
+
+  /* ---------- MOVABLE EDITOR TOOLBAR + PATH EDIT ---------- */
+  .editor-tool-dock{touch-action:none;max-width:calc(100% - 12px);will-change:left,top}
+  .editor-tool-dock.dragging{box-shadow:0 10px 26px rgba(0,0,0,.22);cursor:grabbing}
+  .dock-drag-handle{width:22px;height:30px;padding:0;border:1px solid transparent;background:transparent;color:var(--ui-text,var(--ink));display:grid;place-items:center;cursor:grab;flex:0 0 auto}
+  .dock-drag-handle:hover,.dock-drag-handle:focus-visible{border-color:var(--ui-border-strong,var(--ink));background:var(--ui-hover,color-mix(in srgb,var(--ink) 6%,var(--paper)))}
+  .dock-drag-handle:active{cursor:grabbing}
+  .dock-drag-handle svg{width:13px;height:18px;fill:currentColor;stroke:none;pointer-events:none;opacity:.72}
+  #stageViewport[data-tool="path"]{cursor:crosshair}
+  #stageViewport[data-tool="path"] #svgStage path[data-editor-hit="1"]{cursor:crosshair}
+  #svgStage [data-vfs-path-editor-ui="1"]{pointer-events:none}
+  #svgStage [data-vfs-path-editor-ui="1"] .vfs-path-handle-line{stroke:var(--accent);stroke-width:1;stroke-dasharray:3 3;opacity:.78;vector-effect:non-scaling-stroke;pointer-events:none}
+  #svgStage [data-vfs-path-editor-ui="1"] [data-vfs-path-node]{pointer-events:all;cursor:move;vector-effect:non-scaling-stroke}
+  #svgStage [data-vfs-path-editor-ui="1"] .vfs-path-anchor{fill:var(--paper);stroke:var(--accent);stroke-width:1.6}
+  #svgStage [data-vfs-path-editor-ui="1"] .vfs-path-control{fill:var(--accent);stroke:var(--paper);stroke-width:1.2}
+  #svgStage [data-vfs-path-editor-ui="1"] [data-vfs-path-node]:hover{stroke-width:2.5;filter:drop-shadow(0 0 2px color-mix(in srgb,var(--accent) 65%,transparent))}
+  #svgStage [data-vfs-path-editor-ui="1"] [data-vfs-path-node][data-active="1"]{fill:var(--accent);stroke:var(--ink)}
+
 </style>
 </head>
 <body>
@@ -703,7 +722,11 @@
         <span class="view-hint">Scroll = zoom · Space = temporary pan</span>
       </div>
       <div class="canvas-wrap">
-        <div class="editor-tool-dock" role="toolbar" aria-label="Editor tools">
+        <div class="editor-tool-dock" id="editorToolDock" role="toolbar" aria-label="Editor tools">
+          <button class="dock-drag-handle" id="toolDockHandle" type="button" title="Drag toolbar · double-click to reset" aria-label="Move editor toolbar">
+            <svg viewBox="0 0 12 18" aria-hidden="true"><circle cx="3" cy="3" r="1.2"/><circle cx="9" cy="3" r="1.2"/><circle cx="3" cy="9" r="1.2"/><circle cx="9" cy="9" r="1.2"/><circle cx="3" cy="15" r="1.2"/><circle cx="9" cy="15" r="1.2"/></svg>
+          </button>
+          <span class="sep" aria-hidden="true"></span>
           <button class="iconbtn" id="undoBtn" type="button" title="Undo (Ctrl/Cmd + Z)" aria-label="Undo" disabled>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7 5 11l4 4"/><path d="M6 11h7a6 6 0 0 1 6 6"/></svg>
           </button>
@@ -713,6 +736,9 @@
           <span class="sep" aria-hidden="true"></span>
           <button class="iconbtn active" id="selectToolBtn" type="button" title="Select tool (V)" aria-label="Select tool" aria-pressed="true">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 3 12 8-6 2-2 6Z"/></svg>
+          </button>
+          <button class="iconbtn" id="pathToolBtn" type="button" title="Path edit tool (A) · edit anchors and Bézier handles" aria-label="Path edit tool" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17c3-8 8-8 14-10"/><rect x="3" y="15" width="4" height="4" rx=".5"/><rect x="17" y="5" width="4" height="4" rx=".5"/><path d="M7 17h4M15 7h2"/></svg>
           </button>
           <button class="iconbtn" id="panToolBtn" type="button" title="Pan tool (H)" aria-label="Pan tool" aria-pressed="false">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 11V7a1.5 1.5 0 0 1 3 0v3"/><path d="M11 10V5.5a1.5 1.5 0 0 1 3 0V10"/><path d="M14 10V7a1.5 1.5 0 0 1 3 0v5"/><path d="M8 10.5V9a1.5 1.5 0 0 0-3 0v5c0 4 3 7 7 7h1c4 0 6-3 6-7v-3a1.5 1.5 0 0 0-3 0"/></svg>
@@ -902,7 +928,7 @@
     palette:$('palette'), compatNotice:$('compatNotice'), textMode:$('textMode'), hiddenMode:$('hiddenMode'), artboardMode:$('artboardMode'), pngScale:$('pngScale'), pngBg:$('pngBg'), splitFormat:$('splitFormat'), splitBounds:$('splitBounds'), zoomLabel:$('zoomLabel'), enginePill:$('enginePill'), importModeLabel:$('importModeLabel'),
     addDocQueueBtn:$('addDocQueueBtn'), addSelectionQueueBtn:$('addSelectionQueueBtn'), addObjectsQueueBtn:$('addObjectsQueueBtn'), addGroupsQueueBtn:$('addGroupsQueueBtn'), exportQueueList:$('exportQueueList'), exportQueueCount:$('exportQueueCount'), clearQueueBtn:$('clearQueueBtn'), exportQueueBtn:$('exportQueueBtn'), exportQueueMeta:$('exportQueueMeta'), exportDocMeta:$('exportDocMeta'), exportSelectionMeta:$('exportSelectionMeta'), exportGroupMeta:$('exportGroupMeta'), toggleAiSettingsBtn:$('toggleAiSettingsBtn'), aiSettings:$('aiSettings'), aiStrategy:$('aiStrategy'), aiPoolSummary:$('aiPoolSummary'), aiEnableGemini:$('aiEnableGemini'), aiEnableGroq:$('aiEnableGroq'), aiEnableOpenrouter:$('aiEnableOpenrouter'), aiModelGemini:$('aiModelGemini'), aiModelGroq:$('aiModelGroq'), aiModelOpenrouter:$('aiModelOpenrouter'), aiKeysGemini:$('aiKeysGemini'), aiKeysGroq:$('aiKeysGroq'), aiKeysOpenrouter:$('aiKeysOpenrouter'), aiStatusGemini:$('aiStatusGemini'), aiStatusGroq:$('aiStatusGroq'), aiStatusOpenrouter:$('aiStatusOpenrouter'), aiCardGemini:$('aiCardGemini'), aiCardGroq:$('aiCardGroq'), aiCardOpenrouter:$('aiCardOpenrouter'), aiWorkers:$('aiWorkers'), aiLiveDot:$('aiLiveDot'), aiLiveStatus:$('aiLiveStatus'), aiRememberKey:$('aiRememberKey'), generateAllMetaBtn:$('generateAllMetaBtn'), retryFailedMetaBtn:$('retryFailedMetaBtn'), generateAllMetaCount:$('generateAllMetaCount'), retryFailedMetaCount:$('retryFailedMetaCount'), colorPop:$('colorPop'), colorPicker:$('colorPicker'),
     groupSelectedBtn:$('groupSelectedBtn'), ungroupSelectedBtn:$('ungroupSelectedBtn'), deleteSelectedBtn:$('deleteSelectedBtn'),
-    selectToolBtn:$('selectToolBtn'), panToolBtn:$('panToolBtn'), undoBtn:$('undoBtn'), redoBtn:$('redoBtn'), selectMarquee:$('selectMarquee'),
+    selectToolBtn:$('selectToolBtn'), pathToolBtn:$('pathToolBtn'), panToolBtn:$('panToolBtn'), undoBtn:$('undoBtn'), redoBtn:$('redoBtn'), selectMarquee:$('selectMarquee'), editorToolDock:$('editorToolDock'), toolDockHandle:$('toolDockHandle'),
     objName:$('objName'), objRenameBtn:$('objRenameBtn'), objFill:$('objFill'), objFillBtn:$('objFillBtn'), objStroke:$('objStroke'), objStrokeBtn:$('objStrokeBtn'), objStrokeWidth:$('objStrokeWidth'), objStrokeWidthVal:$('objStrokeWidthVal'), objStrokeStyle:$('objStrokeStyle'), objOpacity:$('objOpacity'), objOpacityVal:$('objOpacityVal'), objNoFillBtn:$('objNoFillBtn'), objNoStrokeBtn:$('objNoStrokeBtn'),
     importGroup:$('importGroup'), importGroupHead:$('importGroupHead'), importToggleBtn:$('importToggleBtn'),
     workspace:$('workspace'), paramsPanel:$('paramsPanel'), paramsResizer:$('paramsResizer')
@@ -911,7 +937,7 @@
   const state = {
     file:null, fileBase:'design', svg:'', originalSvg:'', originalImportedSvg:'', objects:[], selected:new Set(), focused:null,
     zoom:1, panX:0, panY:0, naturalW:800, naturalH:600, undo:[], redo:[], importInfo:null, dragColor:null, dragPreviewTarget:null, colorEdit:null,
-    importer:null, pdfRuntime:null, tool:'select', spacePan:false, exportQueue:[], queueSeq:0, queueDragId:null, queuePreviewUrls:[],
+    importer:null, pdfRuntime:null, tool:'select', spacePan:false, pathEditId:null, exportQueue:[], queueSeq:0, queueDragId:null, queuePreviewUrls:[],
     ai:{strategy:'roundrobin',enabled:{gemini:true,groq:true,openrouter:true},keys:{gemini:[],groq:[],openrouter:[]},models:{gemini:'gemini-2.5-flash',groq:'qwen/qwen3.6-27b',openrouter:'openrouter/auto'},remember:false,busy:false,workers:2,providerCursor:0,keyCursor:{gemini:0,groq:0,openrouter:0},health:{gemini:{},groq:{},openrouter:{}},lastRoute:null}
   };
 
@@ -1037,6 +1063,7 @@
 
   function editorCleanSvg(svg){
     const doc=parseSvg(svg);
+    doc.querySelectorAll('[data-vfs-path-editor-ui]').forEach(el=>el.remove());
     doc.querySelectorAll('[data-editor-selected],[data-editor-focus],[data-editor-hit],[data-color-highlight]').forEach(el=>{el.removeAttribute('data-editor-selected');el.removeAttribute('data-editor-focus');el.removeAttribute('data-editor-hit');el.removeAttribute('data-color-highlight')});
     return serializeDoc(doc);
   }
@@ -1189,6 +1216,7 @@
     els.groupSelectedBtn.disabled=editableCount<2;els.ungroupSelectedBtn.disabled=editableCount<1;els.deleteSelectedBtn.disabled=editableCount<1;
     updateObjectEditor();
     renderExportQueue();
+    syncPathEditorToSelection();
   }
 
   function toggleLockObject(id){
@@ -1432,14 +1460,14 @@
 
   function renderStageOnly(){
     if(!state.svg){els.svgStage.innerHTML='';return}
-    els.svgStage.innerHTML=state.svg;const svg=els.svgStage.querySelector('svg');if(svg){svg.setAttribute('width',state.naturalW);svg.setAttribute('height',state.naturalH)}syncLiveSelection();applyViewTransform();
+    els.svgStage.innerHTML=state.svg;const svg=els.svgStage.querySelector('svg');if(svg){svg.setAttribute('width',state.naturalW);svg.setAttribute('height',state.naturalH)}syncLiveSelection();applyViewTransform();if(state.tool==='path'&&state.pathEditId)renderPathEditorOverlay(state.pathEditId);
   }
   function commitRender(rebuild=true){
     if(!state.svg)return;state.svg=sanitizeImportedSvg(state.svg);if(rebuild)buildObjects();renderStageOnly();renderObjects();renderPalette();sourcePreviewFromSvg();
     els.statSize.textContent=bytesToKB(editorCleanSvg(state.svg));els.docState.textContent=state.naturalW.toFixed(0)+' × '+state.naturalH.toFixed(0);els.emptyState.style.display='none';updateSelectionUI();renderExportQueue();
   }
 
-  function applyViewTransform(){els.stageTransform.style.transform='translate(calc(-50% + '+state.panX+'px), calc(-50% + '+state.panY+'px)) scale('+state.zoom+')';els.zoomLabel.textContent=Math.round(state.zoom*100)+'%'}
+  function applyViewTransform(){els.stageTransform.style.transform='translate(calc(-50% + '+state.panX+'px), calc(-50% + '+state.panY+'px)) scale('+state.zoom+')';els.zoomLabel.textContent=Math.round(state.zoom*100)+'%';updatePathEditorScale()}
   function fitView(){const box=els.stageViewport.getBoundingClientRect();if(!box.width||!box.height)return;const pad=54;state.zoom=Math.max(.05,Math.min(8,Math.min((box.width-pad)/state.naturalW,(box.height-pad)/state.naturalH)));state.panX=0;state.panY=0;applyViewTransform()}
   function setZoom(z,cx,cy){const old=state.zoom;state.zoom=Math.max(.05,Math.min(12,z));if(cx!=null&&cy!=null){const r=els.stageViewport.getBoundingClientRect();const dx=cx-r.left-r.width/2-state.panX,dy=cy-r.top-r.height/2-state.panY;const ratio=state.zoom/old;state.panX-=dx*(ratio-1);state.panY-=dy*(ratio-1)}applyViewTransform()}
 
@@ -2063,16 +2091,86 @@
   // Toolbar
   $('zoomIn').onclick=()=>setZoom(state.zoom*1.2);$('zoomOut').onclick=()=>setZoom(state.zoom/1.2);$('fitBtn').onclick=fitView;$('resetViewBtn').onclick=()=>{state.panX=state.panY=0;applyViewTransform()};
   function setTool(tool){
-    state.tool=tool==='pan'?'pan':'select';
+    state.tool=tool==='pan'?'pan':tool==='path'?'path':'select';
     els.stageViewport.dataset.tool=state.tool;
-    const selecting=state.tool==='select';
+    const selecting=state.tool==='select',pathing=state.tool==='path',panning=state.tool==='pan';
     els.selectToolBtn.classList.toggle('active',selecting);
-    els.panToolBtn.classList.toggle('active',!selecting);
+    els.pathToolBtn.classList.toggle('active',pathing);
+    els.panToolBtn.classList.toggle('active',panning);
     els.selectToolBtn.setAttribute('aria-pressed',String(selecting));
-    els.panToolBtn.setAttribute('aria-pressed',String(!selecting));
-    setStatus(selecting?'SELECT TOOL':'PAN TOOL');
+    els.pathToolBtn.setAttribute('aria-pressed',String(pathing));
+    els.panToolBtn.setAttribute('aria-pressed',String(panning));
+    if(!pathing){state.pathEditId=null;clearPathEditorOverlay()}
+    else{const o=state.objects.find(x=>x.id===state.focused);if(o?.type==='path'&&!o.locked){state.pathEditId=o.id;renderPathEditorOverlay(o.id)}}
+    setStatus(selecting?'SELECT TOOL':pathing?'PATH EDIT TOOL · CLICK A PATH':'PAN TOOL');
   }
-  els.selectToolBtn.onclick=()=>setTool('select');els.panToolBtn.onclick=()=>setTool('pan');
+  els.selectToolBtn.onclick=()=>setTool('select');els.pathToolBtn.onclick=()=>setTool('path');els.panToolBtn.onclick=()=>setTool('pan');
+
+  // Movable toolbar, constrained to the canvas area.
+  const toolDockParent=()=>els.editorToolDock?.parentElement;
+  function clampToolDockPosition(left,top){
+    const parent=toolDockParent();if(!parent||!els.editorToolDock)return {left:14,top:14};
+    const pr=parent.getBoundingClientRect(),dr=els.editorToolDock.getBoundingClientRect(),pad=6;
+    return {left:Math.max(pad,Math.min(Math.max(pad,pr.width-dr.width-pad),left)),top:Math.max(pad,Math.min(Math.max(pad,pr.height-dr.height-pad),top))};
+  }
+  function setToolDockPosition(left,top,persist=true){
+    if(!els.editorToolDock)return;const p=clampToolDockPosition(Number(left)||14,Number(top)||14);els.editorToolDock.style.left=p.left+'px';els.editorToolDock.style.top=p.top+'px';els.editorToolDock.style.right='auto';els.editorToolDock.style.bottom='auto';
+    if(persist){try{localStorage.setItem('vfs-tool-dock-pos',JSON.stringify({left:p.left,top:p.top}))}catch(_){ }}
+  }
+  function resetToolDock(){setToolDockPosition(14,14,true);setStatus('TOOLBAR POSITION RESET','ok')}
+  let toolDockDrag=null;
+  if(els.toolDockHandle&&els.editorToolDock){
+    els.toolDockHandle.addEventListener('pointerdown',e=>{if(e.button!==0)return;e.preventDefault();e.stopPropagation();const parent=toolDockParent(),pr=parent.getBoundingClientRect(),dr=els.editorToolDock.getBoundingClientRect();toolDockDrag={pointerId:e.pointerId,startX:e.clientX,startY:e.clientY,left:dr.left-pr.left,top:dr.top-pr.top};els.editorToolDock.classList.add('dragging');try{els.toolDockHandle.setPointerCapture(e.pointerId)}catch(_){}});
+    els.toolDockHandle.addEventListener('pointermove',e=>{if(!toolDockDrag||toolDockDrag.pointerId!==e.pointerId)return;setToolDockPosition(toolDockDrag.left+(e.clientX-toolDockDrag.startX),toolDockDrag.top+(e.clientY-toolDockDrag.startY),false)});
+    const endDockDrag=e=>{if(!toolDockDrag)return;toolDockDrag=null;els.editorToolDock.classList.remove('dragging');const parent=toolDockParent(),pr=parent.getBoundingClientRect(),dr=els.editorToolDock.getBoundingClientRect();setToolDockPosition(dr.left-pr.left,dr.top-pr.top,true);try{els.toolDockHandle.releasePointerCapture(e.pointerId)}catch(_){}};
+    els.toolDockHandle.addEventListener('pointerup',endDockDrag);els.toolDockHandle.addEventListener('pointercancel',endDockDrag);els.toolDockHandle.addEventListener('dblclick',e=>{e.preventDefault();resetToolDock()});
+    let saved=null;try{saved=JSON.parse(localStorage.getItem('vfs-tool-dock-pos')||'null')}catch(_){ }if(saved&&Number.isFinite(saved.left)&&Number.isFinite(saved.top))requestAnimationFrame(()=>setToolDockPosition(saved.left,saved.top,false));
+    if(typeof ResizeObserver!=='undefined'){new ResizeObserver(()=>{const parent=toolDockParent();if(!parent)return;const pr=parent.getBoundingClientRect(),dr=els.editorToolDock.getBoundingClientRect();setToolDockPosition(dr.left-pr.left,dr.top-pr.top,false)}).observe(parent)}
+  }
+
+  // Lightweight SVG path parser used by the direct path editor. It normalizes
+  // relative commands and shorthand curves to absolute M/L/C/Q/A/Z segments.
+  const PATH_PARAM_COUNT={M:2,L:2,H:1,V:1,C:6,S:4,Q:4,T:2,A:7,Z:0};
+  const isPathCommand=t=>typeof t==='string'&&/^[AaCcHhLlMmQqSsTtVvZz]$/.test(t);
+  function pathTokens(d){return String(d||'').match(/[AaCcHhLlMmQqSsTtVvZz]|[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?/g)||[]}
+  function normalizePathSegments(d){
+    const t=pathTokens(d),out=[];let i=0,cmd=null,cx=0,cy=0,sx=0,sy=0,prevC=null,prevQ=null;
+    while(i<t.length){
+      if(isPathCommand(t[i]))cmd=t[i++];else if(!cmd)break;
+      let U=cmd.toUpperCase(),rel=cmd!==U;if(U==='Z'){out.push({cmd:'Z'});cx=sx;cy=sy;prevC=prevQ=null;cmd=null;continue}
+      const n=PATH_PARAM_COUNT[U];if(!n||i+n>t.length||isPathCommand(t[i])){cmd=null;continue}
+      const v=t.slice(i,i+n).map(Number);if(v.some(x=>!Number.isFinite(x))){i+=n;continue}i+=n;
+      const abs=(x,y)=>({x:rel?cx+x:x,y:rel?cy+y:y});
+      if(U==='M'){const p=abs(v[0],v[1]);out.push({cmd:'M',x:p.x,y:p.y});cx=p.x;cy=p.y;sx=cx;sy=cy;prevC=prevQ=null;cmd=rel?'l':'L';continue}
+      if(U==='L'){const p=abs(v[0],v[1]);out.push({cmd:'L',x:p.x,y:p.y});cx=p.x;cy=p.y;prevC=prevQ=null;continue}
+      if(U==='H'){cx=rel?cx+v[0]:v[0];out.push({cmd:'L',x:cx,y:cy});prevC=prevQ=null;continue}
+      if(U==='V'){cy=rel?cy+v[0]:v[0];out.push({cmd:'L',x:cx,y:cy});prevC=prevQ=null;continue}
+      if(U==='C'){const p1=abs(v[0],v[1]),p2=abs(v[2],v[3]),p=abs(v[4],v[5]);out.push({cmd:'C',x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,x:p.x,y:p.y});cx=p.x;cy=p.y;prevC={x:p2.x,y:p2.y};prevQ=null;continue}
+      if(U==='S'){const p2=abs(v[0],v[1]),p=abs(v[2],v[3]),p1=prevC?{x:2*cx-prevC.x,y:2*cy-prevC.y}:{x:cx,y:cy};out.push({cmd:'C',x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,x:p.x,y:p.y});cx=p.x;cy=p.y;prevC={x:p2.x,y:p2.y};prevQ=null;continue}
+      if(U==='Q'){const p1=abs(v[0],v[1]),p=abs(v[2],v[3]);out.push({cmd:'Q',x1:p1.x,y1:p1.y,x:p.x,y:p.y});cx=p.x;cy=p.y;prevQ={x:p1.x,y:p1.y};prevC=null;continue}
+      if(U==='T'){const p=abs(v[0],v[1]),p1=prevQ?{x:2*cx-prevQ.x,y:2*cy-prevQ.y}:{x:cx,y:cy};out.push({cmd:'Q',x1:p1.x,y1:p1.y,x:p.x,y:p.y});cx=p.x;cy=p.y;prevQ={x:p1.x,y:p1.y};prevC=null;continue}
+      if(U==='A'){const p=abs(v[5],v[6]);out.push({cmd:'A',rx:Math.abs(v[0]),ry:Math.abs(v[1]),rot:v[2],laf:v[3]?1:0,sf:v[4]?1:0,x:p.x,y:p.y});cx=p.x;cy=p.y;prevC=prevQ=null;continue}
+    }
+    return out;
+  }
+  const fmtPathNum=n=>{const v=Math.abs(Number(n))<1e-10?0:Number(n);return Number.isFinite(v)?String(Math.round(v*1e6)/1e6):'0'};
+  function serializePathSegments(segs){return (segs||[]).map(s=>{if(s.cmd==='Z')return'Z';if(s.cmd==='M'||s.cmd==='L')return s.cmd+' '+fmtPathNum(s.x)+' '+fmtPathNum(s.y);if(s.cmd==='C')return'C '+[s.x1,s.y1,s.x2,s.y2,s.x,s.y].map(fmtPathNum).join(' ');if(s.cmd==='Q')return'Q '+[s.x1,s.y1,s.x,s.y].map(fmtPathNum).join(' ');if(s.cmd==='A')return'A '+[s.rx,s.ry,s.rot,s.laf,s.sf,s.x,s.y].map(fmtPathNum).join(' ');return''}).filter(Boolean).join(' ')}
+  function clearPathEditorOverlay(){els.svgStage?.querySelectorAll?.('[data-vfs-path-editor-ui="1"]').forEach(n=>n.remove())}
+  function pointInElement(el,x,y){try{const m=el.getScreenCTM();if(!m)return null;const inv=m.inverse();return new DOMPoint(x,y).matrixTransform(inv)}catch(_){return null}}
+  function pathNodeRadius(control=false){return (control?3.4:4.6)/Math.max(.15,state.zoom)}
+  function updatePathEditorScale(){els.svgStage?.querySelectorAll?.('[data-vfs-path-node]').forEach(n=>n.setAttribute('r',pathNodeRadius(n.dataset.kind!=='anchor')))}
+  function renderPathEditorOverlay(id=state.pathEditId){
+    clearPathEditorOverlay();if(state.tool!=='path'||!id)return;
+    const live=els.svgStage.querySelector('svg'),path=live?.getElementById?.(id)||live?.querySelector?.('#'+CSS.escape(id));if(!path||path.tagName?.toLowerCase()!=='path'||isLockedId(id)){state.pathEditId=null;return}
+    const segs=normalizePathSegments(path.getAttribute('d'));if(!segs.length){setStatus('PATH HAS NO EDITABLE NODES');return}
+    const NS='http://www.w3.org/2000/svg',g=document.createElementNS(NS,'g');g.setAttribute('data-vfs-path-editor-ui','1');g.setAttribute('data-path-id',id);const tr=path.getAttribute('transform');if(tr)g.setAttribute('transform',tr);
+    let prev=null;
+    const line=(a,b)=>{if(!a||!b)return;const l=document.createElementNS(NS,'line');l.setAttribute('x1',a.x);l.setAttribute('y1',a.y);l.setAttribute('x2',b.x);l.setAttribute('y2',b.y);l.setAttribute('class','vfs-path-handle-line');g.appendChild(l)};
+    const node=(p,idx,kind,cls)=>{const c=document.createElementNS(NS,'circle');c.setAttribute('cx',p.x);c.setAttribute('cy',p.y);c.setAttribute('r',pathNodeRadius(kind!=='anchor'));c.setAttribute('class',cls);c.setAttribute('data-vfs-path-node','1');c.setAttribute('data-path-id',id);c.setAttribute('data-seg-index',idx);c.setAttribute('data-kind',kind);g.appendChild(c)};
+    segs.forEach((seg,idx)=>{if(seg.cmd==='Z')return;const end={x:seg.x,y:seg.y};if(seg.cmd==='C'){const c1={x:seg.x1,y:seg.y1},c2={x:seg.x2,y:seg.y2};line(prev||end,c1);line(c2,end);node(c1,idx,'c1','vfs-path-control');node(c2,idx,'c2','vfs-path-control')}else if(seg.cmd==='Q'){const c1={x:seg.x1,y:seg.y1};line(prev||end,c1);line(c1,end);node(c1,idx,'q1','vfs-path-control')}node(end,idx,'anchor','vfs-path-anchor');prev=end});
+    path.parentElement?.appendChild(g);
+  }
+  function syncPathEditorToSelection(){if(state.tool!=='path')return;const o=state.objects.find(x=>x.id===state.focused);if(o?.type==='path'&&!o.locked){state.pathEditId=o.id;renderPathEditorOverlay(o.id)}else{state.pathEditId=null;clearPathEditorOverlay()}}
 
   const findObjectIdFromTarget=target=>{
     const ids=new Set(state.objects.map(o=>o.id));let n=target;
@@ -2117,6 +2215,12 @@
   els.stageViewport.addEventListener('pointerdown',e=>{
     if(e.button!==0)return;const forcePan=state.tool==='pan'||state.spacePan;const id=findObjectIdFromTarget(e.target),additive=e.shiftKey||e.ctrlKey||e.metaKey;
     if(forcePan){e.preventDefault();interaction={type:'pan',pointerId:e.pointerId,lastX:e.clientX,lastY:e.clientY};els.stageViewport.setPointerCapture(e.pointerId);els.stageViewport.classList.add('dragging');return}
+    if(state.tool==='path'){
+      const node=e.target?.closest?.('[data-vfs-path-node]');
+      if(node){const pathId=node.dataset.pathId,live=els.svgStage.querySelector('svg'),path=live?.getElementById?.(pathId)||live?.querySelector?.('#'+CSS.escape(pathId));if(!path||isLockedId(pathId))return;const segs=normalizePathSegments(path.getAttribute('d')),idx=Number(node.dataset.segIndex),kind=node.dataset.kind;if(!segs[idx])return;e.preventDefault();interaction={type:'path-node',pointerId:e.pointerId,pathId,path,segs,segIndex:idx,kind,startX:e.clientX,startY:e.clientY,moved:false,undoPushed:false};node.setAttribute('data-active','1');els.stageViewport.setPointerCapture(e.pointerId);return}
+      if(id){e.preventDefault();const obj=state.objects.find(o=>o.id===id);if(!obj||obj.locked){setStatus('PATH LOCKED · UNLOCK FIRST');return}if(obj.type!=='path'){state.pathEditId=null;clearPathEditorOverlay();setStatus('PATH EDIT ONLY WORKS ON <path> OBJECTS');return}state.selected.clear();state.selected.add(id);state.focused=id;state.pathEditId=id;renderObjects();syncLiveSelection();updateSelectionUI();renderPathEditorOverlay(id);setStatus('PATH READY · DRAG ANCHORS OR HANDLES');return}
+      if(!additive){state.selected.clear();state.focused=null;state.pathEditId=null;clearPathEditorOverlay();renderObjects();syncLiveSelection();updateSelectionUI()}return;
+    }
     if(id){
       e.preventDefault();
       const unit=selectionUnitIds(id);if(!unit.length)return;const allSelected=unit.every(x=>state.selected.has(x));
@@ -2135,6 +2239,7 @@
     if(!interaction||interaction.pointerId!==e.pointerId)return;
     if(interaction.type==='pan'){state.panX+=e.clientX-interaction.lastX;state.panY+=e.clientY-interaction.lastY;interaction.lastX=e.clientX;interaction.lastY=e.clientY;applyViewTransform();return}
     if(interaction.type==='marquee'){interaction.current=viewportPoint(e);interaction.moved=Math.hypot(interaction.current.x-interaction.start.x,interaction.current.y-interaction.start.y)>2;drawMarquee(interaction.start,interaction.current);return}
+    if(interaction.type==='path-node'){const distance=Math.hypot(e.clientX-interaction.startX,e.clientY-interaction.startY);if(distance<2&&!interaction.moved)return;const p=pointInElement(interaction.path,e.clientX,e.clientY);if(!p)return;if(!interaction.undoPushed){pushUndo();interaction.undoPushed=true}interaction.moved=true;const seg=interaction.segs[interaction.segIndex];if(interaction.kind==='anchor'){seg.x=p.x;seg.y=p.y}else if(interaction.kind==='c1'||interaction.kind==='q1'){seg.x1=p.x;seg.y1=p.y}else if(interaction.kind==='c2'){seg.x2=p.x;seg.y2=p.y}interaction.path.setAttribute('d',serializePathSegments(interaction.segs));renderPathEditorOverlay(interaction.pathId);setStatus('EDITING PATH NODE · '+(interaction.segIndex+1));return}
     const distance=Math.hypot(e.clientX-interaction.startX,e.clientY-interaction.startY);if(distance<2&&!interaction.moved)return;
     if(!interaction.undoPushed){pushUndo();interaction.undoPushed=true}interaction.moved=true;
     interaction.records.forEach(r=>{const now=pointInParent(r.parent,e.clientX,e.clientY);if(!now)return;const dx=now.x-r.start.x,dy=now.y-r.start.y;r.node.setAttribute('transform','matrix('+r.m.a+' '+r.m.b+' '+r.m.c+' '+r.m.d+' '+(r.m.e+dx)+' '+(r.m.f+dy)+')')});
@@ -2144,6 +2249,7 @@
     if(!interaction)return;const was=interaction;interaction=null;els.stageViewport.classList.remove('dragging');
     if(was.type==='marquee'){clearMarquee();if(was.moved)finishMarquee(was.start,was.current,was.additive);else if(!was.additive&&state.selected.size){state.selected.clear();state.focused=null;renderObjects();syncLiveSelection();updateSelectionUI();setStatus('SELECTION CLEARED')}}
     if(was.type==='object'&&was.moved){const live=els.svgStage.querySelector('svg');if(live){state.svg=sanitizeImportedSvg(editorCleanSvg(new XMLSerializer().serializeToString(live)));commitRender(true);setStatus('OBJECT MOVED','ok')}}
+    if(was.type==='path-node'){if(was.moved){const live=els.svgStage.querySelector('svg');if(live){state.pathEditId=was.pathId;state.svg=sanitizeImportedSvg(editorCleanSvg(new XMLSerializer().serializeToString(live)));commitRender(true);state.pathEditId=was.pathId;renderPathEditorOverlay(was.pathId);setStatus('PATH NODE UPDATED','ok')}}else renderPathEditorOverlay(was.pathId)}
   };
   els.stageViewport.addEventListener('pointerup',endInteraction);els.stageViewport.addEventListener('pointercancel',endInteraction);
   els.stageViewport.addEventListener('wheel',e=>{e.preventDefault();setZoom(state.zoom*(e.deltaY<0?1.1:.9),e.clientX,e.clientY)},{passive:false});
@@ -2269,6 +2375,7 @@
     if(e.ctrlKey&&!e.metaKey&&e.key.toLowerCase()==='y'){e.preventDefault();redo();return}
     if(e.code==='Space'&&!state.spacePan){e.preventDefault();state.spacePan=true;els.stageViewport.dataset.tool='pan';return}
     if(!e.ctrlKey&&!e.metaKey&&!e.altKey&&e.key.toLowerCase()==='v'){setTool('select');return}
+    if(!e.ctrlKey&&!e.metaKey&&!e.altKey&&e.key.toLowerCase()==='a'){setTool('path');return}
     if(!e.ctrlKey&&!e.metaKey&&!e.altKey&&e.key.toLowerCase()==='h'){setTool('pan');return}
     if((e.key==='Delete'||e.key==='Backspace')&&state.selected.size){e.preventDefault();deleteSelected();return}
     if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='a'&&state.svg){e.preventDefault();state.selected.clear();state.objects.filter(o=>!o.locked&&o.visible).forEach(o=>state.selected.add(o.id));state.focused=[...state.selected].at(-1)||null;renderObjects();syncLiveSelection();updateSelectionUI();return}
@@ -2281,7 +2388,7 @@
   function applyTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('vfs-theme',t)}catch(e){}$('themeBtn').textContent=t==='dark'?'LIGHT MODE':'DARK MODE'}
   let savedTheme=null;try{savedTheme=localStorage.getItem('vfs-theme')}catch(e){}applyTheme(savedTheme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));$('themeBtn').onclick=()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
 
-  window.addEventListener('resize',()=>{if(window.innerWidth>760)setParamsWidth(currentParamsWidth(),{persist:false});if(state.svg)applyViewTransform()});
+  window.addEventListener('resize',()=>{if(window.innerWidth>760)setParamsWidth(currentParamsWidth(),{persist:false});if(els.editorToolDock){const parent=toolDockParent(),pr=parent?.getBoundingClientRect(),dr=els.editorToolDock.getBoundingClientRect();if(pr)setToolDockPosition(dr.left-pr.left,dr.top-pr.top,false)}if(state.svg)applyViewTransform()});
   loadAiSettings();syncAiSettingsUI();
   updateHistoryUI();
   setStatus('READY');
