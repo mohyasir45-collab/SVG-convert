@@ -207,6 +207,13 @@
   .queue-remove:hover{background:var(--accent);color:#fff}
   .queue-remove svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
   .queue-drag{cursor:grab;position:absolute;opacity:0;pointer-events:none}
+  .queue-delivery{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center;margin-top:7px;padding:6px 7px;border:1px solid var(--ui-border,var(--ink));border-radius:10px;background:var(--ui-surface-2,var(--paper))}
+  .queue-delivery-label{font-size:6.8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.62;white-space:nowrap}
+  .queue-delivery-toggle{display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:3px;border:1px solid var(--ui-border,var(--ink));border-radius:8px;background:var(--paper)}
+  .queue-delivery-toggle button{min-width:0;border:0;border-radius:6px;background:transparent;color:var(--ink);padding:5px 7px;font:700 7px 'Space Mono',monospace;cursor:pointer;transition:background .12s,color .12s,box-shadow .12s}
+  .queue-delivery-toggle button:hover:not(.active){background:color-mix(in srgb,var(--ink) 6%,var(--paper))}
+  .queue-delivery-toggle button.active{background:var(--ink);color:var(--paper);box-shadow:0 2px 6px color-mix(in srgb,var(--ink) 14%,transparent)}
+  .queue-delivery-toggle button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
   .queue-export-bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;margin-top:7px}
   .queue-export-btn{border:var(--line) solid var(--ink);background:var(--accent);color:#fff;padding:10px 9px;font-family:'Archivo Black',sans-serif;font-size:9px;letter-spacing:.01em;cursor:pointer;text-align:left}
   .queue-export-btn:hover:not(:disabled){filter:brightness(.96)}
@@ -345,6 +352,8 @@
     .queue-meta-toggle{grid-column:4;grid-row:1 / span 2;align-self:center}
     .queue-remove{grid-column:5;grid-row:1 / span 2;align-self:center}
     .queue-detail{grid-column:1/-1;grid-row:3}
+    .queue-delivery{grid-template-columns:1fr;gap:5px}
+    .queue-delivery-label{text-align:center}
     .queue-export-bar{grid-template-columns:1fr}
     .queue-export-meta{min-height:24px}
     .meta-actions{align-items:stretch;flex-direction:column}
@@ -671,6 +680,21 @@
   #svgStage [data-vfs-path-editor-ui="1"] .vfs-path-control{fill:var(--accent);stroke:var(--paper);stroke-width:1.2}
   #svgStage [data-vfs-path-editor-ui="1"] [data-vfs-path-node]:hover{stroke-width:2.5;filter:drop-shadow(0 0 2px color-mix(in srgb,var(--accent) 65%,transparent))}
   #svgStage [data-vfs-path-editor-ui="1"] [data-vfs-path-node][data-active="1"]{fill:var(--accent);stroke:var(--ink)}
+  #stageViewport[data-tool="smooth"]{cursor:none}
+  #stageViewport[data-tool="smooth"] #svgStage path[data-editor-hit="1"]{cursor:none}
+  .smooth-brush{position:absolute;z-index:36;width:64px;height:64px;border:1.5px solid var(--accent);border-radius:50%;pointer-events:none;display:none;transform:translate(-50%,-50%);box-shadow:0 0 0 1px color-mix(in srgb,var(--paper) 85%,transparent),0 2px 8px color-mix(in srgb,var(--ink) 14%,transparent)}
+  .smooth-brush.show{display:block}
+  .smooth-brush::before{content:'';position:absolute;left:50%;top:50%;width:5px;height:5px;border-radius:50%;background:var(--accent);transform:translate(-50%,-50%)}
+  .smooth-options{position:absolute;z-index:70;width:224px;display:none;background:var(--ui-surface,var(--paper));color:var(--ui-text,var(--ink));border:1px solid var(--ui-border-strong,var(--ink));border-radius:var(--ui-radius-md,10px);box-shadow:0 14px 34px rgba(0,0,0,.18);padding:9px;gap:8px}
+  .smooth-options.show{display:grid}
+  .smooth-options-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font:700 8px 'Space Mono',monospace;text-transform:uppercase;letter-spacing:.06em}
+  .smooth-options-close{width:22px;height:22px;border:1px solid var(--ui-border,var(--ink));border-radius:var(--ui-radius-sm,6px);background:var(--ui-surface,var(--paper));color:inherit;display:grid;place-items:center;padding:0}
+  .smooth-options-close:hover{background:var(--ui-hover,color-mix(in srgb,var(--ink) 7%,var(--paper)))}
+  .smooth-option{display:grid;gap:5px;padding:7px;border:1px solid var(--ui-border,var(--ink));border-radius:var(--ui-radius-sm,6px);background:var(--ui-surface-2,var(--paper))}
+  .smooth-option label{display:flex;justify-content:space-between;gap:8px;font:700 7px 'Space Mono',monospace;text-transform:uppercase;letter-spacing:.045em}
+  .smooth-option label span:last-child{color:var(--accent)}
+  .smooth-option input[type="range"]{width:100%;min-width:0;accent-color:var(--accent)}
+  .smooth-options-note{font-size:6.7px;line-height:1.45;color:var(--ui-text-soft,var(--muted))}
 
 </style>
 </head>
@@ -689,8 +713,8 @@
       <div class="source-body">
         <div id="dropzone">
           <div class="dz-title">SERET FILE KE SINI</div>
-          <div class="dz-sub">AI · EPS · PDF · SVG<br>klik untuk memilih file</div>
-          <input id="fileInput" type="file" accept=".ai,.eps,.pdf,.svg,image/svg+xml,application/pdf,application/postscript">
+          <div class="dz-sub">AI · EPS · PDF · SVG · PNG<br>klik untuk memilih file</div>
+          <input id="fileInput" type="file" accept=".ai,.eps,.pdf,.svg,.png,image/png,image/svg+xml,application/pdf,application/postscript">
         </div>
         <div class="filecard" id="fileCard">
           <div class="file-icon" id="fileIcon">FILE</div>
@@ -738,7 +762,10 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 3 12 8-6 2-2 6Z"/></svg>
           </button>
           <button class="iconbtn" id="pathToolBtn" type="button" title="Path edit tool (A) · edit anchors and Bézier handles" aria-label="Path edit tool" aria-pressed="false">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17c3-8 8-8 14-10"/><rect x="3" y="15" width="4" height="4" rx=".5"/><rect x="17" y="5" width="4" height="4" rx=".5"/><path d="M7 17h4M15 7h2"/></svg>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 17.5C8 8.5 13.5 7.5 19.5 9"/><rect x="3" y="16" width="3" height="3" rx=".45"/><rect x="10.5" y="9" width="3" height="3" rx=".45"/><rect x="18" y="7.5" width="3" height="3" rx=".45"/></svg>
+          </button>
+          <button class="iconbtn" id="smoothToolBtn" type="button" title="Smooth tool · drag over a path · double-click for options" aria-label="Smooth tool" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16c3-7 6.5-8 9.5-3.2 2.5 4 4.5 3.6 6.5-.8"/><path d="M17.5 5.5v3M16 7h3"/></svg>
           </button>
           <button class="iconbtn" id="panToolBtn" type="button" title="Pan tool (H)" aria-label="Pan tool" aria-pressed="false">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 11V7a1.5 1.5 0 0 1 3 0v3"/><path d="M11 10V5.5a1.5 1.5 0 0 1 3 0V10"/><path d="M14 10V7a1.5 1.5 0 0 1 3 0v5"/><path d="M8 10.5V9a1.5 1.5 0 0 0-3 0v5c0 4 3 7 7 7h1c4 0 6-3 6-7v-3a1.5 1.5 0 0 0-3 0"/></svg>
@@ -754,9 +781,15 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="m7 7 1 13h8l1-13"/><path d="M10 11v5M14 11v5"/></svg>
           </button>
         </div>
+        <div class="smooth-options" id="smoothOptions" role="dialog" aria-label="Smooth tool options">
+          <div class="smooth-options-head"><span>Smooth Tool Options</span><button class="smooth-options-close" id="smoothOptionsClose" type="button" aria-label="Close smooth options">×</button></div>
+          <div class="smooth-option"><label><span>Fidelity</span><span id="smoothFidelityVal">2.5</span></label><input id="smoothFidelity" type="range" min="0.5" max="20" step="0.5" value="2.5"></div>
+          <div class="smooth-option"><label><span>Smoothness</span><span id="smoothnessVal">70%</span></label><input id="smoothness" type="range" min="0" max="100" step="1" value="70"></div>
+          <div class="smooth-options-note">Drag repeatedly along a selected path. Higher Fidelity/Smoothness produces a cleaner, less complex curve.</div>
+        </div>
         <div class="loading" id="loading"><div class="load-head"><span id="loadText">IMPORTING</span><span id="loadPct">0%</span></div><div class="track"><div class="fill" id="loadFill"></div></div></div>
-        <div id="stageViewport" data-tool="select"><div id="stageTransform"><div id="svgStage"></div></div><div id="selectMarquee"></div></div>
-        <div class="empty" id="emptyState">Unggah file AI, EPS, PDF, atau SVG.<br>Setelah diimpor, Anda bisa memilih object, mengubah warna, memecah desain, lalu ekspor SVG, PNG, PDF, atau EPS.</div>
+        <div id="stageViewport" data-tool="select"><div id="stageTransform"><div id="svgStage"></div></div><div id="selectMarquee"></div><div class="smooth-brush" id="smoothBrush" aria-hidden="true"></div></div>
+        <div class="empty" id="emptyState">Unggah AI, EPS, PDF, SVG, atau PNG.<br>PNG akan di-trace menjadi path SVG editable, lalu bisa diedit dan diekspor seperti file vector lain.</div>
       </div>
       <div class="statusbar">
         <div class="stat"><b id="statObjects">0</b><span>Objects</span></div>
@@ -772,11 +805,12 @@
       <div class="panel-head"><span>Parameters</span><span class="muted">Edit / Export</span></div>
       <div class="right-body">
         <div class="group collapsible" id="importGroup">
-          <div class="gtitle" id="importGroupHead" role="button" tabindex="0" aria-expanded="true" aria-controls="importGroupContent" title="AI paling stabil dengan Create PDF Compatible File. SVG dibuka native."><span>Import</span><span style="display:flex;align-items:center;gap:7px"><span id="importModeLabel">AUTO</span><button class="collapse-btn" id="importToggleBtn" type="button" title="Minimize import" aria-label="Minimize import"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 10 4-4 4 4"/></svg></button></span></div>
+          <div class="gtitle" id="importGroupHead" role="button" tabindex="0" aria-expanded="true" aria-controls="importGroupContent" title="AI paling stabil dengan Create PDF Compatible File. SVG dibuka native. PNG di-trace menjadi path SVG editable."><span>Import</span><span style="display:flex;align-items:center;gap:7px"><span id="importModeLabel">AUTO</span><button class="collapse-btn" id="importToggleBtn" type="button" title="Minimize import" aria-label="Minimize import"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 10 4-4 4 4"/></svg></button></span></div>
           <div class="group-content" id="importGroupContent">
             <div class="row"><label>Text</label><select id="textMode"><option value="editable">Editable</option><option value="outline">Outline</option></select></div>
             <div class="row"><label>Hidden layers</label><select id="hiddenMode"><option value="import-hidden">Import hidden</option><option value="skip">Skip hidden</option></select></div>
             <div class="row"><label>Artboards</label><select id="artboardMode"><option value="all">All</option><option value="1">First only</option></select></div>
+            <div class="row"><label>PNG trace</label><select id="pngTraceMode" title="Raster tracing quality for PNG import"><option value="auto" selected>AUTO</option><option value="detail">DETAIL</option><option value="simple">SIMPLE</option></select></div>
           </div>
         </div>
 
@@ -902,6 +936,13 @@
             <div class="queue-list" id="exportQueueList">
               <div class="queue-empty">Queue kosong.<br>Tambahkan asset di atas.</div>
             </div>
+            <div class="queue-delivery" aria-label="Export delivery mode">
+              <span class="queue-delivery-label">Export as</span>
+              <div class="queue-delivery-toggle" id="exportDeliveryToggle" role="group" aria-label="Choose ZIP archive or direct files">
+                <button type="button" class="active" data-delivery="zip" aria-pressed="true" title="Download all queue outputs inside one ZIP archive">ZIP</button>
+                <button type="button" data-delivery="direct" aria-pressed="false" title="Download each output file directly without ZIP">DIRECT FILES</button>
+              </div>
+            </div>
             <div class="queue-export-bar">
               <button class="queue-export-btn" id="exportQueueBtn" disabled>EXPORT QUEUE</button>
               <div class="queue-export-meta" id="exportQueueMeta">0 FILES</div>
@@ -925,10 +966,10 @@
     dropzone:$('dropzone'), fileInput:$('fileInput'), fileCard:$('fileCard'), fileIcon:$('fileIcon'), fileName:$('fileName'), fileMeta:$('fileMeta'), sourcePreview:$('sourcePreview'),
     objectList:$('objectList'), objectCount:$('objectCount'), selectionLabel:$('selectionLabel'), svgStage:$('svgStage'), stageViewport:$('stageViewport'), stageTransform:$('stageTransform'), emptyState:$('emptyState'),
     loading:$('loading'), loadText:$('loadText'), loadPct:$('loadPct'), loadFill:$('loadFill'), footerStatus:$('footerStatus'), statObjects:$('statObjects'), statColors:$('statColors'), statArtboards:$('statArtboards'), statSize:$('statSize'), statStatus:$('statStatus'), docState:$('docState'),
-    palette:$('palette'), compatNotice:$('compatNotice'), textMode:$('textMode'), hiddenMode:$('hiddenMode'), artboardMode:$('artboardMode'), pngScale:$('pngScale'), pngBg:$('pngBg'), splitFormat:$('splitFormat'), splitBounds:$('splitBounds'), zoomLabel:$('zoomLabel'), enginePill:$('enginePill'), importModeLabel:$('importModeLabel'),
-    addDocQueueBtn:$('addDocQueueBtn'), addSelectionQueueBtn:$('addSelectionQueueBtn'), addObjectsQueueBtn:$('addObjectsQueueBtn'), addGroupsQueueBtn:$('addGroupsQueueBtn'), exportQueueList:$('exportQueueList'), exportQueueCount:$('exportQueueCount'), clearQueueBtn:$('clearQueueBtn'), exportQueueBtn:$('exportQueueBtn'), exportQueueMeta:$('exportQueueMeta'), exportDocMeta:$('exportDocMeta'), exportSelectionMeta:$('exportSelectionMeta'), exportGroupMeta:$('exportGroupMeta'), toggleAiSettingsBtn:$('toggleAiSettingsBtn'), aiSettings:$('aiSettings'), aiStrategy:$('aiStrategy'), aiPoolSummary:$('aiPoolSummary'), aiEnableGemini:$('aiEnableGemini'), aiEnableGroq:$('aiEnableGroq'), aiEnableOpenrouter:$('aiEnableOpenrouter'), aiModelGemini:$('aiModelGemini'), aiModelGroq:$('aiModelGroq'), aiModelOpenrouter:$('aiModelOpenrouter'), aiKeysGemini:$('aiKeysGemini'), aiKeysGroq:$('aiKeysGroq'), aiKeysOpenrouter:$('aiKeysOpenrouter'), aiStatusGemini:$('aiStatusGemini'), aiStatusGroq:$('aiStatusGroq'), aiStatusOpenrouter:$('aiStatusOpenrouter'), aiCardGemini:$('aiCardGemini'), aiCardGroq:$('aiCardGroq'), aiCardOpenrouter:$('aiCardOpenrouter'), aiWorkers:$('aiWorkers'), aiLiveDot:$('aiLiveDot'), aiLiveStatus:$('aiLiveStatus'), aiRememberKey:$('aiRememberKey'), generateAllMetaBtn:$('generateAllMetaBtn'), retryFailedMetaBtn:$('retryFailedMetaBtn'), generateAllMetaCount:$('generateAllMetaCount'), retryFailedMetaCount:$('retryFailedMetaCount'), colorPop:$('colorPop'), colorPicker:$('colorPicker'),
+    palette:$('palette'), compatNotice:$('compatNotice'), textMode:$('textMode'), hiddenMode:$('hiddenMode'), artboardMode:$('artboardMode'), pngTraceMode:$('pngTraceMode'), pngScale:$('pngScale'), pngBg:$('pngBg'), splitFormat:$('splitFormat'), splitBounds:$('splitBounds'), zoomLabel:$('zoomLabel'), enginePill:$('enginePill'), importModeLabel:$('importModeLabel'),
+    addDocQueueBtn:$('addDocQueueBtn'), addSelectionQueueBtn:$('addSelectionQueueBtn'), addObjectsQueueBtn:$('addObjectsQueueBtn'), addGroupsQueueBtn:$('addGroupsQueueBtn'), exportQueueList:$('exportQueueList'), exportQueueCount:$('exportQueueCount'), clearQueueBtn:$('clearQueueBtn'), exportQueueBtn:$('exportQueueBtn'), exportQueueMeta:$('exportQueueMeta'), exportDeliveryToggle:$('exportDeliveryToggle'), exportDocMeta:$('exportDocMeta'), exportSelectionMeta:$('exportSelectionMeta'), exportGroupMeta:$('exportGroupMeta'), toggleAiSettingsBtn:$('toggleAiSettingsBtn'), aiSettings:$('aiSettings'), aiStrategy:$('aiStrategy'), aiPoolSummary:$('aiPoolSummary'), aiEnableGemini:$('aiEnableGemini'), aiEnableGroq:$('aiEnableGroq'), aiEnableOpenrouter:$('aiEnableOpenrouter'), aiModelGemini:$('aiModelGemini'), aiModelGroq:$('aiModelGroq'), aiModelOpenrouter:$('aiModelOpenrouter'), aiKeysGemini:$('aiKeysGemini'), aiKeysGroq:$('aiKeysGroq'), aiKeysOpenrouter:$('aiKeysOpenrouter'), aiStatusGemini:$('aiStatusGemini'), aiStatusGroq:$('aiStatusGroq'), aiStatusOpenrouter:$('aiStatusOpenrouter'), aiCardGemini:$('aiCardGemini'), aiCardGroq:$('aiCardGroq'), aiCardOpenrouter:$('aiCardOpenrouter'), aiWorkers:$('aiWorkers'), aiLiveDot:$('aiLiveDot'), aiLiveStatus:$('aiLiveStatus'), aiRememberKey:$('aiRememberKey'), generateAllMetaBtn:$('generateAllMetaBtn'), retryFailedMetaBtn:$('retryFailedMetaBtn'), generateAllMetaCount:$('generateAllMetaCount'), retryFailedMetaCount:$('retryFailedMetaCount'), colorPop:$('colorPop'), colorPicker:$('colorPicker'),
     groupSelectedBtn:$('groupSelectedBtn'), ungroupSelectedBtn:$('ungroupSelectedBtn'), deleteSelectedBtn:$('deleteSelectedBtn'),
-    selectToolBtn:$('selectToolBtn'), pathToolBtn:$('pathToolBtn'), panToolBtn:$('panToolBtn'), undoBtn:$('undoBtn'), redoBtn:$('redoBtn'), selectMarquee:$('selectMarquee'), editorToolDock:$('editorToolDock'), toolDockHandle:$('toolDockHandle'),
+    selectToolBtn:$('selectToolBtn'), pathToolBtn:$('pathToolBtn'), smoothToolBtn:$('smoothToolBtn'), panToolBtn:$('panToolBtn'), undoBtn:$('undoBtn'), redoBtn:$('redoBtn'), selectMarquee:$('selectMarquee'), editorToolDock:$('editorToolDock'), toolDockHandle:$('toolDockHandle'), smoothBrush:$('smoothBrush'), smoothOptions:$('smoothOptions'), smoothOptionsClose:$('smoothOptionsClose'), smoothFidelity:$('smoothFidelity'), smoothFidelityVal:$('smoothFidelityVal'), smoothness:$('smoothness'), smoothnessVal:$('smoothnessVal'),
     objName:$('objName'), objRenameBtn:$('objRenameBtn'), objFill:$('objFill'), objFillBtn:$('objFillBtn'), objStroke:$('objStroke'), objStrokeBtn:$('objStrokeBtn'), objStrokeWidth:$('objStrokeWidth'), objStrokeWidthVal:$('objStrokeWidthVal'), objStrokeStyle:$('objStrokeStyle'), objOpacity:$('objOpacity'), objOpacityVal:$('objOpacityVal'), objNoFillBtn:$('objNoFillBtn'), objNoStrokeBtn:$('objNoStrokeBtn'),
     importGroup:$('importGroup'), importGroupHead:$('importGroupHead'), importToggleBtn:$('importToggleBtn'),
     workspace:$('workspace'), paramsPanel:$('paramsPanel'), paramsResizer:$('paramsResizer')
@@ -937,11 +978,11 @@
   const state = {
     file:null, fileBase:'design', svg:'', originalSvg:'', originalImportedSvg:'', objects:[], selected:new Set(), focused:null,
     zoom:1, panX:0, panY:0, naturalW:800, naturalH:600, undo:[], redo:[], importInfo:null, dragColor:null, dragPreviewTarget:null, colorEdit:null,
-    importer:null, pdfRuntime:null, tool:'select', spacePan:false, pathEditId:null, exportQueue:[], queueSeq:0, queueDragId:null, queuePreviewUrls:[],
+    importer:null, pdfRuntime:null, tool:'select', spacePan:false, pathEditId:null, smoothPathId:null, smoothFidelity:2.5, smoothness:70, exportDelivery:'zip', exportQueue:[], queueSeq:0, queueDragId:null, queuePreviewUrls:[],
     ai:{strategy:'roundrobin',enabled:{gemini:true,groq:true,openrouter:true},keys:{gemini:[],groq:[],openrouter:[]},models:{gemini:'gemini-2.5-flash',groq:'qwen/qwen3.6-27b',openrouter:'openrouter/auto'},remember:false,busy:false,workers:2,providerCursor:0,keyCursor:{gemini:0,groq:0,openrouter:0},health:{gemini:{},groq:{},openrouter:{}},lastRoute:null}
   };
 
-  const allowed = ['ai','eps','pdf','svg'];
+  const allowed = ['ai','eps','pdf','svg','png'];
   const esc = s => String(s).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   const extOf = name => (name.split('.').pop()||'').toLowerCase();
   const baseOf = name => name.replace(/\.[^.]+$/,'') || 'design';
@@ -1484,6 +1525,52 @@
     }catch(err){els.enginePill.textContent='IMPORT ENGINE ERROR';throw new Error('Modul AI/PDF gagal dimuat. Pastikan internet aktif saat pertama membuka aplikasi. '+err.message)}
   }
 
+  let pngTraceEnginePromise=null;
+  async function ensurePngTraceEngine(){
+    if(window.ImageTracer?.imagedataToSVG)return window.ImageTracer;
+    if(!pngTraceEnginePromise)pngTraceEnginePromise=loadScriptOnce('https://cdn.jsdelivr.net/npm/imagetracerjs@1.2.6/imagetracer_v1.2.6.js',()=>!!window.ImageTracer?.imagedataToSVG)
+      .then(()=>{if(!window.ImageTracer?.imagedataToSVG)throw new Error('PNG tracing engine tidak tersedia.');return window.ImageTracer})
+      .catch(e=>{pngTraceEnginePromise=null;throw e});
+    return pngTraceEnginePromise;
+  }
+  async function decodePng(file){
+    const url=URL.createObjectURL(file),img=new Image();
+    try{
+      await new Promise((res,rej)=>{img.onload=res;img.onerror=()=>rej(new Error('PNG tidak dapat dibaca.'));img.src=url});
+      return img;
+    }finally{URL.revokeObjectURL(url)}
+  }
+  function pngTraceProfile(mode,img){
+    const longest=Math.max(img.naturalWidth||1,img.naturalHeight||1);
+    if(mode==='detail')return {maxDim:Math.min(2600,longest),colors:256,ltres:.18,qtres:.18,pathomit:0,cycles:14,roundcoords:3};
+    if(mode==='simple')return {maxDim:Math.min(1200,longest),colors:32,ltres:1.15,qtres:1.15,pathomit:4,cycles:6,roundcoords:2};
+    // AUTO balances detail and editability. Larger source images get more colors but are capped for browser performance.
+    const colors=longest>=1800?160:longest>=900?128:96;
+    return {maxDim:Math.min(1900,longest),colors,ltres:.55,qtres:.55,pathomit:1,cycles:10,roundcoords:3};
+  }
+  async function pngToEditableSvg(file){
+    const tracer=await ensurePngTraceEngine(),img=await decodePng(file),mode=els.pngTraceMode?.value||'auto',profile=pngTraceProfile(mode,img);
+    const scale=Math.min(1,profile.maxDim/Math.max(img.naturalWidth,img.naturalHeight));
+    const w=Math.max(1,Math.round(img.naturalWidth*scale)),h=Math.max(1,Math.round(img.naturalHeight*scale));
+    const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+    const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.clearRect(0,0,w,h);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(img,0,0,w,h);
+    const imageData=ctx.getImageData(0,0,w,h);
+    const options={
+      ltres:profile.ltres,qtres:profile.qtres,pathomit:profile.pathomit,
+      colorsampling:2,numberofcolors:profile.colors,mincolorratio:0,colorquantcycles:profile.cycles,
+      layering:0,strokewidth:0,linefilter:false,scale:1,roundcoords:profile.roundcoords,viewbox:true,desc:false,
+      blurradius:0,blurdelta:20
+    };
+    let svg=tracer.imagedataToSVG(imageData,options);
+    // Preserve the original source dimensions while keeping traced geometry proportional.
+    const doc=parseSvg(svg),root=doc.documentElement;
+    root.setAttribute('viewBox','0 0 '+w+' '+h);
+    root.setAttribute('width',String(w));root.setAttribute('height',String(h));
+    root.setAttribute('data-vfs-raster-trace','png');
+    root.setAttribute('data-vfs-trace-mode',mode);
+    return {svg:serializeDoc(doc),width:w,height:h,originalWidth:img.naturalWidth,originalHeight:img.naturalHeight,mode,colors:profile.colors};
+  }
+
   async function importFile(file){
     const ext=extOf(file.name);if(!allowed.includes(ext)){setStatus('FORMAT NOT SUPPORTED','error');return}
     state.file=file;state.fileBase=baseOf(file.name);state.focused=null;state.undo=[];state.redo=[];state.exportQueue=[];state.queueSeq=0;updateHistoryUI();state.selected.clear();renderExportQueue();
@@ -1491,6 +1578,16 @@
     try{
       if(ext==='svg'){
         setLoading(28,'PARSING SVG');const text=await file.text();state.svg=sanitizeImportedSvg(text);state.originalImportedSvg=state.svg;state.originalSvg=state.svg;state.importInfo={artboards:[]};els.statArtboards.textContent='1';setLoading(88,'BUILDING OBJECT INDEX');commitRender(true);setLoading(100,'DONE');setTimeout(fitView,20);setStatus('SVG READY','ok');els.compatNotice.className='notice';els.compatNotice.textContent='SVG dibuka secara native. Path, group, text, fill, stroke, dan struktur SVG tetap editable.';return;
+      }
+      if(ext==='png'){
+        setLoading(18,'LOADING PNG TRACE ENGINE');
+        const traced=await pngToEditableSvg(file);
+        setLoading(66,'TRACING RASTER TO PATHS');
+        state.svg=sanitizeImportedSvg(traced.svg);state.originalImportedSvg=state.svg;state.originalSvg=state.svg;
+        state.importInfo={artboards:[],rasterTrace:traced};els.statArtboards.textContent='1';
+        setLoading(88,'BUILDING EDITABLE PATHS');commitRender(true);setLoading(100,'DONE');setTimeout(fitView,30);setStatus('PNG → SVG READY','ok');
+        els.compatNotice.className='notice';els.compatNotice.textContent='PNG berhasil di-trace ke SVG editable · mode '+traced.mode.toUpperCase()+' · '+traced.colors+' warna · '+traced.width+' × '+traced.height+' px trace canvas. Gunakan Colors, Path Edit, Smooth Tool, dan Export seperti biasa.';
+        return;
       }
       setLoading(16,'LOADING AI/PDF ENGINE');const imp=await loadImporter();const bytes=new Uint8Array(await file.arrayBuffer());setLoading(35,'READING VECTOR CONTAINER');
       const options={runtime:imp.runtime,artboards:els.artboardMode.value==='all'?'all':[1],textMode:els.textMode.value,hiddenLayers:els.hiddenMode.value,fileName:file.name};
@@ -2014,7 +2111,7 @@
     clearQueuePreviewUrls();
     const total=state.exportQueue.length,active=state.exportQueue.filter(q=>q.enabled&&queueItemValid(q)).length,files=outputCountForQueue();
     const failedCount=state.exportQueue.filter(q=>q.enabled&&queueItemValid(q)&&!!q.metaError).length;
-    els.exportQueueCount.textContent=total+' asset'+(total===1?'':'s');els.clearQueueBtn.disabled=!total;els.exportQueueBtn.disabled=!active;els.generateAllMetaBtn.disabled=!active||state.ai.busy;els.retryFailedMetaBtn.disabled=!failedCount||state.ai.busy;els.generateAllMetaCount.textContent=String(active);els.retryFailedMetaCount.textContent=String(failedCount);els.exportQueueMeta.textContent=files+' FILE'+(files===1?'':'S');
+    els.exportQueueCount.textContent=total+' asset'+(total===1?'':'s');els.clearQueueBtn.disabled=!total;els.exportQueueBtn.disabled=!active;els.generateAllMetaBtn.disabled=!active||state.ai.busy;els.retryFailedMetaBtn.disabled=!failedCount||state.ai.busy;els.generateAllMetaCount.textContent=String(active);els.retryFailedMetaCount.textContent=String(failedCount);els.exportQueueMeta.textContent=files+' FILE'+(files===1?'':'S')+' · '+(state.exportDelivery==='zip'?'ZIP':'DIRECT');
     if(!total){els.exportQueueList.innerHTML='<div class="queue-empty">Belum ada asset dalam antrean.<br>Pilih Document, Selection, Objects, atau Groups di atas.</div>';return}
     els.exportQueueList.innerHTML='';
     state.exportQueue.forEach((q,index)=>{
@@ -2048,33 +2145,33 @@
   }
   async function exportQueue(){
     const active=state.exportQueue.filter(q=>q.enabled&&queueItemValid(q));if(!active.length){setStatus('EXPORT QUEUE IS EMPTY','error');return}
-    const fileCount=active.reduce((n,q)=>n+formatFileCount(q.format),0),useZip=fileCount>1;
+    const fileCount=active.reduce((n,q)=>n+formatFileCount(q.format),0),useZip=state.exportDelivery==='zip';
     if(useZip&&!window.JSZip){setStatus('ZIP LIBRARY MISSING','error');return}
     const zip=useZip?new JSZip():null;let produced=0;const metaRows=[];
-    els.exportQueueBtn.disabled=true;setStatus('EXPORTING QUEUE · 0/'+active.length);
+    els.exportQueueBtn.disabled=true;setStatus((useZip?'BUILDING ZIP':'EXPORTING DIRECT FILES')+' · 0/'+active.length);
     try{
       for(let i=0;i<active.length;i++){
         const q=active[i],svg=queueAssetSvg(q,els.splitBounds.value);if(!svg)continue;
-        const stem=safeName(q.name)||('asset-'+String(i+1).padStart(2,'0')),prefix=String(i+1).padStart(2,'0')+'-'+stem,meta=normalizeMetadata(q.metadata||{});
-        setStatus('EXPORTING QUEUE · '+(i+1)+'/'+active.length);
+        const stem=safeName(q.name)||('asset-'+String(i+1).padStart(2,'0')),prefix=String(i+1).padStart(2,'0')+'-'+stem,meta=normalizeMetadata(q.metadata||{}),directBase=(active.length>1||fileCount>1)?prefix:stem;
+        setStatus((useZip?'BUILDING ZIP':'EXPORTING DIRECT FILES')+' · '+(i+1)+'/'+active.length);
         if(formatIncludes(q.format,'svg')){
-          const finalSvg=injectSvgMetadata(svg,meta),blob=new Blob([finalSvg],{type:'image/svg+xml'});if(zip)zip.file(prefix+'.svg',blob);else downloadBlob(blob,stem+'.svg');produced++;
+          const finalSvg=injectSvgMetadata(svg,meta),blob=new Blob([finalSvg],{type:'image/svg+xml'});if(zip)zip.file(prefix+'.svg',blob);else downloadBlob(blob,directBase+'.svg');produced++;
         }
         if(formatIncludes(q.format,'png')){
-          let png=await svgToPngBlob(svg,Number(els.pngScale.value),els.pngBg.value);png=await injectPngMetadata(png,meta);if(zip)zip.file(prefix+'.png',png);else downloadBlob(png,stem+'.png');produced++;
+          let png=await svgToPngBlob(svg,Number(els.pngScale.value),els.pngBg.value);png=await injectPngMetadata(png,meta);if(zip)zip.file(prefix+'.png',png);else downloadBlob(png,directBase+'.png');produced++;
         }
         if(formatIncludes(q.format,'pdf')){
-          const pdf=await svgToPdfBlob(svg,meta);if(zip)zip.file(prefix+'.pdf',pdf);else downloadBlob(pdf,stem+'.pdf');produced++;
+          const pdf=await svgToPdfBlob(svg,meta);if(zip)zip.file(prefix+'.pdf',pdf);else downloadBlob(pdf,directBase+'.pdf');produced++;
         }
         if(formatIncludes(q.format,'eps')){
-          const eps=await svgToEpsBlob(svg,meta);if(zip)zip.file(prefix+'.eps',eps);else downloadBlob(eps,stem+'.eps');produced++;
+          const eps=await svgToEpsBlob(svg,meta);if(zip)zip.file(prefix+'.eps',eps);else downloadBlob(eps,directBase+'.eps');produced++;
         }
         if(meta.title||meta.description||meta.keywords.length)metaRows.push({file:prefix,type:queueTypeLabel(q),title:meta.title,description:meta.description,keywords:meta.keywords.join(', ')});
       }
       if(zip&&metaRows.length)zip.file('metadata.csv',metadataCsv(metaRows));
       if(zip&&produced){const blob=await zip.generateAsync({type:'blob'});downloadBlob(blob,state.fileBase+'-export-queue.zip')}
       if(!produced){setStatus('NO VALID ASSETS TO EXPORT','error');return}
-      setStatus('EXPORT QUEUE DONE · '+produced+' FILE'+(produced>1?'S':''),'ok');
+      setStatus((useZip?'ZIP EXPORTED':'DIRECT EXPORT DONE')+' · '+produced+' FILE'+(produced>1?'S':''),'ok');
     }catch(e){console.error(e);setStatus('EXPORT QUEUE FAILED','error');els.compatNotice.textContent=String(e?.message||e)}
     finally{renderExportQueue()}
   }
@@ -2090,21 +2187,38 @@
 
   // Toolbar
   $('zoomIn').onclick=()=>setZoom(state.zoom*1.2);$('zoomOut').onclick=()=>setZoom(state.zoom/1.2);$('fitBtn').onclick=fitView;$('resetViewBtn').onclick=()=>{state.panX=state.panY=0;applyViewTransform()};
+  function hideSmoothBrush(){els.smoothBrush?.classList.remove('show')}
   function setTool(tool){
-    state.tool=tool==='pan'?'pan':tool==='path'?'path':'select';
+    state.tool=tool==='pan'?'pan':tool==='path'?'path':tool==='smooth'?'smooth':'select';
     els.stageViewport.dataset.tool=state.tool;
-    const selecting=state.tool==='select',pathing=state.tool==='path',panning=state.tool==='pan';
+    const selecting=state.tool==='select',pathing=state.tool==='path',smoothing=state.tool==='smooth',panning=state.tool==='pan';
     els.selectToolBtn.classList.toggle('active',selecting);
     els.pathToolBtn.classList.toggle('active',pathing);
+    els.smoothToolBtn.classList.toggle('active',smoothing);
     els.panToolBtn.classList.toggle('active',panning);
     els.selectToolBtn.setAttribute('aria-pressed',String(selecting));
     els.pathToolBtn.setAttribute('aria-pressed',String(pathing));
+    els.smoothToolBtn.setAttribute('aria-pressed',String(smoothing));
     els.panToolBtn.setAttribute('aria-pressed',String(panning));
     if(!pathing){state.pathEditId=null;clearPathEditorOverlay()}
     else{const o=state.objects.find(x=>x.id===state.focused);if(o?.type==='path'&&!o.locked){state.pathEditId=o.id;renderPathEditorOverlay(o.id)}}
-    setStatus(selecting?'SELECT TOOL':pathing?'PATH EDIT TOOL · CLICK A PATH':'PAN TOOL');
+    if(!smoothing){state.smoothPathId=null;hideSmoothBrush()}
+    else{const o=state.objects.find(x=>x.id===state.focused);state.smoothPathId=o?.type==='path'&&!o.locked?o.id:null}
+    setStatus(selecting?'SELECT TOOL':pathing?'PATH EDIT TOOL · CLICK A PATH':smoothing?(state.smoothPathId?'SMOOTH TOOL · DRAG ALONG SELECTED PATH':'SMOOTH TOOL · SELECT A PATH, THEN DRAG'):'PAN TOOL');
   }
-  els.selectToolBtn.onclick=()=>setTool('select');els.pathToolBtn.onclick=()=>setTool('path');els.panToolBtn.onclick=()=>setTool('pan');
+  els.selectToolBtn.onclick=()=>setTool('select');els.pathToolBtn.onclick=()=>setTool('path');els.smoothToolBtn.onclick=()=>setTool('smooth');els.panToolBtn.onclick=()=>setTool('pan');
+
+  function updateSmoothOptionLabels(){if(els.smoothFidelityVal)els.smoothFidelityVal.textContent=Number(state.smoothFidelity).toFixed(1);if(els.smoothnessVal)els.smoothnessVal.textContent=Math.round(state.smoothness)+'%'}
+  function saveSmoothSettings(){try{localStorage.setItem('vfs-smooth-options',JSON.stringify({fidelity:state.smoothFidelity,smoothness:state.smoothness}))}catch(_){ }}
+  function loadSmoothSettings(){try{const x=JSON.parse(localStorage.getItem('vfs-smooth-options')||'null');if(x){if(Number.isFinite(Number(x.fidelity)))state.smoothFidelity=Math.max(.5,Math.min(20,Number(x.fidelity)));if(Number.isFinite(Number(x.smoothness)))state.smoothness=Math.max(0,Math.min(100,Number(x.smoothness)))}}catch(_){ }if(els.smoothFidelity)els.smoothFidelity.value=String(state.smoothFidelity);if(els.smoothness)els.smoothness.value=String(state.smoothness);updateSmoothOptionLabels()}
+  function positionSmoothOptions(){if(!els.smoothOptions||!els.smoothToolBtn)return;const wrap=els.smoothOptions.parentElement,wr=wrap.getBoundingClientRect(),br=els.smoothToolBtn.getBoundingClientRect(),w=224,h=els.smoothOptions.offsetHeight||188,pad=8;let left=br.left-wr.left,top=br.bottom-wr.top+8;left=Math.max(pad,Math.min(Math.max(pad,wr.width-w-pad),left));top=Math.max(pad,Math.min(Math.max(pad,wr.height-h-pad),top));els.smoothOptions.style.left=left+'px';els.smoothOptions.style.top=top+'px'}
+  function setSmoothOptionsOpen(open){if(!els.smoothOptions)return;els.smoothOptions.classList.toggle('show',!!open);if(open)requestAnimationFrame(positionSmoothOptions)}
+  els.smoothToolBtn.addEventListener('dblclick',e=>{e.preventDefault();e.stopPropagation();setTool('smooth');setSmoothOptionsOpen(true)});
+  els.smoothOptionsClose.onclick=()=>setSmoothOptionsOpen(false);
+  els.smoothFidelity.addEventListener('input',()=>{state.smoothFidelity=Number(els.smoothFidelity.value)||2.5;updateSmoothOptionLabels();saveSmoothSettings()});
+  els.smoothness.addEventListener('input',()=>{state.smoothness=Number(els.smoothness.value)||0;updateSmoothOptionLabels();saveSmoothSettings()});
+  document.addEventListener('pointerdown',e=>{if(els.smoothOptions?.classList.contains('show')&&!els.smoothOptions.contains(e.target)&&e.target!==els.smoothToolBtn)setSmoothOptionsOpen(false)},true);
+  loadSmoothSettings();
 
   // Movable toolbar, constrained to the canvas area.
   const toolDockParent=()=>els.editorToolDock?.parentElement;
@@ -2178,6 +2292,56 @@
   }
   function syncPathEditorToSelection(){if(state.tool!=='path')return;const o=state.objects.find(x=>x.id===state.focused);if(o?.type==='path'&&!o.locked){state.pathEditId=o.id;renderPathEditorOverlay(o.id)}else{state.pathEditId=null;clearPathEditorOverlay()}}
 
+  const SMOOTH_BRUSH_PX=32;
+  function updateSmoothBrush(clientX,clientY){
+    if(state.tool!=='smooth'||!els.smoothBrush)return hideSmoothBrush();
+    const r=els.stageViewport.getBoundingClientRect();
+    if(clientX<r.left||clientX>r.right||clientY<r.top||clientY>r.bottom)return hideSmoothBrush();
+    els.smoothBrush.style.left=(clientX-r.left)+'px';els.smoothBrush.style.top=(clientY-r.top)+'px';els.smoothBrush.classList.add('show');
+  }
+  function pathSubpaths(segs){
+    const groups=[];let indices=[],closed=false,zIndex=-1;
+    const flush=()=>{if(indices.length)groups.push({indices:[...indices],closed,zIndex});indices=[];closed=false;zIndex=-1};
+    (segs||[]).forEach((seg,i)=>{if(seg.cmd==='M'){flush();indices=[i]}else if(seg.cmd==='Z'){closed=true;zIndex=i;flush()}else if(indices.length)indices.push(i)});flush();return groups;
+  }
+  function pointLineDistance(p,a,b){const vx=b.x-a.x,vy=b.y-a.y,wx=p.x-a.x,wy=p.y-a.y,l2=vx*vx+vy*vy;if(l2<1e-12)return Math.hypot(wx,wy);let t=(wx*vx+wy*vy)/l2;t=Math.max(0,Math.min(1,t));return Math.hypot(p.x-(a.x+t*vx),p.y-(a.y+t*vy))}
+  const lerp=(a,b,t)=>a+(b-a)*t;
+  function moveIncomingControl(seg,dx,dy,f=1){if(seg?.cmd==='C'){seg.x2+=dx*f;seg.y2+=dy*f}else if(seg?.cmd==='Q'){seg.x1+=dx*f;seg.y1+=dy*f}}
+  function moveOutgoingControl(seg,dx,dy,f=1){if(seg?.cmd==='C'||seg?.cmd==='Q'){seg.x1+=dx*f;seg.y1+=dy*f}}
+  function alignSmoothHandles(segs,group,anchorPos,weight){
+    const idxs=group.indices,j=anchorPos,n=idxs.length;if(n<3)return;const closed=group.closed;
+    if(!closed&&(j===0||j===n-1))return;
+    const pi=idxs[j],prevI=idxs[(j-1+n)%n],nextI=idxs[(j+1)%n],seg=segs[pi],prev=segs[prevI],next=segs[nextI];
+    const ax=seg.x,ay=seg.y,px=prev.x,py=prev.y,nx=next.x,ny=next.y,tx=nx-px,ty=ny-py,len=Math.hypot(tx,ty)||1,ux=tx/len,uy=ty/len,k=Math.max(0,Math.min(1,weight*.9));
+    if(seg.cmd==='C'){const oldLen=Math.hypot(seg.x2-ax,seg.y2-ay)||Math.min(len*.18,12);seg.x2=lerp(seg.x2,ax-ux*oldLen,k);seg.y2=lerp(seg.y2,ay-uy*oldLen,k)}
+    else if(seg.cmd==='Q'){const oldLen=Math.hypot(seg.x1-ax,seg.y1-ay)||Math.min(len*.2,12);seg.x1=lerp(seg.x1,ax-ux*oldLen,k*.65);seg.y1=lerp(seg.y1,ay-uy*oldLen,k*.65)}
+    if(next.cmd==='C'){const oldLen=Math.hypot(next.x1-ax,next.y1-ay)||Math.min(len*.18,12);next.x1=lerp(next.x1,ax+ux*oldLen,k);next.y1=lerp(next.y1,ay+uy*oldLen,k)}
+    else if(next.cmd==='Q'){const oldLen=Math.hypot(next.x1-ax,next.y1-ay)||Math.min(len*.2,12);next.x1=lerp(next.x1,ax+ux*oldLen,k*.65);next.y1=lerp(next.y1,ay+uy*oldLen,k*.65)}
+  }
+  function smoothSegmentsAt(segs,brushPoint,radius){
+    const smooth=Math.max(0,Math.min(1,state.smoothness/100)),fidelity=Math.max(.5,Math.min(20,state.smoothFidelity));if(smooth<=0||!segs?.length)return 0;
+    const groups=pathSubpaths(segs);let touched=0;const globalRemove=[];
+    for(const group of groups){const idxs=group.indices,n=idxs.length;if(n<3)continue;const snapshot=idxs.map(i=>({x:segs[i].x,y:segs[i].y})),updates=[];
+      for(let j=0;j<n;j++){if(!group.closed&&(j===0||j===n-1))continue;const cur=snapshot[j],prev=snapshot[(j-1+n)%n],next=snapshot[(j+1)%n],d=Math.hypot(cur.x-brushPoint.x,cur.y-brushPoint.y);if(d>radius)continue;
+        const fall=Math.pow(1-d/radius,1.65),base=.08+.46*smooth,fidelityBoost=.82+.28*(fidelity/20),w=Math.min(.68,base*fall*fidelityBoost),tx=(prev.x+next.x)/2,ty=(prev.y+next.y)/2;let dx=(tx-cur.x)*w,dy=(ty-cur.y)*w,maxMove=radius*(.035+.09*smooth),dl=Math.hypot(dx,dy);if(dl>maxMove&&dl>0){dx*=maxMove/dl;dy*=maxMove/dl}updates.push({j,idx:idxs[j],dx,dy,w,d});
+      }
+      updates.forEach(u=>{const seg=segs[u.idx];seg.x+=u.dx;seg.y+=u.dy;moveIncomingControl(seg,u.dx,u.dy,.72);const nextPos=(u.j+1)%n,nextSeg=segs[idxs[nextPos]];moveOutgoingControl(nextSeg,u.dx,u.dy,.72);touched++});
+      updates.forEach(u=>alignSmoothHandles(segs,group,u.j,u.w));
+      // Gradually remove only redundant straight-line anchors under the brush.
+      const remove=[];const maxRemove=2,threshold=radius*(.006+.028*(fidelity/20))*(.35+.65*smooth);
+      for(const u of updates){if(remove.length>=maxRemove)break;const j=u.j;if(!group.closed&&(j===0||j===n-1))continue;const idx=idxs[j],nextIdx=idxs[(j+1)%n];if(segs[idx]?.cmd!=='L'||segs[nextIdx]?.cmd!=='L'||u.d>radius*.62)continue;const a=segs[idxs[(j-1+n)%n]],b=segs[idx],c=segs[nextIdx];if(pointLineDistance({x:b.x,y:b.y},{x:a.x,y:a.y},{x:c.x,y:c.y})<=threshold)remove.push(idx)}
+      globalRemove.push(...remove);
+    }
+    [...new Set(globalRemove)].sort((a,b)=>b-a).forEach(i=>{segs.splice(i,1);touched++});
+    return touched;
+  }
+  function localBrushRadius(path,clientX,clientY){const p=pointInElement(path,clientX,clientY),q=pointInElement(path,clientX+SMOOTH_BRUSH_PX,clientY);return p&&q?Math.max(.001,Math.hypot(q.x-p.x,q.y-p.y)):SMOOTH_BRUSH_PX/Math.max(.15,state.zoom)}
+  function applySmoothStroke(interaction,toX,toY){
+    const dx=toX-interaction.lastX,dy=toY-interaction.lastY,dist=Math.hypot(dx,dy),sampleGap=Math.max(2,Math.min(12,state.smoothFidelity*.7)),steps=Math.max(1,Math.ceil(dist/sampleGap));let touched=0;
+    for(let i=1;i<=steps;i++){const x=interaction.lastX+dx*(i/steps),y=interaction.lastY+dy*(i/steps),p=pointInElement(interaction.path,x,y);if(!p)continue;touched+=smoothSegmentsAt(interaction.segs,p,localBrushRadius(interaction.path,x,y))}
+    interaction.lastX=toX;interaction.lastY=toY;if(touched){interaction.path.setAttribute('d',serializePathSegments(interaction.segs));interaction.changed=true}return touched;
+  }
+
   const findObjectIdFromTarget=target=>{
     const ids=new Set(state.objects.map(o=>o.id));let n=target;
     while(n&&n!==els.svgStage&&n!==els.stageViewport){if(n.id&&ids.has(n.id))return n.id;n=n.parentElement}
@@ -2221,6 +2385,15 @@
   els.stageViewport.addEventListener('pointerdown',e=>{
     if(e.button!==0)return;const forcePan=state.tool==='pan'||state.spacePan;const id=findObjectIdFromTarget(e.target),additive=e.shiftKey||e.ctrlKey||e.metaKey;
     if(forcePan){e.preventDefault();interaction={type:'pan',pointerId:e.pointerId,lastX:e.clientX,lastY:e.clientY};els.stageViewport.setPointerCapture(e.pointerId);els.stageViewport.classList.add('dragging');return}
+    if(state.tool==='smooth'){
+      updateSmoothBrush(e.clientX,e.clientY);
+      if(!id){setStatus('SMOOTH TOOL · DRAG DIRECTLY OVER A PATH');return}
+      const obj=state.objects.find(o=>o.id===id);if(!obj||obj.locked){setStatus('PATH LOCKED · UNLOCK FIRST');return}
+      if(obj.type!=='path'){setStatus('SMOOTH TOOL ONLY WORKS ON <path> OBJECTS');return}
+      const live=els.svgStage.querySelector('svg'),path=live?.getElementById?.(id)||live?.querySelector?.('#'+CSS.escape(id));if(!path)return;const segs=normalizePathSegments(path.getAttribute('d'));if(segs.filter(x=>x.cmd!=='Z').length<3){setStatus('PATH TOO SIMPLE TO SMOOTH');return}
+      e.preventDefault();state.selected.clear();state.selected.add(id);state.focused=id;state.smoothPathId=id;renderObjects();syncLiveSelection();updateSelectionUI();
+      interaction={type:'smooth',pointerId:e.pointerId,pathId:id,path,segs,startX:e.clientX,startY:e.clientY,lastX:e.clientX,lastY:e.clientY,moved:false,changed:false,undoPushed:false,startAnchors:segs.filter(x=>x.cmd!=='Z').length};els.stageViewport.setPointerCapture(e.pointerId);setStatus('SMOOTH READY · DRAG ALONG THE PATH');return;
+    }
     if(state.tool==='path'){
       const node=e.target?.closest?.('[data-vfs-path-node]');
       if(node){const pathId=node.dataset.pathId,live=els.svgStage.querySelector('svg'),path=live?.getElementById?.(pathId)||live?.querySelector?.('#'+CSS.escape(pathId));if(!path||isLockedId(pathId))return;const segs=normalizePathSegments(path.getAttribute('d')),idx=Number(node.dataset.segIndex),kind=node.dataset.kind;if(!segs[idx])return;e.preventDefault();interaction={type:'path-node',pointerId:e.pointerId,pathId,path,segs,segIndex:idx,kind,startX:e.clientX,startY:e.clientY,moved:false,undoPushed:false};node.setAttribute('data-active','1');els.stageViewport.setPointerCapture(e.pointerId);return}
@@ -2242,8 +2415,10 @@
     e.preventDefault();const p=viewportPoint(e);interaction={type:'marquee',pointerId:e.pointerId,start:p,current:p,additive,moved:false};drawMarquee(p,p);els.stageViewport.setPointerCapture(e.pointerId);
   });
   els.stageViewport.addEventListener('pointermove',e=>{
+    if(state.tool==='smooth')updateSmoothBrush(e.clientX,e.clientY);
     if(!interaction||interaction.pointerId!==e.pointerId)return;
     if(interaction.type==='pan'){state.panX+=e.clientX-interaction.lastX;state.panY+=e.clientY-interaction.lastY;interaction.lastX=e.clientX;interaction.lastY=e.clientY;applyViewTransform();return}
+    if(interaction.type==='smooth'){const distance=Math.hypot(e.clientX-interaction.lastX,e.clientY-interaction.lastY);if(distance<1.5)return;if(!interaction.undoPushed){pushUndo();interaction.undoPushed=true}interaction.moved=true;const changed=applySmoothStroke(interaction,e.clientX,e.clientY);if(changed)setStatus('SMOOTHING PATH · '+Math.round(state.smoothness)+'%');return}
     if(interaction.type==='marquee'){interaction.current=viewportPoint(e);interaction.moved=Math.hypot(interaction.current.x-interaction.start.x,interaction.current.y-interaction.start.y)>2;drawMarquee(interaction.start,interaction.current);return}
     if(interaction.type==='path-node'){const distance=Math.hypot(e.clientX-interaction.startX,e.clientY-interaction.startY);if(distance<2&&!interaction.moved)return;const p=pointInElement(interaction.path,e.clientX,e.clientY);if(!p)return;if(!interaction.undoPushed){pushUndo();interaction.undoPushed=true}interaction.moved=true;const seg=interaction.segs[interaction.segIndex];if(interaction.kind==='anchor'){seg.x=p.x;seg.y=p.y}else if(interaction.kind==='c1'||interaction.kind==='q1'){seg.x1=p.x;seg.y1=p.y}else if(interaction.kind==='c2'){seg.x2=p.x;seg.y2=p.y}interaction.path.setAttribute('d',serializePathSegments(interaction.segs));renderPathEditorOverlay(interaction.pathId);setStatus('EDITING PATH NODE · '+(interaction.segIndex+1));return}
     const distance=Math.hypot(e.clientX-interaction.startX,e.clientY-interaction.startY);if(distance<2&&!interaction.moved)return;
@@ -2256,8 +2431,13 @@
     if(was.type==='marquee'){clearMarquee();if(was.moved)finishMarquee(was.start,was.current,was.additive);else if(!was.additive&&state.selected.size){state.selected.clear();state.focused=null;renderObjects();syncLiveSelection();updateSelectionUI();setStatus('SELECTION CLEARED')}}
     if(was.type==='object'&&was.moved){const live=els.svgStage.querySelector('svg');if(live){state.svg=sanitizeImportedSvg(editorCleanSvg(new XMLSerializer().serializeToString(live)));commitRender(true);setStatus('OBJECT MOVED','ok')}}
     if(was.type==='path-node'){if(was.moved){const live=els.svgStage.querySelector('svg');if(live){state.pathEditId=was.pathId;state.svg=sanitizeImportedSvg(editorCleanSvg(new XMLSerializer().serializeToString(live)));commitRender(true);state.pathEditId=was.pathId;renderPathEditorOverlay(was.pathId);setStatus('PATH NODE UPDATED','ok')}}else renderPathEditorOverlay(was.pathId)}
+    if(was.type==='smooth'){
+      if(was.changed){const live=els.svgStage.querySelector('svg');if(live){const endAnchors=was.segs.filter(x=>x.cmd!=='Z').length;state.smoothPathId=was.pathId;state.svg=sanitizeImportedSvg(editorCleanSvg(new XMLSerializer().serializeToString(live)));commitRender(true);state.smoothPathId=was.pathId;setStatus('PATH SMOOTHED · '+was.startAnchors+' → '+endAnchors+' ANCHORS','ok')}}
+      else{if(was.undoPushed&&state.undo.length){state.undo.pop();updateHistoryUI()}setStatus('SMOOTH TOOL · NO PATH CHANGE')}
+    }
   };
   els.stageViewport.addEventListener('pointerup',endInteraction);els.stageViewport.addEventListener('pointercancel',endInteraction);
+  els.stageViewport.addEventListener('pointerleave',()=>{if(!interaction||interaction.type!=='smooth')hideSmoothBrush()});
   els.stageViewport.addEventListener('wheel',e=>{e.preventDefault();setZoom(state.zoom*(e.deltaY<0?1.1:.9),e.clientX,e.clientY)},{passive:false});
 
   // Collapsible import panel
@@ -2288,6 +2468,16 @@
   // Color picker
   $('colorApply').onclick=()=>{if(!state.colorEdit)return;const to=els.colorPicker.value.toLowerCase(),n=replaceColor(state.colorEdit,to);els.colorPop.classList.remove('show');setStatus('COLOR EDITED · '+n+' ATTR','ok')};
   document.addEventListener('pointerdown',e=>{if(!els.colorPop.contains(e.target)&&!e.target.closest?.('.swatch'))els.colorPop.classList.remove('show')});
+
+  // Export delivery mode
+  function setExportDelivery(mode,{persist=true}={}){
+    state.exportDelivery=mode==='direct'?'direct':'zip';
+    if(els.exportDeliveryToggle){els.exportDeliveryToggle.querySelectorAll('[data-delivery]').forEach(btn=>{const active=btn.dataset.delivery===state.exportDelivery;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active))})}
+    if(persist){try{localStorage.setItem('vfs-export-delivery',state.exportDelivery)}catch(_){ }}
+    renderExportQueue();
+  }
+  try{setExportDelivery(localStorage.getItem('vfs-export-delivery')||'zip',{persist:false})}catch(_){setExportDelivery('zip',{persist:false})}
+  if(els.exportDeliveryToggle)els.exportDeliveryToggle.addEventListener('click',e=>{const btn=e.target.closest('[data-delivery]');if(!btn)return;setExportDelivery(btn.dataset.delivery);setStatus(btn.dataset.delivery==='direct'?'EXPORT MODE · DIRECT FILES':'EXPORT MODE · ZIP','ok')});
 
   // Export Queue — assets must be queued before download
   els.addDocQueueBtn.onclick=addDocumentToQueue;
@@ -2386,6 +2576,7 @@
     if((e.key==='Delete'||e.key==='Backspace')&&state.selected.size){e.preventDefault();deleteSelected();return}
     if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='a'&&state.svg){e.preventDefault();state.selected.clear();state.objects.filter(o=>!o.locked&&o.visible).forEach(o=>state.selected.add(o.id));state.focused=[...state.selected].at(-1)||null;renderObjects();syncLiveSelection();updateSelectionUI();return}
     if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='g'){e.preventDefault();e.shiftKey?ungroupSelected():groupSelected();return}
+    if(e.key==='Escape'&&els.smoothOptions?.classList.contains('show')){setSmoothOptionsOpen(false);return}
     if(e.key==='Escape'&&state.selected.size){state.selected.clear();state.focused=null;renderObjects();syncLiveSelection();updateSelectionUI()}
   });
   document.addEventListener('keyup',e=>{if(e.code==='Space'){state.spacePan=false;els.stageViewport.dataset.tool=state.tool}});
