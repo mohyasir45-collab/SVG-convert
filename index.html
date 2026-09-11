@@ -23,9 +23,17 @@
   .topbtn{background:var(--paper);border:var(--line) solid var(--ink);padding:6px 9px;font-weight:700;font-size:9.5px}
   .topbtn:hover{background:var(--ink);color:var(--paper)}
 
-  .workspace{min-height:0;display:grid;grid-template-columns:238px minmax(420px,1fr) 336px;border-bottom:var(--line) solid var(--ink)}
+  .workspace{min-height:0;display:grid;grid-template-columns:238px minmax(420px,1fr) var(--params-width,336px);border-bottom:var(--line) solid var(--ink)}
   .panel{min-height:0;min-width:0;background:var(--paper);overflow:hidden;display:flex;flex-direction:column}
   .panel+.panel{border-left:var(--line) solid var(--ink)}
+  .params-panel{position:relative}
+  .params-resizer{position:absolute;left:0;top:0;bottom:0;width:10px;z-index:90;cursor:col-resize;touch-action:none;transform:translateX(-5px);outline:none}
+  .params-resizer::before{content:'';position:absolute;left:4px;top:0;bottom:0;width:2px;background:var(--ink);opacity:.16;transition:opacity .12s,background .12s,width .12s}
+  .params-resizer::after{content:'';position:absolute;left:1px;top:50%;width:7px;height:34px;transform:translateY(-50%);border:1px solid var(--ink);background:var(--paper);opacity:0;transition:opacity .12s}
+  .params-resizer:hover::before,.params-resizer:focus-visible::before,.params-resizer.active::before{opacity:1;background:var(--accent);width:3px}
+  .params-resizer:hover::after,.params-resizer:focus-visible::after,.params-resizer.active::after{opacity:1}
+  html.params-resizing,html.params-resizing body{cursor:col-resize!important;user-select:none!important}
+  html.params-resizing iframe,html.params-resizing canvas{pointer-events:none!important}
   .panel-head{height:34px;flex:0 0 34px;padding:7px 10px;border-bottom:var(--line) solid var(--ink);display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase}
   .muted{opacity:.55}
   .scroll{overflow:auto;min-height:0}
@@ -109,7 +117,7 @@
   .stat{padding:5px 8px;border-right:1px solid var(--ink);min-width:0}.stat:last-child{border-right:0}
   .stat b{display:block;font-family:'Archivo Black',sans-serif;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.stat span{font-size:7.5px;opacity:.55;text-transform:uppercase}
 
-  .right-body{padding:10px;overflow:auto;min-height:0}
+  .right-body{padding:10px;overflow:auto;min-height:0;flex:1}
   .group{border-bottom:var(--line) solid var(--ink);padding-bottom:12px;margin-bottom:12px}
   .group:last-child{border-bottom:0;margin-bottom:0}
   .gtitle{display:flex;justify-content:space-between;align-items:center;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
@@ -311,8 +319,8 @@
   .export-panel .notice.warn{margin-top:7px;padding:6px;font-size:7.2px}
   .queue-export-btn{padding:9px 8px}
 
-  @media(max-width:980px){.workspace{grid-template-columns:210px minmax(360px,1fr) 300px}.lede{display:none}}
-  @media(max-width:760px){html,body{overflow:auto;height:auto}.app{height:auto;min-height:100vh;display:block}.workspace{display:block}.panel+.panel{border-left:0;border-top:var(--line) solid var(--ink)}.panel{min-height:520px}.center{height:650px}.pill{display:none}}
+  @media(max-width:980px){.workspace{grid-template-columns:210px minmax(360px,1fr) var(--params-width,300px)}.lede{display:none}}
+  @media(max-width:760px){html,body{overflow:auto;height:auto}.app{height:auto;min-height:100vh;display:block}.workspace{display:block}.panel+.panel{border-left:0;border-top:var(--line) solid var(--ink)}.panel{min-height:520px}.center{height:650px}.pill{display:none}.params-resizer{display:none}}
 </style>
 </head>
 <body>
@@ -324,7 +332,7 @@
     <button class="topbtn" id="themeBtn">DARK MODE</button>
   </header>
 
-  <main class="workspace">
+  <main class="workspace" id="workspace">
     <aside class="panel">
       <div class="panel-head"><span>Source</span><span class="muted">AI / EPS / SVG</span></div>
       <div class="source-body">
@@ -401,7 +409,8 @@
       </div>
     </section>
 
-    <aside class="panel">
+    <aside class="panel params-panel" id="paramsPanel">
+      <div class="params-resizer" id="paramsResizer" role="separator" tabindex="0" aria-label="Resize Parameters panel" aria-orientation="vertical" aria-valuemin="250" aria-valuemax="720" aria-valuenow="336" title="Drag kiri/kanan untuk resize · double-click untuk reset"></div>
       <div class="panel-head"><span>Parameters</span><span class="muted">Edit / Export</span></div>
       <div class="right-body">
         <div class="group collapsible" id="importGroup">
@@ -505,11 +514,11 @@
                     <div class="ai-field"><label>API keys · one per line</label><textarea id="aiKeysGemini" placeholder="AIza...&#10;AIza..." autocomplete="off" spellcheck="false"></textarea></div>
                   </div>
                 </div>
-                <div class="ai-provider-card" id="aiCardGrok" data-provider="grok">
-                  <div class="ai-provider-head"><label class="ai-provider-enable"><input id="aiEnableGrok" type="checkbox" checked> Grok / xAI</label><span class="ai-provider-status" id="aiStatusGrok">NO KEY</span></div>
+                <div class="ai-provider-card" id="aiCardGroq" data-provider="groq">
+                  <div class="ai-provider-head"><label class="ai-provider-enable"><input id="aiEnableGroq" type="checkbox" checked> Groq</label><span class="ai-provider-status" id="aiStatusGroq">NO KEY</span></div>
                   <div class="ai-provider-body">
-                    <div class="ai-field"><label>Model</label><input id="aiModelGrok" type="text" value="grok-4.6" autocomplete="off"></div>
-                    <div class="ai-field"><label>API keys · one per line</label><textarea id="aiKeysGrok" placeholder="xai-...&#10;xai-..." autocomplete="off" spellcheck="false"></textarea></div>
+                    <div class="ai-field"><label>Model</label><input id="aiModelGroq" type="text" value="qwen/qwen3.6-27b" autocomplete="off"></div>
+                    <div class="ai-field"><label>API keys · one per line</label><textarea id="aiKeysGroq" placeholder="gsk_...&#10;gsk_..." autocomplete="off" spellcheck="false"></textarea></div>
                   </div>
                 </div>
                 <div class="ai-provider-card" id="aiCardOpenrouter" data-provider="openrouter">
@@ -555,18 +564,19 @@
     objectList:$('objectList'), objectCount:$('objectCount'), selectionLabel:$('selectionLabel'), svgStage:$('svgStage'), stageViewport:$('stageViewport'), stageTransform:$('stageTransform'), emptyState:$('emptyState'),
     loading:$('loading'), loadText:$('loadText'), loadPct:$('loadPct'), loadFill:$('loadFill'), footerStatus:$('footerStatus'), statObjects:$('statObjects'), statColors:$('statColors'), statArtboards:$('statArtboards'), statSize:$('statSize'), statStatus:$('statStatus'), docState:$('docState'),
     palette:$('palette'), compatNotice:$('compatNotice'), textMode:$('textMode'), hiddenMode:$('hiddenMode'), artboardMode:$('artboardMode'), pngScale:$('pngScale'), pngBg:$('pngBg'), splitFormat:$('splitFormat'), splitBounds:$('splitBounds'), zoomLabel:$('zoomLabel'), enginePill:$('enginePill'), importModeLabel:$('importModeLabel'),
-    addDocQueueBtn:$('addDocQueueBtn'), addSelectionQueueBtn:$('addSelectionQueueBtn'), addObjectsQueueBtn:$('addObjectsQueueBtn'), addGroupsQueueBtn:$('addGroupsQueueBtn'), exportQueueList:$('exportQueueList'), exportQueueCount:$('exportQueueCount'), clearQueueBtn:$('clearQueueBtn'), exportQueueBtn:$('exportQueueBtn'), exportQueueMeta:$('exportQueueMeta'), exportDocMeta:$('exportDocMeta'), exportSelectionMeta:$('exportSelectionMeta'), exportGroupMeta:$('exportGroupMeta'), toggleAiSettingsBtn:$('toggleAiSettingsBtn'), aiSettings:$('aiSettings'), aiStrategy:$('aiStrategy'), aiPoolSummary:$('aiPoolSummary'), aiEnableGemini:$('aiEnableGemini'), aiEnableGrok:$('aiEnableGrok'), aiEnableOpenrouter:$('aiEnableOpenrouter'), aiModelGemini:$('aiModelGemini'), aiModelGrok:$('aiModelGrok'), aiModelOpenrouter:$('aiModelOpenrouter'), aiKeysGemini:$('aiKeysGemini'), aiKeysGrok:$('aiKeysGrok'), aiKeysOpenrouter:$('aiKeysOpenrouter'), aiStatusGemini:$('aiStatusGemini'), aiStatusGrok:$('aiStatusGrok'), aiStatusOpenrouter:$('aiStatusOpenrouter'), aiCardGemini:$('aiCardGemini'), aiCardGrok:$('aiCardGrok'), aiCardOpenrouter:$('aiCardOpenrouter'), aiWorkers:$('aiWorkers'), aiLiveDot:$('aiLiveDot'), aiLiveStatus:$('aiLiveStatus'), aiRememberKey:$('aiRememberKey'), generateMissingMetaBtn:$('generateMissingMetaBtn'), colorPop:$('colorPop'), colorPicker:$('colorPicker'),
+    addDocQueueBtn:$('addDocQueueBtn'), addSelectionQueueBtn:$('addSelectionQueueBtn'), addObjectsQueueBtn:$('addObjectsQueueBtn'), addGroupsQueueBtn:$('addGroupsQueueBtn'), exportQueueList:$('exportQueueList'), exportQueueCount:$('exportQueueCount'), clearQueueBtn:$('clearQueueBtn'), exportQueueBtn:$('exportQueueBtn'), exportQueueMeta:$('exportQueueMeta'), exportDocMeta:$('exportDocMeta'), exportSelectionMeta:$('exportSelectionMeta'), exportGroupMeta:$('exportGroupMeta'), toggleAiSettingsBtn:$('toggleAiSettingsBtn'), aiSettings:$('aiSettings'), aiStrategy:$('aiStrategy'), aiPoolSummary:$('aiPoolSummary'), aiEnableGemini:$('aiEnableGemini'), aiEnableGroq:$('aiEnableGroq'), aiEnableOpenrouter:$('aiEnableOpenrouter'), aiModelGemini:$('aiModelGemini'), aiModelGroq:$('aiModelGroq'), aiModelOpenrouter:$('aiModelOpenrouter'), aiKeysGemini:$('aiKeysGemini'), aiKeysGroq:$('aiKeysGroq'), aiKeysOpenrouter:$('aiKeysOpenrouter'), aiStatusGemini:$('aiStatusGemini'), aiStatusGroq:$('aiStatusGroq'), aiStatusOpenrouter:$('aiStatusOpenrouter'), aiCardGemini:$('aiCardGemini'), aiCardGroq:$('aiCardGroq'), aiCardOpenrouter:$('aiCardOpenrouter'), aiWorkers:$('aiWorkers'), aiLiveDot:$('aiLiveDot'), aiLiveStatus:$('aiLiveStatus'), aiRememberKey:$('aiRememberKey'), generateMissingMetaBtn:$('generateMissingMetaBtn'), colorPop:$('colorPop'), colorPicker:$('colorPicker'),
     groupSelectedBtn:$('groupSelectedBtn'), ungroupSelectedBtn:$('ungroupSelectedBtn'), deleteSelectedBtn:$('deleteSelectedBtn'),
     selectToolBtn:$('selectToolBtn'), panToolBtn:$('panToolBtn'), undoBtn:$('undoBtn'), redoBtn:$('redoBtn'), selectMarquee:$('selectMarquee'),
     objName:$('objName'), objRenameBtn:$('objRenameBtn'), objFill:$('objFill'), objFillBtn:$('objFillBtn'), objStroke:$('objStroke'), objStrokeBtn:$('objStrokeBtn'), objStrokeWidth:$('objStrokeWidth'), objStrokeWidthVal:$('objStrokeWidthVal'), objStrokeStyle:$('objStrokeStyle'), objOpacity:$('objOpacity'), objOpacityVal:$('objOpacityVal'), objNoFillBtn:$('objNoFillBtn'), objNoStrokeBtn:$('objNoStrokeBtn'),
-    importGroup:$('importGroup'), importGroupHead:$('importGroupHead'), importToggleBtn:$('importToggleBtn')
+    importGroup:$('importGroup'), importGroupHead:$('importGroupHead'), importToggleBtn:$('importToggleBtn'),
+    workspace:$('workspace'), paramsPanel:$('paramsPanel'), paramsResizer:$('paramsResizer')
   };
 
   const state = {
     file:null, fileBase:'design', svg:'', originalSvg:'', originalImportedSvg:'', objects:[], selected:new Set(), focused:null,
     zoom:1, panX:0, panY:0, naturalW:800, naturalH:600, undo:[], redo:[], importInfo:null, dragColor:null, dragPreviewTarget:null, colorEdit:null,
     importer:null, pdfRuntime:null, tool:'select', spacePan:false, exportQueue:[], queueSeq:0, queueDragId:null, queuePreviewUrls:[],
-    ai:{strategy:'roundrobin',enabled:{gemini:true,grok:true,openrouter:true},keys:{gemini:[],grok:[],openrouter:[]},models:{gemini:'gemini-2.5-flash',grok:'grok-4.6',openrouter:'openrouter/auto'},remember:false,busy:false,workers:2,providerCursor:0,keyCursor:{gemini:0,grok:0,openrouter:0},health:{gemini:{},grok:{},openrouter:{}},lastRoute:null}
+    ai:{strategy:'roundrobin',enabled:{gemini:true,groq:true,openrouter:true},keys:{gemini:[],groq:[],openrouter:[]},models:{gemini:'gemini-2.5-flash',groq:'qwen/qwen3.6-27b',openrouter:'openrouter/auto'},remember:false,busy:false,workers:2,providerCursor:0,keyCursor:{gemini:0,groq:0,openrouter:0},health:{gemini:{},groq:{},openrouter:{}},lastRoute:null}
   };
 
   const allowed = ['ai','eps','pdf','svg'];
@@ -1263,8 +1273,8 @@
     const keywords=cleanKeywords(data.keywords||data.tags||[]);
     return {title,description,keywords};
   }
-  const AI_PROVIDER_ORDER=['gemini','grok','openrouter'];
-  const AI_PROVIDER_LABEL={gemini:'Gemini',grok:'Grok',openrouter:'OpenRouter'};
+  const AI_PROVIDER_ORDER=['gemini','groq','openrouter'];
+  const AI_PROVIDER_LABEL={gemini:'Gemini',groq:'Groq',openrouter:'OpenRouter'};
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   function parseApiKeyList(value){
     const arr=Array.isArray(value)?value:String(value||'').split(/[\r\n,]+/);
@@ -1292,6 +1302,9 @@
   function loadAiSettings(){
     try{
       const saved=JSON.parse(localStorage.getItem('vfs-ai-metadata')||'null');if(!saved)return;
+      // Migrate legacy Grok/xAI slot to Groq without losing user configuration.
+      if(saved.models&&saved.models.grok&&!saved.models.groq)saved.models.groq='qwen/qwen3.6-27b';
+      if(saved.enabled&&Object.prototype.hasOwnProperty.call(saved.enabled,'grok')&&!Object.prototype.hasOwnProperty.call(saved.enabled,'groq'))saved.enabled.groq=saved.enabled.grok;
       if(saved.models&&typeof saved.models==='object')Object.assign(state.ai.models,saved.models);
       if(saved.enabled&&typeof saved.enabled==='object')Object.assign(state.ai.enabled,saved.enabled);
       if(['roundrobin','failover'].includes(saved.strategy))state.ai.strategy=saved.strategy;
@@ -1353,13 +1366,17 @@
     if(status===429){
       const hard=/daily|insufficient|credit|balance|billing|spend|limit\s*[:=]\s*0|quota.*reset/.test(msg);return hard?{kind:'exhausted',cooldown:0,providerWide:false}:{kind:'cooldown',cooldown:retry||60000,providerWide:false};
     }
-    if(status===408||status===409||status===425||status>=500)return {kind:'cooldown',cooldown:retry||20000,providerWide:false};
+    if(status===408||status===409||status===425||status===498||status>=500)return {kind:'cooldown',cooldown:retry||20000,providerWide:false};
     if(status===400||status===404||status===405||status===415||status===422)return {kind:'config',cooldown:0,providerWide:true};
     if(status===0)return {kind:'cooldown',cooldown:15000,providerWide:false};
     return {kind:'error',cooldown:0,providerWide:false};
   }
   function metadataPrompt(item){
-    return `Create marketplace metadata for the attached creative asset image. This metadata is for a Canva Creator element/library asset, not a template.\n\nAsset hint: ${item.name||queueTypeLabel(item)} (${queueTypeLabel(item)}). Treat the filename only as a weak hint; trust the visible image.\n\nRules:\n- Be precise and literal. Do not invent people, brands, locations, cultures, materials, techniques, or meanings that are not visually supported.\n- Title: natural English, 4-10 words, strongest searchable subject first, preferably <= 70 characters. Avoid marketing language.\n- Description: one concise factual sentence, about 12-28 words, useful for search and review.\n- Keywords: 30 unique lowercase search terms or short phrases, ordered from highest to lowest relevance. Start with exact subject/concept, then close synonyms/category, style/form, visible attributes, likely design use cases, then broader related concepts.\n- Avoid keyword stuffing, duplicates, trivial singular/plural repeats, unsupported attributes, and generic file-format terms such as svg, vector, stock, canva, ai.\n- Avoid trademarks, copyrighted character names, celebrity names, and brand names unless unmistakably visible and essential; when uncertain use a generic description.\n- Do not mention the production process or whether AI was used; describe only what is visibly supported by the asset.\n\nReturn JSON only with exactly this shape: {"title":"...","description":"...","keywords":["...", "..."]}`;
+    const userContext=String(item?.metadata?.title||'').replace(/\s+/g,' ').trim();
+    const contextBlock=userContext
+      ? `\n\nUSER CONTEXT / TITLE HINT: ${userContext}\nUse this as a strong semantic hint for what the creator intends the asset to represent. Reconcile it with the visible image, improve it into a natural searchable English title, and never invent details contradicted by the image.`
+      : '';
+    return `Create marketplace metadata for the attached creative asset image. This metadata is for a Canva Creator element/library asset, not a template.\n\nAsset hint: ${item.name||queueTypeLabel(item)} (${queueTypeLabel(item)}). Treat the filename only as a weak hint; trust the visible image.${contextBlock}\n\nRules:\n- Be precise and literal. Do not invent people, brands, locations, cultures, materials, techniques, or meanings that are not visually supported.\n- If USER CONTEXT / TITLE HINT is present, use it to disambiguate the subject and search intent, but correct it when the visible image clearly disagrees.\n- Title: natural English, 4-10 words, strongest searchable subject first, preferably <= 70 characters. Avoid marketing language.\n- Description: one concise factual sentence, about 12-28 words, useful for search and review.\n- Keywords: 30 unique lowercase search terms or short phrases, ordered from highest to lowest relevance. Start with exact subject/concept, then close synonyms/category, style/form, visible attributes, likely design use cases, then broader related concepts.\n- The first keywords should closely reinforce the final title and the creator context when visually supported.\n- Avoid keyword stuffing, duplicates, trivial singular/plural repeats, unsupported attributes, and generic file-format terms such as svg, vector, stock, canva, ai.\n- Avoid trademarks, copyrighted character names, celebrity names, and brand names unless unmistakably visible and essential; when uncertain use a generic description.\n- Do not mention the production process or whether AI was used; describe only what is visibly supported by the asset.\n\nReturn JSON only with exactly this shape: {"title":"...","description":"...","keywords":["...", "..."]}`;
   }
   async function blobToDataUrl(blob){return await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error('PREVIEW ENCODING FAILED'));r.readAsDataURL(blob)})}
   async function queueVisionDataUrl(item){
@@ -1380,7 +1397,7 @@
         res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{parts:[{text:prompt},{inline_data:{mime_type:'image/png',data:base64}}]}],generationConfig:{temperature:.2,response_mime_type:'application/json'}})});
         data=await res.json().catch(()=>({}));text=(data?.candidates?.[0]?.content?.parts||[]).map(p=>p?.text||'').join('');
       }else{
-        const url=provider==='grok'?'https://api.x.ai/v1/chat/completions':'https://openrouter.ai/api/v1/chat/completions';
+        const url=provider==='groq'?'https://api.groq.com/openai/v1/chat/completions':'https://openrouter.ai/api/v1/chat/completions';
         const headers={'Content-Type':'application/json','Authorization':'Bearer '+key};if(provider==='openrouter')headers['X-OpenRouter-Title']='Vector File Studio';
         res=await fetch(url,{method:'POST',headers,body:JSON.stringify({model,messages:[{role:'user',content:[{type:'text',text:prompt},{type:'image_url',image_url:{url:imageUrl}}]}],temperature:.2,max_tokens:900})});
         data=await res.json().catch(()=>({}));text=responseText(data);
@@ -1434,6 +1451,8 @@
   function injectSvgMetadata(svg,meta){
     meta=normalizeMetadata(meta);if(!meta.title&&!meta.description&&!meta.keywords.length)return exportCleanSvg(svg);
     const doc=parseSvg(exportCleanSvg(svg)),root=doc.documentElement,SVG='http://www.w3.org/2000/svg',RDF='http://www.w3.org/1999/02/22-rdf-syntax-ns#',DC='http://purl.org/dc/elements/1.1/';
+    root.setAttribute('xmlns:dc',DC);root.setAttribute('xmlns:rdf',RDF);
+    root.setAttribute('data-vfs-metadata','embedded');
     [...root.children].filter(x=>['title','desc'].includes(x.tagName?.toLowerCase())||x.getAttribute?.('data-vfs-export-metadata')==='1').forEach(x=>x.remove());
     const title=doc.createElementNS(SVG,'title');title.textContent=meta.title;const desc=doc.createElementNS(SVG,'desc');desc.textContent=meta.description;root.insertBefore(desc,root.firstChild);root.insertBefore(title,root.firstChild);
     const md=doc.createElementNS(SVG,'metadata');md.setAttribute('data-vfs-export-metadata','1');const rdf=doc.createElementNS(RDF,'rdf:RDF'),d=doc.createElementNS(RDF,'rdf:Description');
@@ -1521,7 +1540,7 @@
       const valid=queueItemValid(q),row=document.createElement('div');row.className='queue-item'+(q.enabled?'':' off')+(valid?'':' invalid');row.dataset.qid=q.qid;
       const meta=queueTypeLabel(q)+' · '+(q.type==='selection'?(q.ids?.length||0)+' OBJECTS':q.type==='group'?'WHOLE GROUP':q.type==='object'?'1 OBJECT':'WHOLE DOCUMENT')+(valid?'':' · MISSING');
       const ready=metadataReady(q),route=q.aiRoute?(' · '+q.aiRoute.toUpperCase()):'',metaState=q.metaBusy?' · AI RUNNING':ready?(' · META READY'+route):q.metaError?' · META ERROR':' · META —';row.classList.toggle('meta-open',!!q.metaOpen);
-      row.innerHTML='<label class="queue-check" title="Include in export"><input type="checkbox" '+(q.enabled?'checked':'')+' '+(valid?'':'disabled')+'></label><div class="queue-thumb" title="Preview asset · drag to reorder">'+queueIcon(q)+'</div><div class="queue-main"><input class="queue-name" value="'+esc(q.name)+'" aria-label="Asset name"><div class="queue-meta">'+esc(meta+metaState)+'</div></div><select class="queue-format" aria-label="Export format"><option value="svg" '+(q.format==='svg'?'selected':'')+'>SVG</option><option value="png" '+(q.format==='png'?'selected':'')+'>PNG</option><option value="both" '+(q.format==='both'?'selected':'')+'>SVG+PNG</option></select><button class="queue-meta-toggle '+(ready?'ready ':'')+(q.metaOpen?'active':'')+'" title="Title, description & keywords" aria-label="Metadata" aria-expanded="'+String(!!q.metaOpen)+'"><svg viewBox="0 0 20 20"><path d="M3 9V4h5l8 8-5 5z"/><circle cx="6.5" cy="6.5" r="1"/></svg></button><button class="queue-remove" title="Remove from queue" aria-label="Remove"><svg viewBox="0 0 20 20"><path d="m6 6 8 8M14 6l-8 8"/></svg></button><div class="queue-detail"><div class="meta-field"><label>Title</label><input class="meta-title" type="text" maxlength="90" value="'+esc(q.metadata?.title||'')+'" placeholder="Searchable asset title"></div><div class="meta-field"><label>Description</label><textarea class="meta-description" maxlength="260" placeholder="Precise visual description">'+esc(q.metadata?.description||'')+'</textarea></div><div class="meta-field keywords"><label>Keywords · high → low relevance</label><textarea class="meta-keywords" placeholder="subject, synonym, style, use case...">'+esc((q.metadata?.keywords||[]).join(', '))+'</textarea></div><div class="meta-actions"><button class="meta-generate" type="button" '+(valid&&!state.ai.busy&&!q.metaBusy?'':'disabled')+'><svg viewBox="0 0 20 20"><path d="M10 2l1.2 4.2L15 8l-3.8 1.8L10 14l-1.2-4.2L5 8l3.8-1.8z"/><path d="M15.5 13.5l.7 2.1 1.8.9-1.8.9-.7 2.1-.7-2.1-1.8-.9 1.8-.9z"/></svg>GENERATE AI</button><span class="meta-mini-status">'+(q.metaBusy?'routing…':ready?esc((q.metadata.keywords||[]).length+' keywords · '+(q.aiRoute||'manual')):q.metaError?esc('retry · '+q.metaError.slice(0,44)):'manual or AI')+'</span></div></div>';
+      row.innerHTML='<label class="queue-check" title="Include in export"><input type="checkbox" '+(q.enabled?'checked':'')+' '+(valid?'':'disabled')+'></label><div class="queue-thumb" title="Preview asset · drag to reorder">'+queueIcon(q)+'</div><div class="queue-main"><input class="queue-name" value="'+esc(q.name)+'" aria-label="Asset name"><div class="queue-meta">'+esc(meta+metaState)+'</div></div><select class="queue-format" aria-label="Export format"><option value="svg" '+(q.format==='svg'?'selected':'')+'>SVG</option><option value="png" '+(q.format==='png'?'selected':'')+'>PNG</option><option value="both" '+(q.format==='both'?'selected':'')+'>SVG+PNG</option></select><button class="queue-meta-toggle '+(ready?'ready ':'')+(q.metaOpen?'active':'')+'" title="Title, description & keywords" aria-label="Metadata" aria-expanded="'+String(!!q.metaOpen)+'"><svg viewBox="0 0 20 20"><path d="M3 9V4h5l8 8-5 5z"/><circle cx="6.5" cy="6.5" r="1"/></svg></button><button class="queue-remove" title="Remove from queue" aria-label="Remove"><svg viewBox="0 0 20 20"><path d="m6 6 8 8M14 6l-8 8"/></svg></button><div class="queue-detail"><div class="meta-field"><label>Title / AI context</label><input class="meta-title" type="text" maxlength="90" value="'+esc(q.metadata?.title||'')+'" placeholder="Type a subject hint, then Generate AI"></div><div class="meta-field"><label>Description</label><textarea class="meta-description" maxlength="260" placeholder="Precise visual description">'+esc(q.metadata?.description||'')+'</textarea></div><div class="meta-field keywords"><label>Keywords · high → low relevance</label><textarea class="meta-keywords" placeholder="subject, synonym, style, use case...">'+esc((q.metadata?.keywords||[]).join(', '))+'</textarea></div><div class="meta-actions"><button class="meta-generate" type="button" '+(valid&&!state.ai.busy&&!q.metaBusy?'':'disabled')+'><svg viewBox="0 0 20 20"><path d="M10 2l1.2 4.2L15 8l-3.8 1.8L10 14l-1.2-4.2L5 8l3.8-1.8z"/><path d="M15.5 13.5l.7 2.1 1.8.9-1.8.9-.7 2.1-.7-2.1-1.8-.9 1.8-.9z"/></svg>GENERATE AI</button><span class="meta-mini-status">'+(q.metaBusy?'routing…':ready?esc((q.metadata.keywords||[]).length+' keywords · '+(q.aiRoute||'manual')):q.metaError?esc('retry · '+q.metaError.slice(0,44)):'manual or AI')+'</span></div></div>';
       const thumb=row.querySelector('.queue-thumb'),previewUrl=valid?queuePreviewUrl(q):null;
       if(previewUrl){thumb.innerHTML='<img src="'+previewUrl+'" alt="" aria-hidden="true">';thumb.classList.add('preview-ready')}else{thumb.classList.add('preview-missing')}
       row.querySelector('input[type="checkbox"]').addEventListener('change',e=>{q.enabled=e.target.checked;renderExportQueue()});
@@ -1708,6 +1727,75 @@
   els.clearQueueBtn.onclick=()=>{state.exportQueue=[];renderExportQueue();setStatus('EXPORT QUEUE CLEARED','ok')};
   els.exportQueueBtn.onclick=exportQueue;
 
+  // Resizable Parameters panel
+  const PARAMS_DEFAULT_WIDTH=336;
+  const PARAMS_MIN_WIDTH=250;
+  const PARAMS_MAX_WIDTH=720;
+  let paramsResizeStart=null;
+  function paramsWidthLimits(){
+    if(!els.workspace||!els.paramsPanel)return {min:PARAMS_MIN_WIDTH,max:PARAMS_MAX_WIDTH};
+    const workspaceW=els.workspace.getBoundingClientRect().width||window.innerWidth;
+    const sourcePanel=els.workspace.firstElementChild;
+    const sourceW=sourcePanel?.getBoundingClientRect().width||238;
+    const centerMin=window.innerWidth<=980?360:420;
+    const maxByCanvas=Math.max(PARAMS_MIN_WIDTH,workspaceW-sourceW-centerMin);
+    return {min:PARAMS_MIN_WIDTH,max:Math.max(PARAMS_MIN_WIDTH,Math.min(PARAMS_MAX_WIDTH,maxByCanvas))};
+  }
+  function setParamsWidth(width,{persist=true}={}){
+    if(window.innerWidth<=760)return;
+    const lim=paramsWidthLimits();
+    const w=Math.round(Math.max(lim.min,Math.min(lim.max,Number(width)||PARAMS_DEFAULT_WIDTH)));
+    els.workspace.style.setProperty('--params-width',w+'px');
+    if(els.paramsResizer){
+      els.paramsResizer.setAttribute('aria-valuemin',String(lim.min));
+      els.paramsResizer.setAttribute('aria-valuemax',String(lim.max));
+      els.paramsResizer.setAttribute('aria-valuenow',String(w));
+      els.paramsResizer.title='Parameters '+w+'px · drag kiri/kanan · double-click reset';
+    }
+    if(persist){try{localStorage.setItem('vfs-params-width',String(w))}catch(_){}}
+    if(state.svg)requestAnimationFrame(()=>applyViewTransform());
+  }
+  function currentParamsWidth(){return els.paramsPanel?.getBoundingClientRect().width||PARAMS_DEFAULT_WIDTH}
+  function resetParamsWidth(){
+    const target=window.innerWidth<=980?300:PARAMS_DEFAULT_WIDTH;
+    setParamsWidth(target);
+    setStatus('PARAMETERS WIDTH RESET','ok');
+  }
+  if(els.paramsResizer){
+    els.paramsResizer.addEventListener('pointerdown',e=>{
+      if(e.button!==0||window.innerWidth<=760)return;
+      e.preventDefault();
+      paramsResizeStart={x:e.clientX,width:currentParamsWidth()};
+      els.paramsResizer.classList.add('active');
+      document.documentElement.classList.add('params-resizing');
+      try{els.paramsResizer.setPointerCapture(e.pointerId)}catch(_){ }
+    });
+    els.paramsResizer.addEventListener('pointermove',e=>{
+      if(!paramsResizeStart)return;
+      // Moving the divider left widens Parameters; moving right widens the canvas.
+      setParamsWidth(paramsResizeStart.width+(paramsResizeStart.x-e.clientX),{persist:false});
+    });
+    const finishParamsResize=e=>{
+      if(!paramsResizeStart)return;
+      paramsResizeStart=null;
+      els.paramsResizer.classList.remove('active');
+      document.documentElement.classList.remove('params-resizing');
+      setParamsWidth(currentParamsWidth(),{persist:true});
+      try{if(e?.pointerId!=null)els.paramsResizer.releasePointerCapture(e.pointerId)}catch(_){ }
+    };
+    els.paramsResizer.addEventListener('pointerup',finishParamsResize);
+    els.paramsResizer.addEventListener('pointercancel',finishParamsResize);
+    els.paramsResizer.addEventListener('dblclick',e=>{e.preventDefault();resetParamsWidth()});
+    els.paramsResizer.addEventListener('keydown',e=>{
+      if(e.key==='ArrowLeft'){e.preventDefault();setParamsWidth(currentParamsWidth()+20)}
+      else if(e.key==='ArrowRight'){e.preventDefault();setParamsWidth(currentParamsWidth()-20)}
+      else if(e.key==='Home'){e.preventDefault();resetParamsWidth()}
+    });
+  }
+  let savedParamsWidth=null;
+  try{savedParamsWidth=parseInt(localStorage.getItem('vfs-params-width')||'',10)}catch(_){ }
+  if(Number.isFinite(savedParamsWidth))setParamsWidth(savedParamsWidth,{persist:false});
+
   // Editor keyboard shortcuts
   document.addEventListener('keydown',e=>{
     const tag=e.target?.tagName?.toLowerCase();if(tag==='input'||tag==='select'||tag==='textarea')return;
@@ -1728,7 +1816,7 @@
   function applyTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('vfs-theme',t)}catch(e){}$('themeBtn').textContent=t==='dark'?'LIGHT MODE':'DARK MODE'}
   let savedTheme=null;try{savedTheme=localStorage.getItem('vfs-theme')}catch(e){}applyTheme(savedTheme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));$('themeBtn').onclick=()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
 
-  window.addEventListener('resize',()=>{if(state.svg)applyViewTransform()});
+  window.addEventListener('resize',()=>{if(window.innerWidth>760)setParamsWidth(currentParamsWidth(),{persist:false});if(state.svg)applyViewTransform()});
   loadAiSettings();syncAiSettingsUI();
   updateHistoryUI();
   setStatus('READY');
