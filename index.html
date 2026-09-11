@@ -2125,7 +2125,13 @@
     const endDockDrag=e=>{if(!toolDockDrag)return;toolDockDrag=null;els.editorToolDock.classList.remove('dragging');const parent=toolDockParent(),pr=parent.getBoundingClientRect(),dr=els.editorToolDock.getBoundingClientRect();setToolDockPosition(dr.left-pr.left,dr.top-pr.top,true);try{els.toolDockHandle.releasePointerCapture(e.pointerId)}catch(_){}};
     els.toolDockHandle.addEventListener('pointerup',endDockDrag);els.toolDockHandle.addEventListener('pointercancel',endDockDrag);els.toolDockHandle.addEventListener('dblclick',e=>{e.preventDefault();resetToolDock()});
     let saved=null;try{saved=JSON.parse(localStorage.getItem('vfs-tool-dock-pos')||'null')}catch(_){ }if(saved&&Number.isFinite(saved.left)&&Number.isFinite(saved.top))requestAnimationFrame(()=>setToolDockPosition(saved.left,saved.top,false));
-    if(typeof ResizeObserver!=='undefined'){new ResizeObserver(()=>{const parent=toolDockParent();if(!parent)return;const pr=parent.getBoundingClientRect(),dr=els.editorToolDock.getBoundingClientRect();setToolDockPosition(dr.left-pr.left,dr.top-pr.top,false)}).observe(parent)}
+    if(typeof ResizeObserver!=='undefined'){
+      const dockParent=toolDockParent();
+      if(dockParent instanceof Element){
+        const toolDockObserver=new ResizeObserver(()=>{const parent=toolDockParent();if(!parent||!els.editorToolDock)return;const pr=parent.getBoundingClientRect(),dr=els.editorToolDock.getBoundingClientRect();setToolDockPosition(dr.left-pr.left,dr.top-pr.top,false)});
+        toolDockObserver.observe(dockParent);
+      }
+    }
   }
 
   // Lightweight SVG path parser used by the direct path editor. It normalizes
@@ -2258,9 +2264,9 @@
   function setImportCollapsed(collapsed){
     els.importGroup.classList.toggle('collapsed',collapsed);els.importGroupHead.setAttribute('aria-expanded',String(!collapsed));
     els.importToggleBtn.title=collapsed?'Expand import':'Minimize import';els.importToggleBtn.setAttribute('aria-label',els.importToggleBtn.title);
-    localStorage.setItem('vfs-import-collapsed',collapsed?'1':'0');
+    try{localStorage.setItem('vfs-import-collapsed',collapsed?'1':'0')}catch(_){ }
   }
-  setImportCollapsed(localStorage.getItem('vfs-import-collapsed')==='1');
+  let importCollapsed=false;try{importCollapsed=localStorage.getItem('vfs-import-collapsed')==='1'}catch(_){ }setImportCollapsed(importCollapsed);
   const toggleImport=()=>setImportCollapsed(!els.importGroup.classList.contains('collapsed'));
   els.importToggleBtn.addEventListener('click',e=>{e.stopPropagation();toggleImport()});
   els.importGroupHead.addEventListener('click',e=>{if(e.target.closest('select,input,button')&&!e.target.closest('#importToggleBtn'))return;toggleImport()});
