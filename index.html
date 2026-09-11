@@ -594,7 +594,7 @@
           <div class="gtitle" id="shortcutGroupHead" role="button" tabindex="0" aria-expanded="false" aria-controls="shortcutGroupContent"><span>Shortcuts</span><span class="gtitle-right"><span id="shortcutSummary">CUSTOMIZE</span><button class="collapse-btn" id="shortcutToggleBtn" type="button" title="Edit shortcuts" aria-label="Edit shortcuts"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 10 4-4 4 4"/></svg></button></span></div>
           <div class="group-content" id="shortcutGroupContent">
             <div class="shortcut-list" id="shortcutList"></div>
-            <div class="shortcut-actions"><span class="shortcut-note">Klik shortcut lalu tekan kombinasi baru.</span><button class="shortcut-reset" id="resetShortcutsBtn" type="button">RESET</button></div>
+            <div class="shortcut-actions"><span class="shortcut-note">Klik shortcut → tekan kombinasi baru. Esc untuk batal.</span><button class="shortcut-reset" id="resetShortcutsBtn" type="button">RESET</button></div>
           </div>
         </div>
 
@@ -762,15 +762,26 @@
     const mac=/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent),parts=String(combo||'').split('+').filter(Boolean);return parts.map(p=>p==='mod'?(mac?'⌘':'Ctrl'):p==='shift'?'Shift':p==='alt'?(mac?'⌥':'Alt'):p==='delete'?'Delete':p==='space'?'Space':p.length===1?p.toUpperCase():p[0].toUpperCase()+p.slice(1)).join(' + ')
   }
   function toggleShortcutGroup(force){const open=typeof force==='boolean'?force:els.shortcutGroup.classList.contains('collapsed');els.shortcutGroup.classList.toggle('collapsed',!open);els.shortcutGroupHead.setAttribute('aria-expanded',String(open))}
+  function cancelShortcutCapture(silent=false){
+    if(!state.shortcutCapture)return;state.shortcutCapture=null;renderShortcuts();if(!silent)setStatus('SHORTCUT EDIT CANCELED','')
+  }
+  function beginShortcutCapture(id){
+    if(!SHORTCUT_DEFS[id])return;state.shortcutCapture=id;renderShortcuts();const btn=els.shortcutList?.querySelector('[data-shortcut="'+id+'"]');if(btn){btn.classList.add('capturing');btn.textContent='PRESS KEY…';btn.setAttribute('aria-pressed','true');btn.focus({preventScroll:true})}els.shortcutSummary.textContent='PRESS KEY';setStatus('PRESS NEW SHORTCUT · ESC TO CANCEL','')
+  }
   function renderShortcuts(){
-    if(!els.shortcutList)return;els.shortcutList.innerHTML='';Object.entries(SHORTCUT_DEFS).forEach(([id,d])=>{const row=document.createElement('div');row.className='shortcut-row';row.innerHTML='<span class="shortcut-name">'+esc(d.label)+'</span><button class="shortcut-key" type="button" data-shortcut="'+id+'" title="Click then press a new shortcut">'+esc(shortcutLabel(state.shortcuts[id]))+'</button>';const btn=row.querySelector('button');btn.addEventListener('click',()=>{state.shortcutCapture=id;els.shortcutList.querySelectorAll('.shortcut-key').forEach(x=>x.classList.remove('capturing'));btn.classList.add('capturing');btn.textContent='PRESS KEY…';btn.focus()});els.shortcutList.appendChild(row)});
-    const custom=Object.entries(SHORTCUT_DEFS).filter(([id,d])=>state.shortcuts[id]!==d.default).length;els.shortcutSummary.textContent=custom?custom+' CUSTOM':'DEFAULT';
+    if(!els.shortcutList)return;els.shortcutList.innerHTML='';Object.entries(SHORTCUT_DEFS).forEach(([id,d])=>{const row=document.createElement('div');row.className='shortcut-row';row.innerHTML='<span class="shortcut-name">'+esc(d.label)+'</span><button class="shortcut-key" type="button" data-shortcut="'+id+'" aria-pressed="false" title="Click, then press a new shortcut">'+esc(shortcutLabel(state.shortcuts[id]))+'</button>';const btn=row.querySelector('button');btn.addEventListener('click',()=>beginShortcutCapture(id));if(state.shortcutCapture===id){btn.classList.add('capturing');btn.textContent='PRESS KEY…';btn.setAttribute('aria-pressed','true')}els.shortcutList.appendChild(row)});
+    const custom=Object.entries(SHORTCUT_DEFS).filter(([id,d])=>state.shortcuts[id]!==d.default).length;els.shortcutSummary.textContent=state.shortcutCapture?'PRESS KEY':(custom?custom+' CUSTOM':'DEFAULT');
     const title=(id)=>shortcutLabel(state.shortcuts[id]);if(els.undoBtn)els.undoBtn.title='Undo · '+title('undo');if(els.redoBtn)els.redoBtn.title='Redo · '+title('redo');if(els.selectToolBtn)els.selectToolBtn.title='Select · '+title('select');if(els.panToolBtn)els.panToolBtn.title='Pan · '+title('pan');if(els.groupSelectedBtn)els.groupSelectedBtn.title='Group · '+title('group');if(els.ungroupSelectedBtn)els.ungroupSelectedBtn.title='Ungroup · '+title('ungroup');if(els.deleteSelectedBtn)els.deleteSelectedBtn.title='Delete · '+title('delete')
   }
   function captureShortcut(e){
-    if(!state.shortcutCapture)return false;e.preventDefault();e.stopPropagation();const id=state.shortcutCapture;if(e.key==='Escape'){state.shortcutCapture=null;renderShortcuts();return true}const combo=eventShortcut(e);if(!combo)return true;
-    const conflict=Object.keys(state.shortcuts).find(k=>k!==id&&state.shortcuts[k]===combo),old=state.shortcuts[id];if(conflict)state.shortcuts[conflict]=old;state.shortcuts[id]=combo;state.shortcutCapture=null;saveShortcuts();renderShortcuts();setStatus('SHORTCUT UPDATED · '+SHORTCUT_DEFS[id].label.toUpperCase(),'ok');return true
+    if(!state.shortcutCapture)return false;
+    e.preventDefault();e.stopPropagation();if(typeof e.stopImmediatePropagation==='function')e.stopImmediatePropagation();
+    const id=state.shortcutCapture;if(e.key==='Escape'){cancelShortcutCapture(true);setStatus('SHORTCUT EDIT CANCELED','');return true}
+    if(e.repeat)return true;const combo=eventShortcut(e);if(!combo)return true;
+    const conflict=Object.keys(state.shortcuts).find(k=>k!==id&&state.shortcuts[k]===combo),old=state.shortcuts[id];
+    if(conflict)state.shortcuts[conflict]=old;state.shortcuts[id]=combo;state.shortcutCapture=null;saveShortcuts();renderShortcuts();setStatus('SHORTCUT UPDATED · '+SHORTCUT_DEFS[id].label.toUpperCase()+' → '+shortcutLabel(combo),'ok');return true
   }
+  function shortcutCaptureKeydown(e){if(state.shortcutCapture)captureShortcut(e)}
   function isShortcut(id,e){return !!state.shortcuts[id]&&eventShortcut(e)===state.shortcuts[id]}
   loadShortcuts();
 
@@ -2077,11 +2088,13 @@
   els.shortcutToggleBtn.addEventListener('click',e=>{e.stopPropagation();toggleShortcutGroup()});
   els.resetShortcutsBtn.addEventListener('click',()=>{Object.entries(SHORTCUT_DEFS).forEach(([id,d])=>state.shortcuts[id]=d.default);state.shortcutCapture=null;saveShortcuts();renderShortcuts();setStatus('SHORTCUTS RESET','ok')});
   renderShortcuts();
+  // Shortcut capture uses the capture phase so it wins before editor/browser handlers.
+  window.addEventListener('keydown',shortcutCaptureKeydown,true);
+  window.addEventListener('blur',()=>{if(state.shortcutCapture)cancelShortcutCapture(true)});
 
 
   // Editor keyboard shortcuts
   document.addEventListener('keydown',e=>{
-    if(state.shortcutCapture&&captureShortcut(e))return;
     const tag=e.target?.tagName?.toLowerCase();if(tag==='input'||tag==='select'||tag==='textarea')return;
     if(e.code==='Space'&&!state.spacePan&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();state.spacePan=true;els.stageViewport.dataset.tool='pan';return}
     if(isShortcut('undo',e)){e.preventDefault();undo();return}
