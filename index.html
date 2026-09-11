@@ -3,11 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VECTOR FILE STUDIO — AI/EPS/SVG to SVG/PNG</title>
+<title>VECTOR FILE STUDIO — Vector Editor & Multi-format Export</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&display=swap');
-  :root{--ink:#0e0e0e;--paper:#f4f4f0;--accent:#ff3300;--muted:#777;--line:2px;--grid:#d9d9d3;--ok:#18a558;--warn:#e6a400;}
-  [data-theme="dark"]{--ink:#f0f0ea;--paper:#111214;--muted:#999;--grid:#2d2e31;}
+  :root{--ink:#0e0e0e;--paper:#f4f4f0;--accent:#ff3300;--muted:#777;--line:2px;--grid:#d9d9d3;--checker:var(--checker);--ok:#18a558;--warn:#e6a400;}
+  [data-theme="dark"]{--ink:#f0f0ea;--paper:#111214;--muted:#a6a6a1;--grid:#292b2f;--checker:#24262a;color-scheme:dark;}
+  [data-theme="dark"] body{background:#111214;}
+  [data-theme="dark"] input,[data-theme="dark"] select,[data-theme="dark"] textarea,[data-theme="dark"] option{background-color:var(--paper);color:var(--ink);}
+  [data-theme="dark"] ::selection{background:var(--accent);color:#fff;}
+  [data-theme="dark"] #svgStage{box-shadow:0 10px 34px rgba(0,0,0,.5);}
   *{box-sizing:border-box}
   html,body{margin:0;width:100%;height:100%;overflow:hidden}
   body{font-family:'Space Mono',monospace;background:var(--paper);color:var(--ink);font-size:12px}
@@ -109,10 +113,18 @@
   #svgStage[data-color-highlight-label]::after{content:"HIGHLIGHT  " attr(data-color-highlight-label);position:absolute;left:10px;top:10px;z-index:20;padding:6px 8px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);font:700 8px 'Space Mono',monospace;line-height:1;letter-spacing:.04em;box-shadow:3px 3px 0 var(--accent);pointer-events:none}
   @keyframes colorOutlinePulse{from{filter:drop-shadow(.9px 0 0 var(--accent)) drop-shadow(-.9px 0 0 var(--accent)) drop-shadow(0 .9px 0 var(--accent)) drop-shadow(0 -.9px 0 var(--accent))}to{filter:drop-shadow(1.8px 0 0 var(--accent)) drop-shadow(-1.8px 0 0 var(--accent)) drop-shadow(0 1.8px 0 var(--accent)) drop-shadow(0 -1.8px 0 var(--accent))}}
   .empty{position:absolute;inset:0;display:grid;place-items:center;padding:30px;text-align:center;font-size:11px;opacity:.56;line-height:1.7}
-  .loading{position:absolute;left:18px;right:18px;top:16px;background:var(--paper);border:var(--line) solid var(--ink);z-index:10;display:none}
-  .loading.show{display:block}
-  .load-head{display:flex;justify-content:space-between;padding:8px 10px;border-bottom:var(--line) solid var(--ink);font-weight:700;font-size:9px}
-  .track{height:16px;background:var(--ink);padding:3px}.fill{height:100%;width:0;background:var(--accent);transition:width .2s}
+  .loading{position:absolute;left:50%;top:14px;transform:translateX(-50%) translateY(-8px);width:min(520px,calc(100% - 28px));background:color-mix(in srgb,var(--paper) 96%,transparent);border:1px solid color-mix(in srgb,var(--ink) 36%,transparent);z-index:60;display:block;opacity:0;visibility:hidden;pointer-events:none;box-shadow:0 10px 28px rgba(0,0,0,.14);backdrop-filter:blur(10px);transition:opacity .16s ease,transform .16s ease,visibility .16s}
+  .loading.show{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+  .loading.error{border-color:var(--accent)}.loading.done{border-color:var(--ok)}
+  .load-head{display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;gap:9px;padding:9px 10px 8px}
+  .load-spinner{width:18px;height:18px;border:2px solid color-mix(in srgb,var(--ink) 18%,transparent);border-top-color:var(--ink);border-radius:50%;animation:vfsSpin .8s linear infinite}
+  .loading.done .load-spinner{animation:none;border-color:var(--ok);position:relative}.loading.done .load-spinner::after{content:"";position:absolute;left:4px;top:1px;width:5px;height:9px;border-right:2px solid var(--ok);border-bottom:2px solid var(--ok);transform:rotate(42deg)}
+  .loading.error .load-spinner{animation:none;border-color:var(--accent);position:relative}.loading.error .load-spinner::before,.loading.error .load-spinner::after{content:"";position:absolute;left:7px;top:2px;width:2px;height:10px;background:var(--accent);transform:rotate(45deg)}.loading.error .load-spinner::after{transform:rotate(-45deg)}
+  .load-copy{min-width:0}.load-title{font-size:8.8px;font-weight:700;letter-spacing:.035em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.load-sub{margin-top:2px;font-size:7.2px;opacity:.56;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .load-pct{font:700 9px 'Space Mono',monospace;min-width:36px;text-align:right;font-variant-numeric:tabular-nums}
+  .track{height:5px;background:color-mix(in srgb,var(--ink) 12%,transparent);overflow:hidden}.fill{height:100%;width:0;background:var(--accent);transition:width .22s cubic-bezier(.2,.8,.2,1)}
+  .loading.indeterminate .fill{width:34%!important;animation:vfsIndeterminate 1.05s ease-in-out infinite}.loading.done .fill{background:var(--ok)}.loading.error .fill{background:var(--accent)}
+  @keyframes vfsSpin{to{transform:rotate(360deg)}}@keyframes vfsIndeterminate{0%{transform:translateX(-115%)}50%{transform:translateX(110%)}100%{transform:translateX(320%)}}
   .statusbar{height:42px;flex:0 0 42px;border-top:var(--line) solid var(--ink);display:grid;grid-template-columns:repeat(5,1fr)}
   .stat{padding:5px 8px;border-right:1px solid var(--ink);min-width:0}.stat:last-child{border-right:0}
   .stat b{display:block;font-family:'Archivo Black',sans-serif;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.stat span{font-size:7.5px;opacity:.55;text-transform:uppercase}
@@ -142,7 +154,6 @@
   .chip{height:24px;border:1px solid var(--ink);margin-bottom:4px}.hex{font-size:7.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.swatch-actions{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-top:4px}.swatch-actions button{border:1px solid var(--ink);background:var(--paper);font-size:7px;padding:2px}.swatch-actions button:hover{background:var(--ink);color:var(--paper)}
   .color-pop{position:fixed;z-index:50;background:var(--paper);border:var(--line) solid var(--ink);padding:7px;display:none;box-shadow:5px 5px 0 var(--ink)}
   .color-pop.show{display:block}.color-pop input{width:132px;height:34px;border:0;background:transparent;padding:0}
-
   .export-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
   .export-panel{padding-bottom:2px}
   .export-ready{display:inline-flex;align-items:center;gap:5px;font-size:7.5px;letter-spacing:.05em;opacity:.7}
@@ -196,13 +207,13 @@
   .queue-item.drag-over{outline:2px solid var(--accent);outline-offset:-2px}
   .queue-check{display:grid;place-items:center;margin:0}
   .queue-check input{width:12px;height:12px;margin:0;accent-color:var(--ink)}
-  .queue-thumb{width:46px;height:46px;border:1px solid var(--ink);display:grid;place-items:center;background:linear-gradient(45deg,#e9e9e6 25%,transparent 25%),linear-gradient(-45deg,#e9e9e6 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e9e9e6 75%),linear-gradient(-45deg,transparent 75%,#e9e9e6 75%);background-size:10px 10px;background-position:0 0,0 5px,5px -5px,-5px 0;overflow:hidden;position:relative}
-  .queue-thumb svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}.queue-thumb img{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none}.queue-thumb.preview-ready{background:linear-gradient(45deg,#e9e9e6 25%,transparent 25%),linear-gradient(-45deg,#e9e9e6 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e9e9e6 75%),linear-gradient(-45deg,transparent 75%,#e9e9e6 75%);background-size:10px 10px;background-position:0 0,0 5px,5px -5px,-5px 0}.queue-thumb.preview-missing{opacity:.48}
+  .queue-thumb{width:46px;height:46px;border:1px solid var(--ink);display:grid;place-items:center;background:linear-gradient(45deg,var(--checker) 25%,transparent 25%),linear-gradient(-45deg,var(--checker) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,var(--checker) 75%),linear-gradient(-45deg,transparent 75%,var(--checker) 75%);background-size:10px 10px;background-position:0 0,0 5px,5px -5px,-5px 0;overflow:hidden;position:relative}
+  .queue-thumb svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}.queue-thumb img{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none}.queue-thumb.preview-ready{background:linear-gradient(45deg,var(--checker) 25%,transparent 25%),linear-gradient(-45deg,var(--checker) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,var(--checker) 75%),linear-gradient(-45deg,transparent 75%,var(--checker) 75%);background-size:10px 10px;background-position:0 0,0 5px,5px -5px,-5px 0}.queue-thumb.preview-missing{opacity:.48}
   .queue-main{min-width:0;display:grid;gap:2px}
   .queue-name{min-width:0;width:100%;border:0;border-bottom:1px solid transparent;background:transparent;color:var(--ink);font:700 8px 'Space Mono',monospace;padding:1px 0;outline:0}
   .queue-name:focus{border-bottom-color:var(--accent)}
   .queue-meta{font-size:6.5px;text-transform:uppercase;letter-spacing:.04em;opacity:.55;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .queue-format{width:58px;border:1px solid var(--ink);background:var(--paper);color:var(--ink);font:700 7px 'Space Mono',monospace;padding:4px 2px;outline:0}
+  .queue-format{width:68px;border:1px solid var(--ink);background:var(--paper);color:var(--ink);font:700 7px 'Space Mono',monospace;padding:4px 2px;outline:0}
   .queue-remove{width:20px;height:20px;border:0;background:transparent;color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
   .queue-remove:hover{background:var(--accent);color:#fff}
   .queue-remove svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
@@ -366,7 +377,7 @@
     .export-settings-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
     .queue-item{grid-template-columns:16px 52px minmax(0,1fr) 68px 24px 22px;gap:7px;padding:6px}
     .queue-thumb{width:52px;height:52px}
-    .queue-format{width:68px}
+    .queue-format{width:78px}
     .queue-detail{grid-template-columns:1fr 1fr;column-gap:8px}
     .queue-detail .meta-field.keywords,.queue-detail .meta-actions{grid-column:1/-1}
     .queue-list{max-height:260px}
@@ -385,7 +396,7 @@
     .queue-list{max-height:320px}
     .queue-item{grid-template-columns:18px 58px minmax(0,1fr) 76px 26px 24px;gap:8px;padding:7px}
     .queue-thumb{width:58px;height:58px}
-    .queue-format{width:76px;font-size:7.4px}
+    .queue-format{width:88px;font-size:7.4px}
     .queue-name{font-size:8.5px}
     .queue-meta{font-size:6.8px}
     .queue-detail{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:8px}
@@ -455,7 +466,7 @@
 <div class="app">
   <header class="topbar">
     <div class="brand">VECTOR FILE STUDIO</div>
-    <div class="lede">AI / EPS / PDF / SVG → editable SVG · recolor · split object · export PNG</div>
+    <div class="lede">AI / EPS / PDF / SVG → editable SVG · recolor · group · multi-format export</div>
     <div class="pill" id="enginePill">ENGINE READY</div>
     <button class="topbtn" id="themeBtn">DARK MODE</button>
   </header>
@@ -524,9 +535,9 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="m7 7 1 13h8l1-13"/><path d="M10 11v5M14 11v5"/></svg>
           </button>
         </div>
-        <div class="loading" id="loading"><div class="load-head"><span id="loadText">IMPORTING</span><span id="loadPct">0%</span></div><div class="track"><div class="fill" id="loadFill"></div></div></div>
+        <div class="loading" id="loading" role="status" aria-live="polite"><div class="load-head"><span class="load-spinner" aria-hidden="true"></span><div class="load-copy"><div class="load-title" id="loadText">PROCESSING</div><div class="load-sub" id="loadSubText">Preparing task…</div></div><span class="load-pct" id="loadPct">0%</span></div><div class="track" id="loadTrack" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="fill" id="loadFill"></div></div></div>
         <div id="stageViewport" data-tool="select"><div id="stageTransform"><div id="svgStage"></div></div><div id="selectMarquee"></div></div>
-        <div class="empty" id="emptyState">Unggah file AI, EPS, PDF, atau SVG.<br>Setelah diimpor, Anda bisa memilih object, mengubah warna, memecah desain, lalu ekspor SVG atau PNG.</div>
+        <div class="empty" id="emptyState">Unggah file AI, EPS, PDF, atau SVG.<br>Setelah diimpor, Anda bisa memilih object, mengubah warna, mengatur group, lalu ekspor SVG, PNG, PDF, atau EPS.</div>
       </div>
       <div class="statusbar">
         <div class="stat"><b id="statObjects">0</b><span>Objects</span></div>
@@ -617,7 +628,7 @@
           <div class="export-section">
             <div class="export-section-head"><span>2 · Defaults</span></div>
             <div class="export-settings-grid">
-              <div class="export-field"><label>Default format</label><select id="splitFormat"><option value="svg" selected>SVG</option><option value="png">PNG</option><option value="both">SVG + PNG</option></select></div>
+              <div class="export-field"><label>Default format</label><select id="splitFormat"><option value="svg" selected>SVG</option><option value="png">PNG</option><option value="pdf">PDF</option><option value="eps">EPS</option><option value="both">SVG + PNG</option></select></div>
               <div class="export-field"><label>PNG scale</label><select id="pngScale"><option value="1">1×</option><option value="2" selected>2×</option><option value="3">3×</option><option value="4">4×</option></select></div>
               <div class="export-field"><label>Background</label><select id="pngBg"><option value="transparent">Transparent</option><option value="#ffffff">White</option><option value="#000000">Black</option></select></div>
               <div class="export-field"><label>Bounds</label><select id="splitBounds"><option value="tight" selected>Tight object</option><option value="artboard">Keep artboard</option></select></div>
@@ -688,13 +699,15 @@
 <div class="color-pop" id="colorPop"><input type="color" id="colorPicker"><button class="mini" id="colorApply" style="margin-top:5px;width:100%">APPLY</button></div>
 
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/svg2pdf.js@2.8.1/dist/svg2pdf.umd.min.js"></script>
 <script>
 (() => {
   const $ = id => document.getElementById(id);
   const els = {
     dropzone:$('dropzone'), fileInput:$('fileInput'), fileCard:$('fileCard'), fileIcon:$('fileIcon'), fileName:$('fileName'), fileMeta:$('fileMeta'), sourcePreview:$('sourcePreview'),
     objectList:$('objectList'), objectCount:$('objectCount'), selectionLabel:$('selectionLabel'), svgStage:$('svgStage'), stageViewport:$('stageViewport'), stageTransform:$('stageTransform'), emptyState:$('emptyState'),
-    loading:$('loading'), loadText:$('loadText'), loadPct:$('loadPct'), loadFill:$('loadFill'), footerStatus:$('footerStatus'), statObjects:$('statObjects'), statColors:$('statColors'), statArtboards:$('statArtboards'), statSize:$('statSize'), statStatus:$('statStatus'), docState:$('docState'),
+    loading:$('loading'), loadText:$('loadText'), loadSubText:$('loadSubText'), loadPct:$('loadPct'), loadFill:$('loadFill'), loadTrack:$('loadTrack'), footerStatus:$('footerStatus'), statObjects:$('statObjects'), statColors:$('statColors'), statArtboards:$('statArtboards'), statSize:$('statSize'), statStatus:$('statStatus'), docState:$('docState'),
     palette:$('palette'), compatNotice:$('compatNotice'), textMode:$('textMode'), hiddenMode:$('hiddenMode'), artboardMode:$('artboardMode'), pngScale:$('pngScale'), pngBg:$('pngBg'), splitFormat:$('splitFormat'), splitBounds:$('splitBounds'), zoomLabel:$('zoomLabel'), enginePill:$('enginePill'), importModeLabel:$('importModeLabel'),
     addDocQueueBtn:$('addDocQueueBtn'), addSelectionQueueBtn:$('addSelectionQueueBtn'), addObjectsQueueBtn:$('addObjectsQueueBtn'), addGroupsQueueBtn:$('addGroupsQueueBtn'), exportQueueList:$('exportQueueList'), exportQueueCount:$('exportQueueCount'), clearQueueBtn:$('clearQueueBtn'), exportQueueBtn:$('exportQueueBtn'), exportQueueMeta:$('exportQueueMeta'), exportDocMeta:$('exportDocMeta'), exportSelectionMeta:$('exportSelectionMeta'), exportGroupMeta:$('exportGroupMeta'), toggleAiSettingsBtn:$('toggleAiSettingsBtn'), aiSettings:$('aiSettings'), aiStrategy:$('aiStrategy'), aiPoolSummary:$('aiPoolSummary'), aiEnableGemini:$('aiEnableGemini'), aiEnableGroq:$('aiEnableGroq'), aiEnableOpenrouter:$('aiEnableOpenrouter'), aiModelGemini:$('aiModelGemini'), aiModelGroq:$('aiModelGroq'), aiModelOpenrouter:$('aiModelOpenrouter'), aiKeysGemini:$('aiKeysGemini'), aiKeysGroq:$('aiKeysGroq'), aiKeysOpenrouter:$('aiKeysOpenrouter'), aiStatusGemini:$('aiStatusGemini'), aiStatusGroq:$('aiStatusGroq'), aiStatusOpenrouter:$('aiStatusOpenrouter'), aiCardGemini:$('aiCardGemini'), aiCardGroq:$('aiCardGroq'), aiCardOpenrouter:$('aiCardOpenrouter'), aiWorkers:$('aiWorkers'), aiLiveDot:$('aiLiveDot'), aiLiveStatus:$('aiLiveStatus'), aiRememberKey:$('aiRememberKey'), generateAllMetaBtn:$('generateAllMetaBtn'), retryFailedMetaBtn:$('retryFailedMetaBtn'), generateAllMetaCount:$('generateAllMetaCount'), retryFailedMetaCount:$('retryFailedMetaCount'), colorPop:$('colorPop'), colorPicker:$('colorPicker'),
     groupSelectedBtn:$('groupSelectedBtn'), ungroupSelectedBtn:$('ungroupSelectedBtn'), deleteSelectedBtn:$('deleteSelectedBtn'),
@@ -717,9 +730,28 @@
   const baseOf = name => name.replace(/\.[^.]+$/,'') || 'design';
   const bytesToKB = str => (new Blob([str]).size/1024).toFixed(1)+' KB';
   const setStatus = (text, kind='') => { els.statStatus.textContent=text; els.footerStatus.textContent='VECTOR FILE STUDIO · '+text; if(kind==='error') els.statStatus.style.color='var(--accent)'; else if(kind==='ok') els.statStatus.style.color='var(--ok)'; else els.statStatus.style.color=''; };
-  const setLoading = (pct,text) => { const p=Math.max(0,Math.min(100,Math.round(pct))); els.loading.classList.toggle('show',p<100); els.loadPct.textContent=p+'%'; els.loadFill.style.width=p+'%'; els.loadText.textContent=text||'PROCESSING'; if(p>=100)setTimeout(()=>els.loading.classList.remove('show'),300); };
+  let loadingHideTimer=null;
+  const setLoading = (pct,text,detail='',kind='') => {
+    if(loadingHideTimer){clearTimeout(loadingHideTimer);loadingHideTimer=null}
+    const indeterminate=pct==null||!Number.isFinite(Number(pct)),p=indeterminate?0:Math.max(0,Math.min(100,Math.round(Number(pct))));
+    els.loading.classList.add('show');els.loading.classList.toggle('indeterminate',indeterminate);els.loading.classList.toggle('done',kind==='done'||(!indeterminate&&p>=100&&kind!=='error'));els.loading.classList.toggle('error',kind==='error');
+    els.loadText.textContent=text||'PROCESSING';els.loadSubText.textContent=detail||'Working in your browser…';els.loadPct.textContent=indeterminate?'…':p+'%';els.loadFill.style.width=indeterminate?'34%':p+'%';
+    if(indeterminate)els.loadTrack.removeAttribute('aria-valuenow');else els.loadTrack.setAttribute('aria-valuenow',String(p));els.loadTrack.setAttribute('aria-valuetext',indeterminate?'Processing':p+'%');
+    if(!indeterminate&&p>=100){loadingHideTimer=setTimeout(()=>{els.loading.classList.remove('show','done','error','indeterminate')},kind==='error'?1100:650)}
+  };
   const serializeDoc = doc => new XMLSerializer().serializeToString(doc.documentElement);
   const parseSvg = svg => { const d=new DOMParser().parseFromString(svg,'image/svg+xml'); const err=d.querySelector('parsererror'); if(err) throw new Error('SVG tidak valid.'); return d; };
+
+  const SHORTCUTS={
+    undo:'mod+z', redo:'mod+shift+z', select:'v', pan:'h', fit:'f', delete:'delete', selectAll:'mod+a', group:'mod+g', ungroup:'mod+shift+g'
+  };
+  function eventShortcut(e){
+    let key=String(e.key||'').toLowerCase();if(['control','meta','shift','alt'].includes(key))return '';
+    if(key===' ')key='space';if(key==='backspace'||key==='del')key='delete';if(key==='esc')key='escape';
+    const parts=[];if(e.ctrlKey||e.metaKey)parts.push('mod');if(e.altKey)parts.push('alt');if(e.shiftKey&&key!=='shift')parts.push('shift');parts.push(key);return parts.join('+')
+  }
+  function isShortcut(id,e){return !!SHORTCUTS[id]&&eventShortcut(e)===SHORTCUTS[id]}
+  try{localStorage.removeItem('vfs-shortcuts')}catch(e){}
 
   function normalizeColor(value){
     if(!value) return null; value=value.trim(); if(value==='none'||value==='transparent'||value.startsWith('url(')||value.startsWith('var('))return null;
@@ -1266,7 +1298,7 @@
       setLoading(84,'BUILDING EDITABLE SVG');state.svg=sanitizeImportedSvg(result.svg);state.originalImportedSvg=state.svg;state.originalSvg=state.svg;state.importInfo=result;els.statArtboards.textContent=result.artboards?.length||1;commitRender(true);setLoading(100,'DONE');setTimeout(fitView,30);setStatus(ext.toUpperCase()+' READY','ok');
       const warns=[...(result.diagnostics?.illustrator||[]),...(result.diagnostics?.pdf||[])].filter(x=>x.severity==='warning'||x.severity==='error');els.compatNotice.className='notice'+(warns.length?' warn':'');els.compatNotice.textContent=(warns.length?('Import selesai dengan '+warns.length+' diagnostic. '):'Import vector selesai. ')+(result.layers?.length?result.layers.length+' layer terdeteksi. ':'')+'Gunakan object list untuk split/export.';
     }catch(err){
-      console.error(err);setLoading(100,'FAILED');const msg=String(err?.message||err);setStatus('IMPORT FAILED','error');els.compatNotice.className='notice warn';
+      console.error(err);const msg=String(err?.message||err);setLoading(100,'Import failed',msg,'error');setStatus('IMPORT FAILED','error');els.compatNotice.className='notice warn';
       if(/native-source-required|PDF Compatible|PostScript|pdf/i.test(msg)&&ext!=='pdf') els.compatNotice.innerHTML='<b>File ini tidak memiliki rendition PDF yang dapat dibaca browser.</b><br>Simpan ulang dari Illustrator dengan <b>Create PDF Compatible File</b> aktif, lalu impor kembali. Untuk EPS PostScript lama diperlukan engine Ghostscript/native converter.';
       else els.compatNotice.textContent='Gagal import: '+msg;
     }
@@ -1318,9 +1350,24 @@
   function svgMetrics(svg){
     try{const root=parseSvg(svg).documentElement;const vb=(root.getAttribute('viewBox')||'').trim().split(/[ ,]+/).map(Number);if(vb.length===4&&vb.every(Number.isFinite)&&vb[2]>0&&vb[3]>0)return {w:vb[2],h:vb[3]};const w=parseFloat(root.getAttribute('width'))||state.naturalW,h=parseFloat(root.getAttribute('height'))||state.naturalH;return {w,h}}catch(e){return {w:state.naturalW,h:state.naturalH}}
   }
-  async function svgToPngBlob(svg,scale=2,bg='transparent'){
-    svg=exportCleanSvg(svg);const img=new Image();const blob=new Blob([svg],{type:'image/svg+xml'});const url=URL.createObjectURL(blob);
-    try{await new Promise((res,rej)=>{img.onload=res;img.onerror=()=>rej(new Error('SVG gagal dirender ke PNG.'));img.src=url});const m=svgMetrics(svg),w=Math.max(1,Math.round(m.w*scale)),h=Math.max(1,Math.round(m.h*scale));const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');if(bg!=='transparent'){x.fillStyle=bg;x.fillRect(0,0,w,h)}x.drawImage(img,0,0,w,h);return await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('PNG encoding gagal.')),'image/png'))}finally{URL.revokeObjectURL(url)}
+  async function svgToCanvas(svg,scale=2,bg='transparent'){
+    svg=exportCleanSvg(svg);const img=new Image(),blob=new Blob([svg],{type:'image/svg+xml'}),url=URL.createObjectURL(blob);
+    try{await new Promise((res,rej)=>{img.onload=res;img.onerror=()=>rej(new Error('SVG gagal dirender.'));img.src=url});const m=svgMetrics(svg),w=Math.max(1,Math.round(m.w*scale)),h=Math.max(1,Math.round(m.h*scale)),c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d',{willReadFrequently:true});if(bg!=='transparent'){x.fillStyle=bg;x.fillRect(0,0,w,h)}x.drawImage(img,0,0,w,h);return {canvas:c,ctx:x,metrics:m}}finally{URL.revokeObjectURL(url)}
+  }
+  async function svgToPngBlob(svg,scale=2,bg='transparent'){const {canvas}=await svgToCanvas(svg,scale,bg);return await new Promise((res,rej)=>canvas.toBlob(b=>b?res(b):rej(new Error('PNG encoding gagal.')),'image/png'))}
+  async function svgToPdfBlob(svg,meta={}){
+    if(!window.jspdf?.jsPDF)throw new Error('PDF engine belum termuat. Periksa koneksi internet lalu coba lagi.');
+    svg=injectSvgMetadata(svg,meta);const root=parseSvg(svg).documentElement,m=svgMetrics(svg),w=Math.max(1,m.w),h=Math.max(1,m.h),{jsPDF}=window.jspdf,pdf=new jsPDF({orientation:w>=h?'landscape':'portrait',unit:'pt',format:[w,h],compress:true,putOnlyUsedFonts:true});
+    if(typeof pdf.svg!=='function')throw new Error('SVG→PDF engine belum termuat.');
+    const nm=normalizeMetadata(meta);if(typeof pdf.setProperties==='function')pdf.setProperties({title:nm.title||'',subject:nm.description||'',keywords:(nm.keywords||[]).join(', '),creator:'VECTOR FILE STUDIO'});
+    await pdf.svg(root,{x:0,y:0,width:w,height:h});return pdf.output('blob')
+  }
+  function epsComment(text){return String(text||'').replace(/[\r\n]+/g,' ').replace(/[^\x20-\x7E]/g,' ').slice(0,240)}
+  async function svgToEpsBlob(svg,meta={},scale=1,bg='transparent'){
+    // EPS has no native alpha. Use white when the export background is transparent.
+    const actualBg=bg==='transparent'?'#ffffff':bg,{canvas,ctx,metrics}=await svgToCanvas(svg,Math.max(.5,Math.min(4,Number(scale)||1)),actualBg),img=ctx.getImageData(0,0,canvas.width,canvas.height),d=img.data,nm=normalizeMetadata(meta),W=Math.max(1,metrics.w),H=Math.max(1,metrics.h),lines=[];
+    lines.push('%!PS-Adobe-3.0 EPSF-3.0','%%Creator: VECTOR FILE STUDIO','%%Title: '+epsComment(nm.title||'Untitled'),'%%Subject: '+epsComment(nm.description||''),'%%Keywords: '+epsComment((nm.keywords||[]).join(', ')),'%%BoundingBox: 0 0 '+Math.ceil(W)+' '+Math.ceil(H),'%%HiResBoundingBox: 0 0 '+W.toFixed(3)+' '+H.toFixed(3),'%%LanguageLevel: 2','%%Pages: 1','%%EndComments','gsave',W.toFixed(4)+' '+H.toFixed(4)+' scale',canvas.width+' '+canvas.height+' 8','['+canvas.width+' 0 0 -'+canvas.height+' 0 '+canvas.height+']','{currentfile '+(canvas.width*3)+' string readhexstring pop} false 3 colorimage');
+    let chunk='';for(let i=0;i<d.length;i+=4){chunk+=d[i].toString(16).padStart(2,'0')+d[i+1].toString(16).padStart(2,'0')+d[i+2].toString(16).padStart(2,'0');if(chunk.length>=120){lines.push(chunk);chunk=''}}if(chunk)lines.push(chunk);lines.push('grestore','showpage','%%EOF');return new Blob([lines.join('\n')],{type:'application/postscript'})
   }
   async function exportPng(svg,name){setStatus('RENDERING PNG');try{const b=await svgToPngBlob(svg,Number(els.pngScale.value),els.pngBg.value);downloadBlob(b,name);setStatus('PNG EXPORTED','ok')}catch(e){setStatus('PNG FAILED','error');els.compatNotice.textContent=e.message}}
   async function splitZip(){
@@ -1571,10 +1618,10 @@
     if(!q||!queueItemValid(q)||state.ai.busy)return;
     const wasReady=metadataReady(q),wasError=!!q.metaError;
     try{
-      ensureAiPoolConfigured();state.ai.busy=true;q.metaBusy=true;q.metaError='';if(button)button.disabled=true;renderExportQueue();updateAiPoolUI();setStatus((wasError?'AI RETRY · ':wasReady?'AI REGENERATE · ':'AI GENERATE · ')+(q.name||'ASSET'));
-      const result=await callMetadataAi(q);q.metadata=result.metadata;q.aiRoute=result.route;q.metaError='';q.metaOpen=true;setStatus((wasReady?'AI METADATA REGENERATED · ':'AI METADATA READY · ')+result.route,'ok');
+      ensureAiPoolConfigured();state.ai.busy=true;q.metaBusy=true;q.metaError='';if(button)button.disabled=true;renderExportQueue();updateAiPoolUI();setStatus((wasError?'AI RETRY · ':wasReady?'AI REGENERATE · ':'AI GENERATE · ')+(q.name||'ASSET'));setLoading(null,wasError?'Retrying AI metadata':wasReady?'Regenerating AI metadata':'Generating AI metadata',q.name||'Asset');
+      const result=await callMetadataAi(q);q.metadata=result.metadata;q.aiRoute=result.route;q.metaError='';q.metaOpen=true;setLoading(100,'Metadata ready',result.route,'done');setStatus((wasReady?'AI METADATA REGENERATED · ':'AI METADATA READY · ')+result.route,'ok');
     }catch(e){
-      console.error(e);q.metaError=String(e?.message||e);q.metaOpen=true;setAiSettingsOpen(true);setStatus('AI METADATA FAILED','error');els.compatNotice.textContent=q.metaError;
+      console.error(e);q.metaError=String(e?.message||e);q.metaOpen=true;setLoading(100,'Metadata failed',q.metaError,'error');setAiSettingsOpen(true);setStatus('AI METADATA FAILED','error');els.compatNotice.textContent=q.metaError;
     }finally{
       q.metaBusy=false;state.ai.busy=false;if(button)button.disabled=false;updateAiPoolUI();renderExportQueue();
     }
@@ -1588,14 +1635,14 @@
     state.ai.busy=true;items.forEach(q=>{q.metaBusy=false;if(mode==='failed')q.metaError=''});renderExportQueue();updateAiPoolUI();
     const jobs=[...items];let done=0,failed=0,stop=false;
     const readySlots=configuredAiSlots().filter(x=>aiKeyAvailable(x.provider,x.index)).length,maxSlots=Math.max(1,readySlots),workerCount=Math.max(1,Math.min(state.ai.workers||1,maxSlots,items.length));
-    const label=mode==='failed'?'Retry':mode==='all'?'Generate all':'Generate missing';setAiLive(`${label} · ${workerCount} worker${workerCount===1?'':'s'} · ${items.length} task${items.length===1?'':'s'}.`);
-    const worker=async()=>{while(!stop){const q=jobs.shift();if(!q)return;q.metaBusy=true;q.metaError='';renderExportQueue();setStatus(`AI ${label.toUpperCase()} · ${done+failed}/${items.length}`);try{const result=await callMetadataAi(q);q.metadata=result.metadata;q.aiRoute=result.route;q.metaError='';done++}catch(e){console.error(e);q.metaError=String(e?.message||e);failed++;if(e?.code==='NO_AI_SOURCE')stop=true}finally{q.metaBusy=false;renderExportQueue()}}};
+    const label=mode==='failed'?'Retry':mode==='all'?'Generate all':'Generate missing';setAiLive(`${label} · ${workerCount} worker${workerCount===1?'':'s'} · ${items.length} task${items.length===1?'':'s'}.`);setLoading(3,'AI metadata · '+label,items.length+' task'+(items.length===1?'':'s')+' · '+workerCount+' worker'+(workerCount===1?'':'s'));
+    const worker=async()=>{while(!stop){const q=jobs.shift();if(!q)return;q.metaBusy=true;q.metaError='';renderExportQueue();setStatus(`AI ${label.toUpperCase()} · ${done+failed}/${items.length}`);try{const result=await callMetadataAi(q);q.metadata=result.metadata;q.aiRoute=result.route;q.metaError='';done++}catch(e){console.error(e);q.metaError=String(e?.message||e);failed++;if(e?.code==='NO_AI_SOURCE')stop=true}finally{q.metaBusy=false;setLoading(5+Math.round(((done+failed)/Math.max(1,items.length))*92),'AI metadata · '+label,(done+failed)+' / '+items.length+' complete');renderExportQueue()}}};
     await Promise.all(Array.from({length:workerCount},worker));
     // If the pool was exhausted, unstarted jobs should remain visibly failed/retriable rather than silently untouched.
     if(stop&&jobs.length){for(const q of jobs){q.metaBusy=false;q.metaError=q.metaError||'AI pool unavailable. Retry when an API slot is ready.';failed++}jobs.length=0}
     state.ai.busy=false;updateAiPoolUI();renderExportQueue();
-    if(failed===0)setStatus(`AI ${label.toUpperCase()} READY · ${done} ASSET${done===1?'':'S'}`,'ok');
-    else{setAiSettingsOpen(true);setStatus(`AI ${label.toUpperCase()} · ${done} READY · ${failed} FAILED`,'error');els.compatNotice.textContent=stop?'AI pool exhausted/limited. Retry Failed after cooldown or add another API key/provider.':'Some metadata tasks failed. Use Retry Failed.'}
+    if(failed===0){setLoading(100,'AI metadata ready',done+' asset'+(done===1?'':'s')+' updated','done');setStatus(`AI ${label.toUpperCase()} READY · ${done} ASSET${done===1?'':'S'}`,'ok')}
+    else{setLoading(100,'AI metadata finished',done+' ready · '+failed+' failed','error');setAiSettingsOpen(true);setStatus(`AI ${label.toUpperCase()} · ${done} READY · ${failed} FAILED`,'error');els.compatNotice.textContent=stop?'AI pool exhausted/limited. Retry Failed after cooldown or add another API key/provider.':'Some metadata tasks failed. Use Retry Failed.'}
   }
   const generateAllMetadata=()=>runMetadataBatch('all');
   const retryFailedMetadata=()=>runMetadataBatch('failed');
@@ -1665,7 +1712,8 @@
     ids.forEach(gid=>{const g=groupMeta(gid);if(g&&addQueueItem({type:'group',groupId:gid,name:g.name}))n++});
     if(n)setStatus('ADDED '+n+' GROUP'+(n>1?'S':'')+' TO QUEUE','ok');
   }
-  function outputCountForQueue(){return state.exportQueue.filter(q=>q.enabled&&queueItemValid(q)).reduce((n,q)=>n+(q.format==='both'?2:1),0)}
+  function formatOutputCount(format){return format==='both'?2:1}
+  function outputCountForQueue(){return state.exportQueue.filter(q=>q.enabled&&queueItemValid(q)).reduce((n,q)=>n+formatOutputCount(q.format),0)}
   function clearQueuePreviewUrls(){
     (state.queuePreviewUrls||[]).forEach(url=>{try{URL.revokeObjectURL(url)}catch(_){}});
     state.queuePreviewUrls=[];
@@ -1697,7 +1745,7 @@
       const actionIcon=q.metaError?'<path d="M15.5 7A6 6 0 1 0 16 12"/><path d="M12.5 4.5H16V8"/>':'<path d="M10 2l1.2 4.2L15 8l-3.8 1.8L10 14l-1.2-4.2L5 8l3.8-1.8z"/><path d="M15.5 13.5l.7 2.1 1.8.9-1.8.9-.7 2.1-.7-2.1-1.8-.9 1.8-.9z"/>';
       const statusClass=q.metaBusy?' running':q.metaError?' error':'';
       const statusText=q.metaBusy?'AI is routing this task…':q.metaError?('Failed · '+q.metaError.slice(0,58)):ready?((q.metadata.keywords||[]).length+' keywords · '+(q.aiRoute||'manual')):'Ready to generate';
-      row.innerHTML='<label class="queue-check" title="Include in export"><input type="checkbox" '+(q.enabled?'checked':'')+' '+(valid?'':'disabled')+'></label><div class="queue-thumb" title="Preview asset · drag to reorder">'+queueIcon(q)+'</div><div class="queue-main"><input class="queue-name" value="'+esc(q.name)+'" aria-label="Asset name"><div class="queue-meta">'+esc(meta+metaState)+'</div></div><select class="queue-format" aria-label="Export format"><option value="svg" '+(q.format==='svg'?'selected':'')+'>SVG</option><option value="png" '+(q.format==='png'?'selected':'')+'>PNG</option><option value="both" '+(q.format==='both'?'selected':'')+'>SVG+PNG</option></select><button class="queue-meta-toggle '+(ready?'ready ':'')+(q.metaOpen?'active':'')+'" title="Title, description & keywords" aria-label="Metadata" aria-expanded="'+String(!!q.metaOpen)+'"><svg viewBox="0 0 20 20"><path d="M3 9V4h5l8 8-5 5z"/><circle cx="6.5" cy="6.5" r="1"/></svg></button><button class="queue-remove" title="Remove from queue" aria-label="Remove"><svg viewBox="0 0 20 20"><path d="m6 6 8 8M14 6l-8 8"/></svg></button><div class="queue-detail"><div class="meta-field"><label>Title / AI context</label><input class="meta-title" type="text" maxlength="90" value="'+esc(q.metadata?.title||'')+'" placeholder="Type a subject hint, then Generate AI"></div><div class="meta-field"><label>Description</label><textarea class="meta-description" maxlength="260" placeholder="Precise visual description">'+esc(q.metadata?.description||'')+'</textarea></div><div class="meta-field keywords"><label>Keywords · high → low relevance</label><textarea class="meta-keywords" placeholder="subject, synonym, style, use case...">'+esc((q.metadata?.keywords||[]).join(', '))+'</textarea></div><div class="meta-actions"><button class="meta-generate'+(q.metaError?' retry':'')+'" type="button" title="'+esc(actionTitle)+'" '+(valid&&!state.ai.busy&&!q.metaBusy?'':'disabled')+'><svg viewBox="0 0 20 20">'+actionIcon+'</svg>'+actionLabel+'</button><span class="meta-mini-status'+statusClass+'">'+esc(statusText)+'</span></div></div>';
+      row.innerHTML='<label class="queue-check" title="Include in export"><input type="checkbox" '+(q.enabled?'checked':'')+' '+(valid?'':'disabled')+'></label><div class="queue-thumb" title="Preview asset · drag to reorder">'+queueIcon(q)+'</div><div class="queue-main"><input class="queue-name" value="'+esc(q.name)+'" aria-label="Asset name"><div class="queue-meta">'+esc(meta+metaState)+'</div></div><select class="queue-format" aria-label="Export format"><option value="svg" '+(q.format==='svg'?'selected':'')+'>SVG</option><option value="png" '+(q.format==='png'?'selected':'')+'>PNG</option><option value="pdf" '+(q.format==='pdf'?'selected':'')+'>PDF</option><option value="eps" '+(q.format==='eps'?'selected':'')+'>EPS</option><option value="both" '+(q.format==='both'?'selected':'')+'>SVG+PNG</option></select><button class="queue-meta-toggle '+(ready?'ready ':'')+(q.metaOpen?'active':'')+'" title="Title, description & keywords" aria-label="Metadata" aria-expanded="'+String(!!q.metaOpen)+'"><svg viewBox="0 0 20 20"><path d="M3 9V4h5l8 8-5 5z"/><circle cx="6.5" cy="6.5" r="1"/></svg></button><button class="queue-remove" title="Remove from queue" aria-label="Remove"><svg viewBox="0 0 20 20"><path d="m6 6 8 8M14 6l-8 8"/></svg></button><div class="queue-detail"><div class="meta-field"><label>Title / AI context</label><input class="meta-title" type="text" maxlength="90" value="'+esc(q.metadata?.title||'')+'" placeholder="Type a subject hint, then Generate AI"></div><div class="meta-field"><label>Description</label><textarea class="meta-description" maxlength="260" placeholder="Precise visual description">'+esc(q.metadata?.description||'')+'</textarea></div><div class="meta-field keywords"><label>Keywords · high → low relevance</label><textarea class="meta-keywords" placeholder="subject, synonym, style, use case...">'+esc((q.metadata?.keywords||[]).join(', '))+'</textarea></div><div class="meta-actions"><button class="meta-generate'+(q.metaError?' retry':'')+'" type="button" title="'+esc(actionTitle)+'" '+(valid&&!state.ai.busy&&!q.metaBusy?'':'disabled')+'><svg viewBox="0 0 20 20">'+actionIcon+'</svg>'+actionLabel+'</button><span class="meta-mini-status'+statusClass+'">'+esc(statusText)+'</span></div></div>';
       const thumb=row.querySelector('.queue-thumb'),previewUrl=valid?queuePreviewUrl(q):null;
       if(previewUrl){thumb.innerHTML='<img src="'+previewUrl+'" alt="" aria-hidden="true">';thumb.classList.add('preview-ready')}else{thumb.classList.add('preview-missing')}
       row.querySelector('input[type="checkbox"]').addEventListener('change',e=>{q.enabled=e.target.checked;renderExportQueue()});
@@ -1719,28 +1767,34 @@
   }
   async function exportQueue(){
     const active=state.exportQueue.filter(q=>q.enabled&&queueItemValid(q));if(!active.length){setStatus('EXPORT QUEUE IS EMPTY','error');return}
-    const fileCount=active.reduce((n,q)=>n+(q.format==='both'?2:1),0),useZip=fileCount>1;
+    const fileCount=active.reduce((n,q)=>n+formatOutputCount(q.format),0),useZip=fileCount>1;
     if(useZip&&!window.JSZip){setStatus('ZIP LIBRARY MISSING','error');return}
     const zip=useZip?new JSZip():null;let produced=0;const metaRows=[];
-    els.exportQueueBtn.disabled=true;setStatus('EXPORTING QUEUE · 0/'+active.length);
+    els.exportQueueBtn.disabled=true;setStatus('EXPORTING QUEUE · 0/'+active.length);setLoading(3,'Preparing export',active.length+' asset'+(active.length===1?'':'s')+' · '+fileCount+' file'+(fileCount===1?'':'s'));
     try{
       for(let i=0;i<active.length;i++){
         const q=active[i],svg=queueAssetSvg(q,els.splitBounds.value);if(!svg)continue;
-        const stem=safeName(q.name)||('asset-'+String(i+1).padStart(2,'0')),prefix=String(i+1).padStart(2,'0')+'-'+stem,meta=normalizeMetadata(q.metadata||{});
-        setStatus('EXPORTING QUEUE · '+(i+1)+'/'+active.length);
+        const stem=safeName(q.name)||('asset-'+String(i+1).padStart(2,'0')),prefix=String(i+1).padStart(2,'0')+'-'+stem,meta=normalizeMetadata(q.metadata||{}),progress=8+Math.round((i/Math.max(1,active.length))*84);
+        setStatus('EXPORTING QUEUE · '+(i+1)+'/'+active.length);setLoading(progress,'Exporting '+(i+1)+' of '+active.length,stem+' · '+String(q.format||'svg').toUpperCase());
         if(q.format==='svg'||q.format==='both'){
           const finalSvg=injectSvgMetadata(svg,meta),blob=new Blob([finalSvg],{type:'image/svg+xml'});if(zip)zip.file(prefix+'.svg',blob);else downloadBlob(blob,stem+'.svg');produced++;
         }
         if(q.format==='png'||q.format==='both'){
           let png=await svgToPngBlob(svg,Number(els.pngScale.value),els.pngBg.value);png=await injectPngMetadata(png,meta);if(zip)zip.file(prefix+'.png',png);else downloadBlob(png,stem+'.png');produced++;
         }
+        if(q.format==='pdf'){
+          const pdf=await svgToPdfBlob(svg,meta);if(zip)zip.file(prefix+'.pdf',pdf);else downloadBlob(pdf,stem+'.pdf');produced++;
+        }
+        if(q.format==='eps'){
+          const eps=await svgToEpsBlob(svg,meta,Number(els.pngScale.value),els.pngBg.value);if(zip)zip.file(prefix+'.eps',eps);else downloadBlob(eps,stem+'.eps');produced++;
+        }
         if(meta.title||meta.description||meta.keywords.length)metaRows.push({file:prefix,type:queueTypeLabel(q),title:meta.title,description:meta.description,keywords:meta.keywords.join(', ')});
       }
       if(zip&&metaRows.length)zip.file('metadata.csv',metadataCsv(metaRows));
-      if(zip&&produced){const blob=await zip.generateAsync({type:'blob'});downloadBlob(blob,state.fileBase+'-export-queue.zip')}
-      if(!produced){setStatus('NO VALID ASSETS TO EXPORT','error');return}
-      setStatus('EXPORT QUEUE DONE · '+produced+' FILE'+(produced>1?'S':''),'ok');
-    }catch(e){console.error(e);setStatus('EXPORT QUEUE FAILED','error');els.compatNotice.textContent=String(e?.message||e)}
+      if(zip&&produced){setLoading(94,'Packing ZIP',produced+' exported file'+(produced===1?'':'s'));const blob=await zip.generateAsync({type:'blob'},m=>setLoading(94+Math.round((m.percent||0)*.05),'Packing ZIP',Math.round(m.percent||0)+'% compressed'));downloadBlob(blob,state.fileBase+'-export-queue.zip')}
+      if(!produced){setLoading(100,'Nothing exported','No valid assets were available.','error');setStatus('NO VALID ASSETS TO EXPORT','error');return}
+      setLoading(100,'Export complete',produced+' file'+(produced===1?'':'s')+' ready','done');setStatus('EXPORT QUEUE DONE · '+produced+' FILE'+(produced>1?'S':''),'ok');
+    }catch(e){console.error(e);setLoading(100,'Export failed',String(e?.message||e),'error');setStatus('EXPORT QUEUE FAILED','error');els.compatNotice.textContent=String(e?.message||e)}
     finally{renderExportQueue()}
   }
 
@@ -1999,22 +2053,23 @@
   // Editor keyboard shortcuts
   document.addEventListener('keydown',e=>{
     const tag=e.target?.tagName?.toLowerCase();if(tag==='input'||tag==='select'||tag==='textarea')return;
-    const mod=e.ctrlKey||e.metaKey;
-    if(mod&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();return}
-    if(e.ctrlKey&&!e.metaKey&&e.key.toLowerCase()==='y'){e.preventDefault();redo();return}
-    if(e.code==='Space'&&!state.spacePan){e.preventDefault();state.spacePan=true;els.stageViewport.dataset.tool='pan';return}
-    if(!e.ctrlKey&&!e.metaKey&&!e.altKey&&e.key.toLowerCase()==='v'){setTool('select');return}
-    if(!e.ctrlKey&&!e.metaKey&&!e.altKey&&e.key.toLowerCase()==='h'){setTool('pan');return}
-    if((e.key==='Delete'||e.key==='Backspace')&&state.selected.size){e.preventDefault();deleteSelected();return}
-    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='a'&&state.svg){e.preventDefault();state.selected.clear();state.objects.filter(o=>!o.locked&&o.visible).forEach(o=>state.selected.add(o.id));state.focused=[...state.selected].at(-1)||null;renderObjects();syncLiveSelection();updateSelectionUI();return}
-    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='g'){e.preventDefault();e.shiftKey?ungroupSelected():groupSelected();return}
+    if(e.code==='Space'&&!state.spacePan&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();state.spacePan=true;els.stageViewport.dataset.tool='pan';return}
+    if(isShortcut('undo',e)){e.preventDefault();undo();return}
+    if(isShortcut('redo',e)||(e.ctrlKey&&!e.metaKey&&!e.shiftKey&&e.key.toLowerCase()==='y')){e.preventDefault();redo();return}
+    if(isShortcut('select',e)){e.preventDefault();setTool('select');return}
+    if(isShortcut('pan',e)){e.preventDefault();setTool('pan');return}
+    if(isShortcut('fit',e)){e.preventDefault();fitView();return}
+    if(isShortcut('delete',e)&&state.selected.size){e.preventDefault();deleteSelected();return}
+    if(isShortcut('selectAll',e)&&state.svg){e.preventDefault();state.selected.clear();state.objects.filter(o=>!o.locked&&o.visible).forEach(o=>state.selected.add(o.id));state.focused=[...state.selected].at(-1)||null;renderObjects();syncLiveSelection();updateSelectionUI();return}
+    if(isShortcut('group',e)){e.preventDefault();groupSelected();return}
+    if(isShortcut('ungroup',e)){e.preventDefault();ungroupSelected();return}
     if(e.key==='Escape'&&state.selected.size){state.selected.clear();state.focused=null;renderObjects();syncLiveSelection();updateSelectionUI()}
   });
   document.addEventListener('keyup',e=>{if(e.code==='Space'){state.spacePan=false;els.stageViewport.dataset.tool=state.tool}});
 
   // Theme
-  function applyTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('vfs-theme',t)}catch(e){}$('themeBtn').textContent=t==='dark'?'LIGHT MODE':'DARK MODE'}
-  let savedTheme=null;try{savedTheme=localStorage.getItem('vfs-theme')}catch(e){}applyTheme(savedTheme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));$('themeBtn').onclick=()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
+  function applyTheme(t){t=t==='dark'?'dark':'light';document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t;try{localStorage.setItem('vfs-theme',t)}catch(e){}const btn=$('themeBtn');if(btn){btn.textContent=t==='dark'?'LIGHT MODE':'DARK MODE';btn.setAttribute('aria-pressed',String(t==='dark'))}let meta=document.querySelector('meta[name=\"theme-color\"]');if(!meta){meta=document.createElement('meta');meta.name='theme-color';document.head.appendChild(meta)}meta.content=t==='dark'?'#111214':'#f4f4f0'}
+  let savedTheme=null;try{savedTheme=localStorage.getItem('vfs-theme')}catch(e){}applyTheme(savedTheme==='dark'||savedTheme==='light'?savedTheme:(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));$('themeBtn').onclick=()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
 
   window.addEventListener('resize',()=>{if(window.innerWidth>760)setParamsWidth(currentParamsWidth(),{persist:false});if(state.svg)applyViewTransform()});
   loadAiSettings();syncAiSettingsUI();
